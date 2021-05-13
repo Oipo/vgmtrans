@@ -5,10 +5,10 @@
 class GraphResSnesScanner:
     public VGMScanner {
  public:
-  GraphResSnesScanner(void) {
+  GraphResSnesScanner() {
     USE_EXTENSION(L"spc");
   }
-  virtual ~GraphResSnesScanner(void) {
+  virtual ~GraphResSnesScanner() {
   }
 
   virtual void Scan(RawFile *file, void *info = 0);

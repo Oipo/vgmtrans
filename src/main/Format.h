@@ -45,7 +45,7 @@ public:                                        \
 
 
 /*#define SIMPLE_INIT()					\
-	virtual int Init(void)					\
+	virtual int Init()					\
 	{										\
 		pRoot->AddScanner(NewScanner());	\
 		matcher = NewMatcher(this);			\
@@ -62,17 +62,17 @@ class Format {
   static FormatMap &registry();
  public:
   Format(const std::string &scannerName);
-  virtual ~Format(void);
+  virtual ~Format();
 
   static Format *GetFormatFromName(const std::string &name);
 
-  virtual bool Init(void);
+  virtual bool Init();
   virtual const std::string &GetName() = 0;
   //virtual string GetName() = 0;
   //virtual uint32_t GetFormatID() = 0;
-  virtual VGMScanner *NewScanner() { return NULL; }
+  virtual VGMScanner *NewScanner() { return nullptr; }
   VGMScanner &GetScanner() { return *scanner; }
-  virtual Matcher *NewMatcher() { return NULL; }
+  virtual Matcher *NewMatcher() { return nullptr; }
   virtual VGMColl *NewCollection();
   virtual bool OnNewFile(VGMFile *file);
   virtual bool OnCloseFile(VGMFile *file);
@@ -82,6 +82,6 @@ class Format {
   virtual bool OnMatch(std::vector<VGMFile *> &files) { return true; }
 
  public:
-  Matcher *matcher;
-  VGMScanner *scanner;
+  Matcher *matcher{};
+  VGMScanner *scanner{};
 };

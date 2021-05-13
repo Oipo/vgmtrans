@@ -84,7 +84,7 @@ typedef struct _VAGBlk {
 
 
 //InitADSR is shamelessly ripped from P.E.Op.S
-static void InitADSR(void)
+static void InitADSR()
 {
   unsigned long r, rs, rd;
   int i;
@@ -168,7 +168,7 @@ void PSXConvADSR(T *realADSR,
   double sampleRate = bPS2 ? 48000 : 44100;
 
 
-  int rateIncTable[8] = {0, 4, 6, 8, 9, 10, 11, 12};
+//  int rateIncTable[8] = {0, 4, 6, 8, 9, 10, 11, 12};
   long envelope_level;
   double samples;
   unsigned long rate;
@@ -192,14 +192,14 @@ void PSXConvADSR(T *realADSR,
   //if linear Ar Mode
   if (Am == 0) {
     rate = RateTable[RoundToZero((Ar ^ 0x7F) - 0x10) + 32];
-    samples = ceil(0x7FFFFFFF / (double) rate);
+    samples = ceil(0x7FFFFFFF / static_cast<double>(rate));
   }
   else if (Am == 1) {
     rate = RateTable[RoundToZero((Ar ^ 0x7F) - 0x10) + 32];
     samples = 0x60000000 / rate;
     remainder = 0x60000000 % rate;
     rate = RateTable[RoundToZero((Ar ^ 0x7F) - 0x18) + 32];
-    samples += ceil(fmax(0, 0x1FFFFFFF - remainder) / (double) rate);
+    samples += ceil(fmax(0, 0x1FFFFFFF - remainder) / static_cast<double>(rate));
   }
   timeInSecs = samples / sampleRate;
   realADSR->attack_time = timeInSecs;
@@ -249,7 +249,7 @@ void PSXConvADSR(T *realADSR,
       // linear
       if (Sm == 0) {
         rate = RateTable[RoundToZero((Sr ^ 0x7F) - 0x0F) + 32];
-        samples = ceil(0x7FFFFFFF / (double) rate);
+        samples = ceil(0x7FFFFFFF / static_cast<double>(rate));
       }
       else {
         l = 0;
@@ -282,10 +282,10 @@ void PSXConvADSR(T *realADSR,
   }
 
   //Sustain Level
-  //realADSR->sustain_level = (double)envelope_level/(double)0x7FFFFFFF;//(long)ceil((double)envelope_level * 0.030517578139210854);	//in DLS, sustain level is measured as a percentage
+  //realADSR->sustain_level = static_cast<double>(envelope_level/static_cast<double>(0x7FFFFFFF;//(long)ceil(static_cast<double>(envelope_level * 0.030517578139210854);	//in DLS, sustain level is measured as a percentage
   if (Sl == 0)
     realSustainLevel = 0x07FFFFFF;
-  realADSR->sustain_level = realSustainLevel / (double) 0x7FFFFFFF;
+  realADSR->sustain_level = realSustainLevel / static_cast<double>(0x7FFFFFFF);
 
 
   // If decay is going unused, and there's a sustain rate with sustain level close to max...
@@ -308,7 +308,7 @@ void PSXConvADSR(T *realADSR,
     rate = RateTable[RoundToZero((4 * (Rr ^ 0x1F)) - 0x0C) + 32];
 
     if (rate != 0)
-      samples = ceil((double) envelope_level / (double) rate);
+      samples = ceil(static_cast<double>(envelope_level) / static_cast<double>(rate));
     else
       samples = 0;
   }
@@ -381,7 +381,7 @@ class PSXSamp
   PSXSamp(VGMSampColl *sampColl, uint32_t offset, uint32_t length, uint32_t dataOffset,
           uint32_t dataLen, uint8_t nChannels, uint16_t theBPS,
           uint32_t theRate, std::wstring name, bool bSetLoopOnConversion = true);
-  virtual ~PSXSamp(void);
+  virtual ~PSXSamp();
 
   // ratio of space conserved.  should generally be > 1
   // used to calculate both uncompressed sample size and loopOff after conversion

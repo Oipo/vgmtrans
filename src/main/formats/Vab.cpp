@@ -10,7 +10,7 @@ Vab::Vab(RawFile *file, uint32_t offset)
     : VGMInstrSet(PS1Format::name, file, offset) {
 }
 
-Vab::~Vab(void) {
+Vab::~Vab() {
 }
 
 
@@ -196,7 +196,7 @@ VabInstr::VabInstr(VGMInstrSet *instrSet,
       masterVol(127) {
 }
 
-VabInstr::~VabInstr(void) {
+VabInstr::~VabInstr() {
 }
 
 

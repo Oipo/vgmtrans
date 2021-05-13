@@ -1,12 +1,7 @@
 #include "pch.h"
 #include "DataSeg.h"
 
-
-DataSeg::DataSeg(void)
-    : startOff(0), size(0), endOff(0), bAlloced(false) {
-}
-
-DataSeg::~DataSeg(void) {
+DataSeg::~DataSeg() {
   clear();
 }
 

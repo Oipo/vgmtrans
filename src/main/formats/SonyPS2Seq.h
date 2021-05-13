@@ -20,10 +20,10 @@ class SonyPS2Seq:
   } HdrCk;
 
   SonyPS2Seq(RawFile *file, uint32_t offset);
-  virtual ~SonyPS2Seq(void);
+  virtual ~SonyPS2Seq();
 
-  virtual bool GetHeaderInfo(void);
-  virtual bool ReadEvent(void);
+  bool GetHeaderInfo() override;
+  virtual bool ReadEvent();
   uint8_t GetDataByte(uint32_t offset);
 
  protected:

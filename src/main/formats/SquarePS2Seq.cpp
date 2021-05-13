@@ -16,10 +16,10 @@ BGMSeq::BGMSeq(RawFile *file, uint32_t offset)
   AlwaysWriteInitialVol(127);
 }
 
-BGMSeq::~BGMSeq(void) {
+BGMSeq::~BGMSeq() {
 }
 
-bool BGMSeq::GetHeaderInfo(void) {
+bool BGMSeq::GetHeaderInfo() {
   VGMHeader *header = AddHeader(dwOffset, 0x20, L"Header");
   header->AddSimpleItem(dwOffset, 4, L"Signature");
   header->AddSimpleItem(dwOffset + 0x4, 2, L"ID");
@@ -42,7 +42,7 @@ bool BGMSeq::GetHeaderInfo(void) {
   return true;
 }
 
-bool BGMSeq::GetTrackPointers(void) {
+bool BGMSeq::GetTrackPointers() {
   uint32_t pos = dwOffset + 0x20;    //start at first track (fixed offset)
   for (unsigned int i = 0; i < nNumTracks; i++) {
     //HACK FOR TRUNCATED BGMS (ex. FFXII 113 Eastersand.psf2)
@@ -66,7 +66,7 @@ BGMTrack::BGMTrack(BGMSeq *parentSeq, long offset, long length)
 }
 
 
-bool BGMTrack::ReadEvent(void) {
+bool BGMTrack::ReadEvent() {
   int value1;
 
   uint32_t beginOffset = curOffset;

@@ -8,13 +8,12 @@
 // CapcomSnesInstrSet
 // ****************
 
-CapcomSnesInstrSet::CapcomSnesInstrSet(RawFile *file, uint32_t offset, uint32_t spcDirAddr, const std::wstring &name) :
-    VGMInstrSet(CapcomSnesFormat::name, file, offset, 0, name),
-    spcDirAddr(spcDirAddr) {
+CapcomSnesInstrSet::CapcomSnesInstrSet(RawFile *file, uint32_t offset, uint32_t _spcDirAddr, const std::wstring &_name) :
+    VGMInstrSet(CapcomSnesFormat::name, file, offset, 0, _name),
+    spcDirAddr(_spcDirAddr) {
 }
 
-CapcomSnesInstrSet::~CapcomSnesInstrSet() {
-}
+CapcomSnesInstrSet::~CapcomSnesInstrSet() = default;
 
 bool CapcomSnesInstrSet::GetHeaderInfo() {
   return true;
@@ -46,7 +45,7 @@ bool CapcomSnesInstrSet::GetInstrPointers() {
     }
 
     uint8_t srcn = GetByte(addrInstrHeader);
-    std::vector<uint8_t>::iterator itrSRCN = find(usedSRCNs.begin(), usedSRCNs.end(), srcn);
+    auto itrSRCN = find(usedSRCNs.begin(), usedSRCNs.end(), srcn);
     if (itrSRCN == usedSRCNs.end()) {
       usedSRCNs.push_back(srcn);
     }
@@ -57,7 +56,7 @@ bool CapcomSnesInstrSet::GetInstrPointers() {
         *newInstr = new CapcomSnesInstr(this, addrInstrHeader, instr >> 7, instr & 0x7f, spcDirAddr, instrName.str());
     aInstrs.push_back(newInstr);
   }
-  if (aInstrs.size() == 0) {
+  if (aInstrs.empty()) {
     return false;
   }
 
@@ -79,14 +78,13 @@ CapcomSnesInstr::CapcomSnesInstr(VGMInstrSet *instrSet,
                                  uint32_t offset,
                                  uint32_t theBank,
                                  uint32_t theInstrNum,
-                                 uint32_t spcDirAddr,
-                                 const std::wstring &name) :
-    VGMInstr(instrSet, offset, 6, theBank, theInstrNum, name),
-    spcDirAddr(spcDirAddr) {
+                                 uint32_t _spcDirAddr,
+                                 const std::wstring &_name) :
+    VGMInstr(instrSet, offset, 6, theBank, theInstrNum, _name),
+    spcDirAddr(_spcDirAddr) {
 }
 
-CapcomSnesInstr::~CapcomSnesInstr() {
-}
+CapcomSnesInstr::~CapcomSnesInstr() = default;
 
 bool CapcomSnesInstr::LoadInstr() {
   uint8_t srcn = GetByte(dwOffset);
@@ -111,9 +109,9 @@ bool CapcomSnesInstr::IsValidHeader(RawFile *file, uint32_t addrInstrHeader, uin
 
   uint8_t srcn = file->GetByte(addrInstrHeader);
   uint8_t adsr1 = file->GetByte(addrInstrHeader + 1);
-  uint8_t adsr2 = file->GetByte(addrInstrHeader + 2);
+//  uint8_t adsr2 = file->GetByte(addrInstrHeader + 2);
   uint8_t gain = file->GetByte(addrInstrHeader + 3);
-  int16_t pitch_scale = file->GetShortBE(addrInstrHeader + 4);
+//  int16_t pitch_scale = file->GetShortBE(addrInstrHeader + 4);
 
   if (srcn >= 0x80 || (adsr1 == 0 && gain == 0)) {
     return false;
@@ -164,16 +162,15 @@ CapcomSnesRgn::CapcomSnesRgn(CapcomSnesInstr *instr, uint32_t offset) :
   AddSimpleItem(offset + 1, 1, L"ADSR1");
   AddSimpleItem(offset + 2, 1, L"ADSR2");
   AddSimpleItem(offset + 3, 1, L"GAIN");
-  AddUnityKey(96 - (int) (coarse_tuning), offset + 4, 1);
-  AddFineTune((int16_t) (fine_tuning * 100.0), offset + 5, 1);
+  AddUnityKey(96 - static_cast<int>(coarse_tuning), offset + 4, 1);
+  AddFineTune(static_cast<int16_t>(fine_tuning) * 100.0, offset + 5, 1);
   SNESConvADSR<VGMRgn>(this, adsr1, adsr2, gain);
 
   uint8_t sl = (adsr2 >> 5);
-  EmulateSDSPGAIN(gain, (sl << 8) | 0xff, 0, NULL, &release_time);
+  EmulateSDSPGAIN(gain, (sl << 8) | 0xff, 0, nullptr, &release_time);
 }
 
-CapcomSnesRgn::~CapcomSnesRgn() {
-}
+CapcomSnesRgn::~CapcomSnesRgn() = default;
 
 bool CapcomSnesRgn::LoadRgn() {
   return true;

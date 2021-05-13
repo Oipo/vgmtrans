@@ -16,7 +16,7 @@ class VGMSeqSection
                 uint32_t theLength = 0,
                 const std::wstring theName = L"Section",
                 uint8_t color = CLR_HEADER);
-  virtual ~VGMSeqSection(void);
+  virtual ~VGMSeqSection();
 
   virtual bool Load();
   virtual bool GetTrackPointers();

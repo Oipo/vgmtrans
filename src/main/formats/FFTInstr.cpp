@@ -21,8 +21,7 @@ WdsInstrSet::WdsInstrSet(RawFile *file, uint32_t offset) :
 //==============================================================
 //		Destructor
 //--------------------------------------------------------------
-WdsInstrSet::~WdsInstrSet(void) {
-}
+WdsInstrSet::~WdsInstrSet() = default;
 
 //==============================================================
 //		ヘッダー情報の取得
@@ -44,7 +43,7 @@ bool WdsInstrSet::GetHeaderInfo() {
 
   //バイナリエディタ表示用
   wostringstream theName;
-  theName << L"wds " << id;
+  theName << L"wds " << id.value();
   name = theName.str();
 
   //ヘッダーobjectの生成
@@ -110,32 +109,31 @@ WdsInstr::WdsInstr(VGMInstrSet *instrSet, uint32_t offset, uint32_t length, uint
 //==============================================================
 //		Destructor
 //--------------------------------------------------------------
-WdsInstr::~WdsInstr(void) {
-}
+WdsInstr::~WdsInstr() = default;
 
 //==============================================================
 //		Make the Object "WdsRgn" (Attribute table)
 //--------------------------------------------------------------
 bool WdsInstr::LoadInstr() {
-  WdsInstrSet *parInstrSet = (WdsInstrSet *) this->parInstrSet;
+  WdsInstrSet *_parInstrSet = dynamic_cast<WdsInstrSet *>(this->parInstrSet);
 
   GetBytes(dwOffset, sizeof(WdsRgnData), &rgndata);
   VGMRgn *rgn = new VGMRgn(this, dwOffset, unLength);
   rgn->sampOffset = rgndata.ptBody;
-  if (parInstrSet->version == WdsInstrSet::VERSION_WDS) {
+  if (_parInstrSet->version == WdsInstrSet::VERSION_WDS) {
     rgn->sampOffset *= 8;
   }
   //rgn->loop.loopStart =	rgndata.ptLoop;
   rgn->unityKey = 0x3C - rgndata.iSemiToneTune;
   // an iFineTune value of 256 should equal 100 cents, and linear scaling seems to do the trick.
   // see the declaration of iFineTune for info on where to find the actual code and table for this in FFT
-  rgn->fineTune = (short) ((double) rgndata.iFineTune * (100.0 / 256.0));
+  rgn->fineTune = static_cast<short>(static_cast<double>( rgndata.iFineTune) * (100.0 / 256.0));
 
   rgn->AddGeneralItem(dwOffset + 0x00, sizeof(uint32_t), L"Sample Offset");
   rgn->AddGeneralItem(dwOffset + 0x04, sizeof(uint16_t), L"Loop Offset");
   rgn->AddGeneralItem(dwOffset + 0x06, sizeof(uint16_t), L"Pitch Fine Tune");
 
-  if (parInstrSet->version == WdsInstrSet::VERSION_WDS) {
+  if (_parInstrSet->version == WdsInstrSet::VERSION_WDS) {
     uint32_t adsr_rate = GetWord(dwOffset + 0x08);
     uint16_t adsr_mode = GetShort(dwOffset + 0x0c);
 
@@ -162,7 +160,7 @@ bool WdsInstr::LoadInstr() {
     PSXConvADSR(rgn, Am >> 2, Ar, Dr, Sl, Sm >> 2, (Sm >> 1) & 1, Sr, Rm >> 2, Rr, false);
     aRgns.push_back(rgn);
   }
-  else if (parInstrSet->version == WdsInstrSet::VERSION_DWDS) {
+  else if (_parInstrSet->version == WdsInstrSet::VERSION_DWDS) {
     PSXConvADSR(rgn, rgndata.Am > 1, rgndata.Ar, rgndata.Dr, rgndata.Sl, 1, 1, rgndata.Sr, 1, rgndata.Rr, false);
     aRgns.push_back(rgn);
 

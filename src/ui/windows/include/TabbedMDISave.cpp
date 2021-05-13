@@ -1085,7 +1085,7 @@ void CSaveModifiedItemsDialog::DlgResize_UpdateLayout(int cxWidth, int cyHeight)
 	//m_list.Invalidate();
 }
 
-bool CSaveModifiedItemsDialog::ConstructDialogResource(void)
+bool CSaveModifiedItemsDialog::ConstructDialogResource()
 {
 // For a smaller dialog:
 //IDD_SAVEMODIFIEDFILES DIALOGEX 0, 0, 262, 114
@@ -1174,7 +1174,7 @@ bool CSaveModifiedItemsDialog::ConstructDialogResource(void)
 	return success;
 }
 
-bool CSaveModifiedItemsDialog::InitializeControls(void)
+bool CSaveModifiedItemsDialog::InitializeControls()
 {
 	//m_list = this->GetDlgItem(_IDC_LIST);
 	m_list.SubclassWindow(this->GetDlgItem(_IDC_LIST));
@@ -1214,7 +1214,7 @@ bool CSaveModifiedItemsDialog::InitializeControls(void)
 	return true;
 }
 
-bool CSaveModifiedItemsDialog::InitializeValues(void)
+bool CSaveModifiedItemsDialog::InitializeValues()
 {
 	bool success = true;
 
@@ -1223,7 +1223,7 @@ bool CSaveModifiedItemsDialog::InitializeValues(void)
 	return success;
 }
 
-bool CSaveModifiedItemsDialog::InitializeColumns(void)
+bool CSaveModifiedItemsDialog::InitializeColumns()
 {
 	CRect rcList;
 	m_list.GetClientRect(&rcList);
@@ -1276,7 +1276,7 @@ bool CSaveModifiedItemsDialog::InitializeColumns(void)
 	return true;
 }
 
-int CSaveModifiedItemsDialog::AutoHideUnusedColumns(void)
+int CSaveModifiedItemsDialog::AutoHideUnusedColumns()
 {
 	int columnsHidden = 0;
 	int columnUseCount[eColumn_Count] = {0};
@@ -1718,7 +1718,7 @@ void CSaveModifiedItemsDialog::UpdateParentCheckState(int item, CheckState check
 	}
 }
 
-void CSaveModifiedItemsDialog::CreateDefaultImages(void)
+void CSaveModifiedItemsDialog::CreateDefaultImages()
 {
 	// IMPORTANT! Win2K and WinXP have the same index for this bitmap.
 	//  There's even a standard TB_LOADIMAGES message for toolbar that loads it,
@@ -1762,7 +1762,7 @@ void CSaveModifiedItemsDialog::CreateDefaultImages(void)
 	}
 }
 
-void CSaveModifiedItemsDialog::CreateDefaultStateImages(void)
+void CSaveModifiedItemsDialog::CreateDefaultStateImages()
 {
 	if(!m_stateImages.IsNull())
 	{

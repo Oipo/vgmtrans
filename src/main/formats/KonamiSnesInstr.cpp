@@ -16,20 +16,19 @@ using namespace std;
 KonamiSnesInstrSet::KonamiSnesInstrSet(RawFile *file,
                                        KonamiSnesVersion ver,
                                        uint32_t offset,
-                                       uint32_t bankedInstrOffset,
-                                       uint8_t firstBankedInstr,
-                                       uint32_t percInstrOffset,
-                                       uint32_t spcDirAddr,
-                                       const std::wstring &name) :
-    VGMInstrSet(KonamiSnesFormat::name, file, offset, 0, name), version(ver),
-    bankedInstrOffset(bankedInstrOffset),
-    firstBankedInstr(firstBankedInstr),
-    percInstrOffset(percInstrOffset),
-    spcDirAddr(spcDirAddr) {
+                                       uint32_t _bankedInstrOffset,
+                                       uint8_t _firstBankedInstr,
+                                       uint32_t _percInstrOffset,
+                                       uint32_t _spcDirAddr,
+                                       const std::wstring &_name) :
+    VGMInstrSet(KonamiSnesFormat::name, file, offset, 0, _name), version(ver),
+    bankedInstrOffset(_bankedInstrOffset),
+    firstBankedInstr(_firstBankedInstr),
+    percInstrOffset(_percInstrOffset),
+    spcDirAddr(_spcDirAddr) {
 }
 
-KonamiSnesInstrSet::~KonamiSnesInstrSet() {
-}
+KonamiSnesInstrSet::~KonamiSnesInstrSet() = default;
 
 bool KonamiSnesInstrSet::GetHeaderInfo() {
   return true;
@@ -73,7 +72,7 @@ bool KonamiSnesInstrSet::GetInstrPointers() {
       continue;
     }
 
-    std::vector<uint8_t>::iterator itrSRCN = find(usedSRCNs.begin(), usedSRCNs.end(), srcn);
+    auto itrSRCN = find(usedSRCNs.begin(), usedSRCNs.end(), srcn);
     if (itrSRCN == usedSRCNs.end()) {
       usedSRCNs.push_back(srcn);
     }
@@ -90,7 +89,7 @@ bool KonamiSnesInstrSet::GetInstrPointers() {
                                                     instrName.str());
     aInstrs.push_back(newInstr);
   }
-  if (aInstrs.size() == 0) {
+  if (aInstrs.empty()) {
     return false;
   }
 
@@ -118,16 +117,15 @@ KonamiSnesInstr::KonamiSnesInstr(VGMInstrSet *instrSet,
                                  uint32_t offset,
                                  uint32_t theBank,
                                  uint32_t theInstrNum,
-                                 uint32_t spcDirAddr,
-                                 bool percussion,
-                                 const std::wstring &name) :
-    VGMInstr(instrSet, offset, KonamiSnesInstr::ExpectedSize(ver), theBank, theInstrNum, name),
-    spcDirAddr(spcDirAddr),
-    percussion(percussion) {
+                                 uint32_t _spcDirAddr,
+                                 bool _percussion,
+                                 const std::wstring &_name) :
+    VGMInstr(instrSet, offset, KonamiSnesInstr::ExpectedSize(ver), theBank, theInstrNum, _name),
+    spcDirAddr(_spcDirAddr),
+    percussion(_percussion) {
 }
 
-KonamiSnesInstr::~KonamiSnesInstr() {
-}
+KonamiSnesInstr::~KonamiSnesInstr() = default;
 
 bool KonamiSnesInstr::LoadInstr() {
   // TODO: percussive samples
@@ -162,9 +160,9 @@ bool KonamiSnesInstr::IsValidHeader(RawFile *file,
   }
 
   uint8_t srcn = file->GetByte(addrInstrHeader);
-  int16_t pitch_scale = file->GetShortBE(addrInstrHeader + 1);
-  uint8_t adsr1 = file->GetByte(addrInstrHeader + 3);
-  uint8_t adsr2 = file->GetByte(addrInstrHeader + 4);
+//  int16_t pitch_scale = file->GetShortBE(addrInstrHeader + 1);
+//  uint8_t adsr1 = file->GetByte(addrInstrHeader + 3);
+//  uint8_t adsr2 = file->GetByte(addrInstrHeader + 4);
 
   if (srcn == 0xff) // SRCN:FF is false-positive in 99.999999% of cases
   {
@@ -207,7 +205,7 @@ KonamiSnesRgn::KonamiSnesRgn(KonamiSnesInstr *instr, KonamiSnesVersion ver, uint
   int8_t tuning = GetByte(offset + 2);
   uint8_t adsr1 = GetByte(offset + 3);
   uint8_t adsr2 = GetByte(offset + 4);
-  uint8_t pan = GetByte(offset + 5);
+//  uint8_t pan = GetByte(offset + 5);
   uint8_t vol = GetByte(offset + 6);
 
   uint8_t gain = adsr2;
@@ -229,8 +227,8 @@ KonamiSnesRgn::KonamiSnesRgn(KonamiSnesInstr *instr, KonamiSnesVersion ver, uint
   }
 
   AddSampNum(srcn, offset, 1);
-  AddUnityKey(71 - (int) (coarse_tuning), offset + 1, 1);
-  AddFineTune((int16_t) (fine_tuning * 100.0), offset + 2, 1);
+  AddUnityKey(71 - static_cast<int> (coarse_tuning), offset + 1, 1);
+  AddFineTune(static_cast<int16_t> (fine_tuning * 100.0), offset + 2, 1);
   AddSimpleItem(offset + 3, 1, L"ADSR1");
   AddSimpleItem(offset + 4, 1, use_adsr ? L"ADSR2" : L"GAIN");
   AddSimpleItem(offset + 5, 1, L"Pan");
@@ -241,8 +239,7 @@ KonamiSnesRgn::KonamiSnesRgn(KonamiSnesInstr *instr, KonamiSnesVersion ver, uint
   SNESConvADSR<VGMRgn>(this, adsr1, adsr2, gain);
 }
 
-KonamiSnesRgn::~KonamiSnesRgn() {
-}
+KonamiSnesRgn::~KonamiSnesRgn() = default;
 
 bool KonamiSnesRgn::LoadRgn() {
   return true;

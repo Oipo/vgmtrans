@@ -4,12 +4,14 @@
 #include "Options.h"
 #include "VGMMultiSectionSeq.h"
 
-VGMMultiSectionSeq::VGMMultiSectionSeq(const std::string &format,
+#include <utility>
+
+VGMMultiSectionSeq::VGMMultiSectionSeq(const std::string &_format,
                                        RawFile *file,
                                        uint32_t offset,
                                        uint32_t length,
-                                       std::wstring name)
-    : VGMSeq(format, file, offset, length, name),
+                                       std::wstring _name)
+    : VGMSeq(_format, file, offset, length, std::move(_name)),
       dwStartOffset(offset) {
   AddContainer<VGMSeqSection>(aSections);
   RemoveContainer<SeqTrack>(aTracks);
@@ -40,8 +42,8 @@ bool VGMMultiSectionSeq::LoadMain() {
   return true;
 }
 
-bool VGMMultiSectionSeq::LoadTracks(ReadMode readMode, long stopTime) {
-  this->readMode = readMode;
+bool VGMMultiSectionSeq::LoadTracks(ReadMode _readMode, long stopTime) {
+  this->readMode = _readMode;
 
   curOffset = dwStartOffset;
 
@@ -59,7 +61,7 @@ bool VGMMultiSectionSeq::LoadTracks(ReadMode readMode, long stopTime) {
     }
   }
 
-  if (readMode == READMODE_ADD_TO_UI) {
+  if (_readMode == READMODE_ADD_TO_UI) {
     SetGuessedLength();
     if (unLength == 0) {
       return false;
@@ -76,10 +78,10 @@ bool VGMMultiSectionSeq::LoadTracks(ReadMode readMode, long stopTime) {
 
 bool VGMMultiSectionSeq::LoadSection(VGMSeqSection *section, long stopTime) {
   // reset variables
-  assert(aTracks.size() == 0 || aTracks.size() == section->aTracks.size());
+  assert(aTracks.empty() || aTracks.size() == section->aTracks.size());
   for (uint32_t trackNum = 0; trackNum < nNumTracks; trackNum++) {
-    MidiTrack *previousMidiTrack = NULL;
-    if (aTracks.size() != 0) {
+    MidiTrack *previousMidiTrack = nullptr;
+    if (!aTracks.empty()) {
       previousMidiTrack = aTracks[trackNum]->pMidiTrack;
     }
 
@@ -102,7 +104,7 @@ bool VGMMultiSectionSeq::LoadSection(VGMSeqSection *section, long stopTime) {
 }
 
 bool VGMMultiSectionSeq::IsOffsetUsed(uint32_t offset) {
-  return IsItemAtOffset(offset, false);
+  return IsItemAtOffset(offset, false, {});
 }
 
 bool VGMMultiSectionSeq::ReadEvent(long stopTime) {
@@ -132,11 +134,10 @@ bool VGMMultiSectionSeq::AddLoopForeverNoItem() {
 }
 
 VGMSeqSection *VGMMultiSectionSeq::GetSectionFromOffset(uint32_t offset) {
-  for (size_t sectionIndex = 0; sectionIndex < aSections.size(); sectionIndex++) {
-    VGMSeqSection *section = aSections[sectionIndex];
+  for (auto section : aSections) {
     if (section->dwOffset == offset) {
       return section;
     }
   }
-  return NULL;
+  return nullptr;
 }

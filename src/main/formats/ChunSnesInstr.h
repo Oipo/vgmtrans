@@ -14,14 +14,14 @@ class ChunSnesInstrSet:
   ChunSnesInstrSet(RawFile *file,
                    ChunSnesVersion ver,
                    uint16_t addrInstrSetTable,
-                   uint16_t addrSampNumTable,
-                   uint16_t addrSampleTable,
-                   uint32_t spcDirAddr,
-                   const std::wstring &name = L"ChunSnesInstrSet");
-  virtual ~ChunSnesInstrSet(void);
+                   uint16_t _addrSampNumTable,
+                   uint16_t _addrSampleTable,
+                   uint32_t _spcDirAddr,
+                   const std::wstring &_name = L"ChunSnesInstrSet");
+  virtual ~ChunSnesInstrSet();
 
-  virtual bool GetHeaderInfo();
-  virtual bool GetInstrPointers();
+  bool GetHeaderInfo() override;
+  bool GetInstrPointers() override;
 
   ChunSnesVersion version;
 
@@ -43,12 +43,12 @@ class ChunSnesInstr
                 ChunSnesVersion ver,
                 uint8_t theInstrNum,
                 uint16_t addrInstr,
-                uint16_t addrSampleTable,
-                uint32_t spcDirAddr,
-                const std::wstring &name = L"ChunSnesInstr");
-  virtual ~ChunSnesInstr(void);
+                uint16_t _addrSampleTable,
+                uint32_t _spcDirAddr,
+                const std::wstring &_name = L"ChunSnesInstr");
+  virtual ~ChunSnesInstr();
 
-  virtual bool LoadInstr();
+  bool LoadInstr() override;
 
   ChunSnesVersion version;
 
@@ -65,9 +65,9 @@ class ChunSnesRgn
     : public VGMRgn {
  public:
   ChunSnesRgn(ChunSnesInstr *instr, ChunSnesVersion ver, uint8_t srcn, uint16_t addrRgn, uint32_t spcDirAddr);
-  virtual ~ChunSnesRgn(void);
+  virtual ~ChunSnesRgn();
 
-  virtual bool LoadRgn();
+  bool LoadRgn() override;
 
   ChunSnesVersion version;
 };

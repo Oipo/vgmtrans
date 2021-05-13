@@ -4,11 +4,11 @@
 class MP2kScanner:
     public VGMScanner {
  public:
-  MP2kScanner(void);
+  MP2kScanner();
  public:
-  virtual ~MP2kScanner(void);
+  ~MP2kScanner() override;
 
-  virtual void Scan(RawFile *file, void *info = 0);
+  void Scan(RawFile *file, void *info = 0) override;
 
  protected:
   bool Mp2kDetector(RawFile *file, uint32_t &mp2k_offset);

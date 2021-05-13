@@ -4,7 +4,7 @@
 #include "MAMELoader.h"
 
 void KonamiGXScanner::Scan(RawFile *file, void *info) {
-  MAMEGameEntry *gameentry = (MAMEGameEntry *) info;
+  MAMEGameEntry *gameentry = reinterpret_cast<MAMEGameEntry *>(info);
   MAMERomGroupEntry *seqRomGroupEntry = gameentry->GetRomGroupOfType("soundcpu");
   MAMERomGroupEntry *sampsRomGroupEntry = gameentry->GetRomGroupOfType("shared");
   if (!seqRomGroupEntry || !sampsRomGroupEntry)
@@ -18,7 +18,6 @@ void KonamiGXScanner::Scan(RawFile *file, void *info) {
     return;
 
   LoadSeqTable(seqRomGroupEntry->file, seq_table_offset);
-  return;
 }
 
 

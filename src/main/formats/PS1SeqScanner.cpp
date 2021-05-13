@@ -5,10 +5,10 @@
 
 #define SRCH_BUF_SIZE 0x20000
 
-PS1SeqScanner::PS1SeqScanner(void) {
+PS1SeqScanner::PS1SeqScanner() {
 }
 
-PS1SeqScanner::~PS1SeqScanner(void) {
+PS1SeqScanner::~PS1SeqScanner() {
 }
 
 

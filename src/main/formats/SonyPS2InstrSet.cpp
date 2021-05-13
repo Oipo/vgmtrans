@@ -12,7 +12,7 @@ SonyPS2InstrSet::SonyPS2InstrSet(RawFile *file, uint32_t offset)
     : VGMInstrSet(SonyPS2Format::name, file, offset) {
 }
 
-SonyPS2InstrSet::~SonyPS2InstrSet(void) {
+SonyPS2InstrSet::~SonyPS2InstrSet() {
 }
 
 
@@ -303,7 +303,7 @@ SonyPS2Instr::SonyPS2Instr(VGMInstrSet *instrSet,
   RemoveContainer(aRgns);
 }
 
-SonyPS2Instr::~SonyPS2Instr(void) {
+SonyPS2Instr::~SonyPS2Instr() {
   if (splitBlocks)
     delete[] splitBlocks;
 }
@@ -347,14 +347,14 @@ bool SonyPS2Instr::LoadInstr() {
           ConvertPanVal(splitblock.splitPanpot);
       if (pan > 0x7F) pan = 0x7F;
       if (pan < 0) pan = 0;
-      //double realPan = (pan-0x40)* (1.0/(double)0x40);
+      //double realPan = (pan-0x40)* (1.0/static_cast<double>(0x40);
       rgn->SetPan((uint8_t) pan);
       rgn->SetFineTune(splitblock.splitTranspose * 100 + splitblock.splitDetune);
 
       long vol = progParam.progVolume * splitblock.splitVolume * sampParam.sampleVolume;
       //we divide the above value by 127^3 to get the percent vol it represents.  Then we convert it to DB units.
       //0xA0000 = 1db in the DLS lScale val for atten (dls1 specs p30)
-      double percentvol = vol / (double) (127 * 127 * 127);
+      double percentvol = vol / static_cast<double>( (127 * 127 * 127);
       rgn->SetVolume(percentvol);
       PSXConvADSR(rgn, sampParam.sampleAdsr1, sampParam.sampleAdsr2, true);
       //splitblock->splitRangeLow

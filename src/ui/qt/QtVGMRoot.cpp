@@ -6,27 +6,27 @@
 
 QtVGMRoot qtVGMRoot;
 
-QtVGMRoot::QtVGMRoot(void)
+QtVGMRoot::QtVGMRoot()
 {
 
 }
 
-QtVGMRoot::~QtVGMRoot(void)
+QtVGMRoot::~QtVGMRoot()
 {
 
 }
 
-//void QtVGMRoot::Play(void)
+//void QtVGMRoot::Play()
 //{
 //
 //}
 //
-//void QtVGMRoot::Pause(void)
+//void QtVGMRoot::Pause()
 //{
 //
 //}
 //
-//void QtVGMRoot::Stop(void)
+//void QtVGMRoot::Stop()
 //{
 //
 //}

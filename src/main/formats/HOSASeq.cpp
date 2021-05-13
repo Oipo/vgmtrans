@@ -11,8 +11,8 @@ DECLARE_FORMAT(HOSA);
 //==============================================================
 //		Constructor
 //==============================================================
-HOSASeq::HOSASeq(RawFile *file, uint32_t offset, const std::wstring &name)
-    : VGMSeq(HOSAFormat::name, file, offset, 0, name) {
+HOSASeq::HOSASeq(RawFile *file, uint32_t offset, const std::wstring &_name)
+    : VGMSeq(HOSAFormat::name, file, offset, 0, _name) {
   UseReverb();
   UseLinearAmplitudeScale();
 }
@@ -20,8 +20,7 @@ HOSASeq::HOSASeq(RawFile *file, uint32_t offset, const std::wstring &name)
 //==============================================================
 //		Destructor
 //==============================================================
-HOSASeq::~HOSASeq(void) {
-}
+HOSASeq::~HOSASeq() = default;
 
 //==============================================================
 //		Get the information of HOSA header 
@@ -34,7 +33,7 @@ HOSASeq::~HOSASeq(void) {
 //	Memo
 //		VGMSeq::LoadMain() から call される。
 //==============================================================
-bool HOSASeq::GetHeaderInfo(void) {
+bool HOSASeq::GetHeaderInfo() {
 //	About the unLength, if (unLength==0), 
 //	"VGMSeq::LoadMain()" will calculate the unLength after "SeqTrack::LoadTrack()".
   nNumTracks = GetByte(dwOffset + 0x06);    //uint8_t (8bit)
@@ -61,7 +60,7 @@ bool HOSASeq::GetHeaderInfo(void) {
 //	Memo
 //		VGMSeq::LoadMain() から call される。
 //==============================================================
-bool HOSASeq::GetTrackPointers(void) {
+bool HOSASeq::GetTrackPointers() {
   for (unsigned int i = 0; i < nNumTracks; i++)
     aTracks.push_back(new HOSATrack(this, GetShort(dwOffset + 0x50 + (i * 2)) + dwOffset));
   //delect object is in "VGMSeq::~VGMSeq()"
@@ -101,7 +100,7 @@ HOSATrack::HOSATrack(HOSASeq *parentFile, long offset, long length) :
 //	Memo
 //		SeqTrack::LoadTrack() から call される。
 //==============================================================
-bool HOSATrack::ReadEvent(void) {
+bool HOSATrack::ReadEvent() {
 
   //==================================
   //	[ Local 変数 ]
@@ -379,7 +378,7 @@ unsigned int        HOSATrack::DecodeVariable() {
   //----------------------------------
   do {
     cFread = GetByte(curOffset++);        //1 Byte Read
-    iVariable = (iVariable << 7) + ((unsigned int) cFread & 0x7F);
+    iVariable = (iVariable << 7) + (static_cast<unsigned int>(cFread & 0x7F));
     count--;
   } while ((count > 0) && (cFread & 0x80));
 

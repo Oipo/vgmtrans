@@ -73,11 +73,11 @@ class PrismSnesSeq
     : public VGMSeq {
  public:
   PrismSnesSeq(RawFile *file, PrismSnesVersion ver, uint32_t seqdataOffset, std::wstring newName = L"I'Max SNES Seq");
-  virtual ~PrismSnesSeq(void);
+  virtual ~PrismSnesSeq();
 
-  virtual bool GetHeaderInfo(void);
-  virtual bool GetTrackPointers(void);
-  virtual void ResetVars(void);
+  bool GetHeaderInfo() override;
+  virtual bool GetTrackPointers();
+  virtual void ResetVars();
 
   PrismSnesVersion version;
   std::map<uint8_t, PrismSnesSeqEventType> EventMap;
@@ -93,7 +93,7 @@ class PrismSnesSeq
   double GetTempoInBPM(uint8_t tempo);
 
  private:
-  void LoadEventMap(void);
+  void LoadEventMap();
 };
 
 
@@ -101,8 +101,8 @@ class PrismSnesTrack
     : public SeqTrack {
  public:
   PrismSnesTrack(PrismSnesSeq *parentFile, long offset = 0, long length = 0);
-  virtual void ResetVars(void);
-  virtual bool ReadEvent(void);
+  virtual void ResetVars();
+  virtual bool ReadEvent();
 
   std::vector<uint8_t> panTable;
 

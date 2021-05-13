@@ -223,7 +223,7 @@ void CItemTreeView::RemoveItem(VGMItem* theItem)
 	items.erase(items.find(theItem));	//remove the CTreeItem from the item map
 }
 
-void CItemTreeView::RemoveAllItems(void)
+void CItemTreeView::RemoveAllItems()
 {
 	ShowWindow(false);
 	DeleteAllItems();
@@ -280,7 +280,7 @@ BOOL CItemTreeView::SelectItem(VGMItem* item)
 //	}
 //}
 
-void CItemTreeView::WaitForPopulateEnd(void)
+void CItemTreeView::WaitForPopulateEnd()
 {
 //	WaitForSingleObject(populateItemViewThread, INFINITE);
 }

@@ -7,10 +7,10 @@ using namespace std;
 
 wchar_t *GetFileWithBase(const wchar_t *f, const wchar_t *newfile);
 
-PSF1Loader::PSF1Loader(void) {
+PSF1Loader::PSF1Loader() {
 }
 
-PSF1Loader::~PSF1Loader(void) {
+PSF1Loader::~PSF1Loader() {
 }
 
 PostLoadCommand PSF1Loader::Apply(RawFile *file) {
@@ -78,7 +78,7 @@ PostLoadCommand PSF1Loader::Apply(RawFile *file) {
 /*
 ** Read the EXE from a PSF file
 **
-** Returns the error message, or NULL on success
+** Returns the error message, or nullptr on success
 */
 const wchar_t *PSF1Loader::psf_read_exe(
     RawFile *file,
@@ -107,7 +107,7 @@ const wchar_t *PSF1Loader::psf_read_exe(
 
   // search exclusively for _lib tag, and if found, perform a recursive load
   const wchar_t *psflibError = load_psf_libs(psf, file, exebuffer, exebuffersize);
-  if (psflibError != NULL)
+  if (psflibError != nullptr)
     return psflibError;
 
   if (!psf.ReadExe(exebuffer + textSectionStart, textSectionSize, 0x800))
@@ -127,7 +127,7 @@ const wchar_t *PSF1Loader::psf_read_exe(
     file->tag.comment = string2wstring(psf.tags["comment"]);
   }
 
-  return NULL;
+  return nullptr;
 }
 
 const wchar_t *PSF1Loader::load_psf_libs(PSFFile &psf,
@@ -154,7 +154,7 @@ const wchar_t *PSF1Loader::load_psf_libs(PSFFile &psf,
 
     // TODO: Make sure to limit recursion to avoid crashing.
     RawFile *newRawFile = new RawFile(fullPath);
-    const wchar_t *psflibError = NULL;
+    const wchar_t *psflibError = nullptr;
     if (newRawFile->open(fullPath))
       psflibError = psf_read_exe(newRawFile, exebuffer, exebuffersize);
     else
@@ -162,10 +162,10 @@ const wchar_t *PSF1Loader::load_psf_libs(PSFFile &psf,
     delete fullPath;
     delete newRawFile;
 
-    if (psflibError != NULL)
+    if (psflibError != nullptr)
       return psflibError;
 
     libIndex++;
   }
-  return NULL;
+  return nullptr;
 }

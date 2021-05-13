@@ -7,10 +7,10 @@ enum ChunSnesVersion: uint8_t; // see ChunSnesFormat.h
 class ChunSnesScanner:
     public VGMScanner {
  public:
-  ChunSnesScanner(void) {
+  ChunSnesScanner() {
     USE_EXTENSION(L"spc");
   }
-  virtual ~ChunSnesScanner(void) {
+  virtual ~ChunSnesScanner() {
   }
 
   virtual void Scan(RawFile *file, void *info = 0);

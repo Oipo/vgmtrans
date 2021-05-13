@@ -26,14 +26,14 @@ SoftCreatSnesSeq::SoftCreatSnesSeq(RawFile *file,
   LoadEventMap();
 }
 
-SoftCreatSnesSeq::~SoftCreatSnesSeq(void) {
+SoftCreatSnesSeq::~SoftCreatSnesSeq() {
 }
 
-void SoftCreatSnesSeq::ResetVars(void) {
+void SoftCreatSnesSeq::ResetVars() {
   VGMSeq::ResetVars();
 }
 
-bool SoftCreatSnesSeq::GetHeaderInfo(void) {
+bool SoftCreatSnesSeq::GetHeaderInfo() {
   SetPPQN(SEQ_PPQN);
 
   VGMHeader *header = AddHeader(dwOffset, headerAlignSize * MAX_TRACKS);
@@ -63,7 +63,7 @@ bool SoftCreatSnesSeq::GetHeaderInfo(void) {
   return true;
 }
 
-bool SoftCreatSnesSeq::GetTrackPointers(void) {
+bool SoftCreatSnesSeq::GetTrackPointers() {
   return true;
 }
 
@@ -87,11 +87,11 @@ SoftCreatSnesTrack::SoftCreatSnesTrack(SoftCreatSnesSeq *parentFile, long offset
   bWriteGenericEventAsTextEvent = false;
 }
 
-void SoftCreatSnesTrack::ResetVars(void) {
+void SoftCreatSnesTrack::ResetVars() {
   SeqTrack::ResetVars();
 }
 
-bool SoftCreatSnesTrack::ReadEvent(void) {
+bool SoftCreatSnesTrack::ReadEvent() {
   SoftCreatSnesSeq *parentSeq = (SoftCreatSnesSeq *) this->parentSeq;
 
   uint32_t beginOffset = curOffset;

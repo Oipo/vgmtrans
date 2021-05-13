@@ -20,7 +20,7 @@ NDSInstrSet::NDSInstrSet(RawFile *file, uint32_t offset, uint32_t length, wstrin
     : VGMInstrSet(NDSFormat::name, file, offset, length, name) {
 }
 /*
-NDSInstrSet::~NDSInstrSet(void)
+NDSInstrSet::~NDSInstrSet()
 {
 }*/
 
@@ -190,7 +190,7 @@ void NDSInstr::GetArticData(VGMRgn *rgn, uint32_t offset) {
     rgn->sustain_level = 1.0;
   else
     //rgn->sustain_level = 20 * log10 ((92544.0-realSustainLev) / 92544.0);
-    rgn->sustain_level = (double) (0x16980 - realSustainLev) / (double) 0x16980;
+    rgn->sustain_level = static_cast<double>( (0x16980 - realSustainLev) / static_cast<double>( 0x16980;
 
   //we express release rate as time from maximum volume, not sustain level
   count = 0x16980 / realRelease;
@@ -203,7 +203,7 @@ void NDSInstr::GetArticData(VGMRgn *rgn, uint32_t offset) {
   else if (Pan == 64)
     rgn->pan = 0.5;
   else
-    rgn->pan = (double) Pan / (double) 127;
+    rgn->pan = static_cast<double>( Pan / static_cast<double>( 127;
 }
 
 uint16_t NDSInstr::GetFallingRate(uint8_t DecayTime) {
@@ -278,7 +278,7 @@ bool NDSWaveArch::GetSampleInfo() {
     }
 
     wostringstream name;
-    name << L"Sample " << (float) samples.size();
+    name << L"Sample " << samples.size();
     NDSSamp *samp = new NDSSamp(this, pSample, dataStart + dataLength - pSample, dataStart,
                                 dataLength, nChannels, bps, rate, waveType, name.str());
 

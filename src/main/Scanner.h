@@ -9,9 +9,9 @@ class RawFile;
 
 class VGMScanner {
  public:
-  VGMScanner(void);
+  VGMScanner();
  public:
-  virtual ~VGMScanner(void);
+  virtual ~VGMScanner();
 
   virtual bool Init();
   //virtual bool UseExtension() {return true;}

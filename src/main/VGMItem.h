@@ -90,11 +90,11 @@ class VGMFile;
 class VGMItem;
 class VGMHeader;
 
-typedef struct _ItemSet {
+struct ItemSet {
   VGMItem *item;
   VGMItem *parent;
   const wchar_t *itemName;
-} ItemSet;
+};
 
 enum ItemType { ITEMTYPE_UNDEFINED, ITEMTYPE_VGMFILE, ITEMTYPE_SEQEVENT };
 
@@ -113,7 +113,7 @@ class VGMItem {
           uint32_t theLength = 0,
           const std::wstring theName = L"",
           uint8_t color = 0);
-  virtual ~VGMItem(void);
+  virtual ~VGMItem();
 
   friend bool operator>(VGMItem &item1, VGMItem &item2);
   friend bool operator<=(VGMItem &item1, VGMItem &item2);
@@ -121,30 +121,30 @@ class VGMItem {
   friend bool operator>=(VGMItem &item1, VGMItem &item2);
 
  public:
-  virtual bool IsItemAtOffset(uint32_t offset, bool includeContainer = true, bool matchStartOffset = false);
-  virtual VGMItem *GetItemFromOffset(uint32_t offset, bool includeContainer = true, bool matchStartOffset = false);
-  virtual uint32_t GuessLength(void);
-  virtual void SetGuessedLength(void);
+  virtual bool IsItemAtOffset(uint32_t offset, std::optional<bool> includeContainer, std::optional<bool> matchStartOffset);
+  virtual VGMItem *GetItemFromOffset(uint32_t offset, std::optional<bool> includeContainer, std::optional<bool> matchStartOffset);
+  virtual uint32_t GuessLength();
+  virtual void SetGuessedLength();
 
-  RawFile *GetRawFile();
+  [[nodiscard]] virtual RawFile *GetRawFile() const;
 
-  virtual std::vector<const wchar_t *> *GetMenuItemNames() { return NULL; }
-  virtual bool CallMenuItem(VGMItem *item, int menuItemNum) { return false; }
-  virtual std::wstring GetDescription() { return name; }
-  virtual ItemType GetType() const { return ITEMTYPE_UNDEFINED; }
-  virtual Icon GetIcon() { return ICON_BINARY;/*ICON_UNKNOWN*/ }
+  [[nodiscard]] virtual std::vector<const wchar_t *> *GetMenuItemNames() { return nullptr; }
+  [[nodiscard]] virtual bool CallMenuItem(VGMItem *item, int menuItemNum) { return false; }
+  [[nodiscard]] virtual std::wstring GetDescription() { return name; }
+  [[nodiscard]] virtual ItemType GetType() const { return ITEMTYPE_UNDEFINED; }
+  [[nodiscard]] virtual Icon GetIcon() { return ICON_BINARY;/*ICON_UNKNOWN*/ }
   virtual void AddToUI(VGMItem *parent, void *UI_specific);
   virtual bool IsContainerItem() { return false; }
 
  protected:
   //TODO make inline
-  uint32_t GetBytes(uint32_t nIndex, uint32_t nCount, void *pBuffer);
-  uint8_t GetByte(uint32_t offset);
-  uint16_t GetShort(uint32_t offset);
-  uint32_t GetWord(uint32_t offset);
-  uint16_t GetShortBE(uint32_t offset);
-  uint32_t GetWordBE(uint32_t offset);
-  bool IsValidOffset(uint32_t offset);
+  [[nodiscard]] virtual uint32_t GetBytes(uint32_t nIndex, uint32_t nCount, void *pBuffer);
+  [[nodiscard]] virtual uint8_t GetByte(uint32_t offset);
+  [[nodiscard]] virtual uint16_t GetShort(uint32_t offset);
+  [[nodiscard]] virtual uint32_t GetWord(uint32_t offset);
+  [[nodiscard]] virtual uint16_t GetShortBE(uint32_t offset);
+  [[nodiscard]] virtual uint32_t GetWordBE(uint32_t offset);
+  [[nodiscard]] virtual bool IsValidOffset(uint32_t offset);
 
  public:
   uint8_t color;
@@ -164,12 +164,12 @@ class VGMContainerItem
                    uint32_t theLength = 0,
                    const std::wstring theName = L"",
                    uint8_t color = CLR_HEADER);
-  virtual ~VGMContainerItem(void);
-  virtual VGMItem *GetItemFromOffset(uint32_t offset, bool includeContainer = true, bool matchStartOffset = false);
-  virtual uint32_t GuessLength(void);
-  virtual void SetGuessedLength(void);
-  virtual void AddToUI(VGMItem *parent, void *UI_specific);
-  virtual bool IsContainerItem() { return true; }
+  ~VGMContainerItem() override;
+  VGMItem *GetItemFromOffset(uint32_t offset, std::optional<bool> includeContainer, std::optional<bool> matchStartOffset) override;
+  uint32_t GuessLength() override;
+  void SetGuessedLength() override;
+  void AddToUI(VGMItem *parent, void *UI_specific) override;
+  bool IsContainerItem() override { return true; }
 
   VGMHeader *AddHeader(uint32_t offset, uint32_t length, const std::wstring &name = L"Header");
 
@@ -179,13 +179,13 @@ class VGMContainerItem
 
   template<class T>
   void AddContainer(std::vector<T *> &container) {
-    containers.push_back((std::vector<VGMItem *> *) &container);
+    containers.push_back(reinterpret_cast<std::vector<VGMItem *> *>(&container));
   }
   template<class T>
   bool RemoveContainer(std::vector<T *> &container) {
-    std::vector<std::vector<VGMItem *> *>::iterator iter = std::find(containers.begin(),
-                                                                     containers.end(),
-                                                                     (std::vector<VGMItem *> *) &container);
+    auto iter = std::find(containers.begin(),
+                          containers.end(),
+                           reinterpret_cast<std::vector<VGMItem *> *>(&container));
     if (iter != containers.end()) {
       containers.erase(iter);
       return true;
@@ -210,10 +210,10 @@ class ItemPtrOffsetCmp {
 
 template<class T>
 VGMItem *GetItemAtOffsetInItemVector(uint32_t offset, std::vector<T *> &theArray) {
-  int nArraySize = (int) theArray.size();
-  for (int i = 0; i < nArraySize; i++) {
-    if (((VGMItem *) theArray[i])->IsItemAtOffset(offset))
+  auto nArraySize = theArray.size();
+  for (decltype(nArraySize) i = 0; i < nArraySize; i++) {
+    if (theArray[i]->IsItemAtOffset(offset))
       return theArray[i];
   }
-  return NULL;
+  return nullptr;
 }

@@ -22,10 +22,10 @@ MoriSnesSeq::MoriSnesSeq(RawFile *file, MoriSnesVersion ver, uint32_t seqdataOff
   LoadEventMap();
 }
 
-MoriSnesSeq::~MoriSnesSeq(void) {
+MoriSnesSeq::~MoriSnesSeq() {
 }
 
-void MoriSnesSeq::ResetVars(void) {
+void MoriSnesSeq::ResetVars() {
   VGMSeq::ResetVars();
 
   spcTempo = 0x20;
@@ -35,7 +35,7 @@ void MoriSnesSeq::ResetVars(void) {
   InstrumentHints.clear();
 }
 
-bool MoriSnesSeq::GetHeaderInfo(void) {
+bool MoriSnesSeq::GetHeaderInfo() {
   SetPPQN(SEQ_PPQN);
 
   uint32_t curOffset = dwOffset;
@@ -88,7 +88,7 @@ bool MoriSnesSeq::GetHeaderInfo(void) {
   return true;
 }
 
-bool MoriSnesSeq::GetTrackPointers(void) {
+bool MoriSnesSeq::GetTrackPointers() {
   for (uint8_t trackIndex = 0; trackIndex < MAX_TRACKS; trackIndex++) {
     if (TrackStartAddress[trackIndex] != 0) {
       MoriSnesTrack *track = new MoriSnesTrack(this, TrackStartAddress[trackIndex]);
@@ -174,7 +174,7 @@ MoriSnesTrack::MoriSnesTrack(MoriSnesSeq *parentFile, long offset, long length)
   bWriteGenericEventAsTextEvent = false;
 }
 
-void MoriSnesTrack::ResetVars(void) {
+void MoriSnesTrack::ResetVars() {
   SeqTrack::ResetVars();
 
   tiedNoteKeys.clear();
@@ -189,7 +189,7 @@ void MoriSnesTrack::ResetVars(void) {
 }
 
 
-bool MoriSnesTrack::ReadEvent(void) {
+bool MoriSnesTrack::ReadEvent() {
   MoriSnesSeq *parentSeq = (MoriSnesSeq *) this->parentSeq;
 
   uint32_t beginOffset = curOffset;

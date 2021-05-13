@@ -66,8 +66,8 @@ if(MSVC)
 
 else()
     if(ENABLE_ASAN)
-        target_compile_options(g_options INTERFACE -fsanitize=address)
-        target_link_libraries(g_options INTERFACE -fsanitize=address)
+        target_compile_options(g_options INTERFACE -fsanitize=address,undefined)
+        target_link_libraries(g_options INTERFACE -fsanitize=address,undefined)
     endif()
 
     if(NOT ${CMAKE_BUILD_TYPE} MATCHES "Release")
@@ -81,7 +81,9 @@ else()
                 -Wold-style-cast
                 -Woverloaded-virtual
                 -Wcast-align
-                -Wnull-dereference)
+                -Wnull-dereference
+                -Wno-unused-parameter
+                -Werror)
     endif()
 
     # The c++17 filesystem library requires some thinkering with compile flags

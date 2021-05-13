@@ -38,17 +38,17 @@ TamSoftPS1Seq::TamSoftPS1Seq(RawFile *file, uint32_t offset, uint8_t theSong, co
   AlwaysWriteInitialReverb(0);
 }
 
-TamSoftPS1Seq::~TamSoftPS1Seq(void) {
+TamSoftPS1Seq::~TamSoftPS1Seq() {
 }
 
-void TamSoftPS1Seq::ResetVars(void) {
+void TamSoftPS1Seq::ResetVars() {
   VGMSeq::ResetVars();
 
   // default reverb depth depends on each games, probably
   reverbDepth = 0x4000;
 }
 
-bool TamSoftPS1Seq::GetHeaderInfo(void) {
+bool TamSoftPS1Seq::GetHeaderInfo() {
   SetPPQN(TSQ_PPQN);
 
   uint32_t dwSongItemOffset = dwOffset + 4 * song;
@@ -147,7 +147,7 @@ bool TamSoftPS1Seq::GetHeaderInfo(void) {
   return true;
 }
 
-bool TamSoftPS1Seq::GetTrackPointers(void) {
+bool TamSoftPS1Seq::GetTrackPointers() {
   return true;
 }
 
@@ -162,14 +162,14 @@ TamSoftPS1Track::TamSoftPS1Track(TamSoftPS1Seq *parentFile, uint32_t offset)
   //bWriteGenericEventAsTextEvent = true;
 }
 
-void TamSoftPS1Track::ResetVars(void) {
+void TamSoftPS1Track::ResetVars() {
   SeqTrack::ResetVars();
 
   vel = 100;
   lastNoteKey = -1;
 }
 
-bool TamSoftPS1Track::ReadEvent(void) {
+bool TamSoftPS1Track::ReadEvent() {
   TamSoftPS1Seq *parentSeq = (TamSoftPS1Seq *) this->parentSeq;
 
   uint32_t beginOffset = curOffset;
@@ -248,7 +248,7 @@ bool TamSoftPS1Track::ReadEvent(void) {
 
         double cents = 0;
         if (lastNoteKey >= 0) {
-          cents = PitchScaleToCents((double) pitchRegValue / lastNotePitch);
+          cents = PitchScaleToCents(static_cast<double>( pitchRegValue / lastNotePitch);
           desc << L" (" << cents << L" cents)";
         }
 
@@ -264,7 +264,7 @@ bool TamSoftPS1Track::ReadEvent(void) {
 
         double cents = 0;
         if (lastNoteKey >= 0) {
-          cents = PitchScaleToCents((double) pitchRegValue / lastNotePitch);
+          cents = PitchScaleToCents(static_cast<double>( pitchRegValue / lastNotePitch);
           desc << L" (" << cents << L" cents)";
         }
 

@@ -3,11 +3,8 @@
 
 class KonamiPS1Scanner : public VGMScanner {
  public:
-  KonamiPS1Scanner() {
-  }
+  KonamiPS1Scanner() = default;
+  ~KonamiPS1Scanner() override = default;
 
-  virtual ~KonamiPS1Scanner() {
-  }
-
-  virtual void Scan(RawFile *file, void *info = 0);
+  void Scan(RawFile *file, void *info = 0) override;
 };

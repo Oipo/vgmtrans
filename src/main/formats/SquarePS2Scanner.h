@@ -4,9 +4,9 @@
 class SquarePS2Scanner:
     public VGMScanner {
  public:
-  SquarePS2Scanner(void);
+  SquarePS2Scanner();
  public:
-  ~SquarePS2Scanner(void);
+  ~SquarePS2Scanner();
 
   virtual void Scan(RawFile *file, void *info = 0);
   void SearchForBGMSeq(RawFile *file);

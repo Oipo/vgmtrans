@@ -5,10 +5,10 @@
 class NinSnesScanner:
     public VGMScanner {
  public:
-  NinSnesScanner(void) {
+  NinSnesScanner() {
     USE_EXTENSION(L"spc");
   }
-  virtual ~NinSnesScanner(void) {
+  virtual ~NinSnesScanner() {
   }
 
   virtual void Scan(RawFile *file, void *info = 0);

@@ -14,16 +14,16 @@ enum ProcessFlag {
 
 class RawFile {
  public:
-  RawFile(void);
+  RawFile();
   RawFile(const std::wstring name, uint32_t fileSize = 0, bool bCanRead = true, const VGMTag tag = VGMTag());
  public:
-  virtual ~RawFile(void);
+  virtual ~RawFile();
 
-//	void kill(void);
+//	void kill();
 
   bool open(const std::wstring &filename);
   void close();
-  unsigned long size(void);
+  unsigned long size() const;
   inline const wchar_t *GetFullPath() { return fullpath.c_str(); }
   inline const wchar_t *GetFileName() { return filename.c_str(); }    //returns the filename with extension
   inline const std::wstring &GetExtension() { return extension; }
@@ -38,7 +38,7 @@ class RawFile {
 
   void UpdateBuffer(uint32_t index);
 
-  float GetProPreRatio(void) { return propreRatio; }
+  float GetProPreRatio() const { return propreRatio; }
   void SetProPreRatio(float newRatio);
 
   inline uint8_t &operator[](uint32_t offset) {
@@ -78,7 +78,7 @@ class RawFile {
     return buf.GetWordBE(nIndex);
   }
 
-  inline bool IsValidOffset(uint32_t nIndex) {
+  inline bool IsValidOffset(uint32_t nIndex) const {
     return (nIndex < fileSize);
   }
 
@@ -93,7 +93,7 @@ class RawFile {
   bool SearchBytePattern(const BytePattern &pattern,
                          uint32_t &nMatchOffset,
                          uint32_t nSearchOffset = 0,
-                         uint32_t nSearchSize = (uint32_t) -1);
+                         uint32_t nSearchSize = -1u);
 
   void AddContainedVGMFile(VGMFile *vgmfile);
   void RemoveContainedVGMFile(VGMFile *vgmfile);

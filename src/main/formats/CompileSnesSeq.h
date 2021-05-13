@@ -45,11 +45,11 @@ class CompileSnesSeq
  public:
   CompileSnesSeq
       (RawFile *file, CompileSnesVersion ver, uint32_t seqdataOffset, std::wstring newName = L"Compile SNES Seq");
-  virtual ~CompileSnesSeq(void);
+  ~CompileSnesSeq() override;
 
-  virtual bool GetHeaderInfo(void);
-  virtual bool GetTrackPointers(void);
-  virtual void ResetVars(void);
+  [[nodiscard]] bool GetHeaderInfo() override;
+  [[nodiscard]] bool GetTrackPointers() override;
+  void ResetVars() override;
 
   CompileSnesVersion version;
   std::map<uint8_t, CompileSnesSeqEventType> EventMap;
@@ -62,10 +62,10 @@ class CompileSnesSeq
 
   static const uint8_t noteDurTable[];
 
-  double GetTempoInBPM(uint8_t tempo);
+  [[nodiscard]] double GetTempoInBPM(uint8_t tempo) const;
 
  private:
-  void LoadEventMap(void);
+  void LoadEventMap();
 };
 
 
@@ -73,9 +73,9 @@ class CompileSnesTrack
     : public SeqTrack {
  public:
   CompileSnesTrack(CompileSnesSeq *parentFile, long offset = 0, long length = 0);
-  virtual void ResetVars(void);
-  virtual void AddInitialMidiEvents(int trackNum);
-  virtual bool ReadEvent(void);
+  void ResetVars() override;
+  void AddInitialMidiEvents(int trackNum) override;
+  [[nodiscard]] bool ReadEvent() override;
 
   uint8_t spcNoteDuration;
   uint8_t spcFlags;

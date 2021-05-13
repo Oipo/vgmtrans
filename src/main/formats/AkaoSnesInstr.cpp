@@ -8,20 +8,19 @@
 
 AkaoSnesInstrSet::AkaoSnesInstrSet(RawFile *file,
                                    AkaoSnesVersion ver,
-                                   uint32_t spcDirAddr,
-                                   uint16_t addrTuningTable,
-                                   uint16_t addrADSRTable,
-                                   uint16_t addrDrumKitTable,
-                                   const std::wstring &name) :
-    VGMInstrSet(AkaoSnesFormat::name, file, addrTuningTable, 0, name), version(ver),
-    spcDirAddr(spcDirAddr),
-    addrTuningTable(addrTuningTable),
-    addrADSRTable(addrADSRTable),
-    addrDrumKitTable(addrDrumKitTable) {
+                                   uint32_t _spcDirAddr,
+                                   uint16_t _addrTuningTable,
+                                   uint16_t _addrADSRTable,
+                                   uint16_t _addrDrumKitTable,
+                                   const std::wstring &_name) :
+    VGMInstrSet(AkaoSnesFormat::name, file, _addrTuningTable, 0, _name), version(ver),
+    spcDirAddr(_spcDirAddr),
+    addrTuningTable(_addrTuningTable),
+    addrADSRTable(_addrADSRTable),
+    addrDrumKitTable(_addrDrumKitTable) {
 }
 
-AkaoSnesInstrSet::~AkaoSnesInstrSet() {
-}
+AkaoSnesInstrSet::~AkaoSnesInstrSet() = default;
 
 bool AkaoSnesInstrSet::GetHeaderInfo() {
   return true;
@@ -82,7 +81,7 @@ bool AkaoSnesInstrSet::GetInstrPointers() {
     AkaoSnesInstr *newInstr = new AkaoSnesInstr(this, version, srcn, spcDirAddr, addrTuningTable, addrADSRTable, instrName.str());
     aInstrs.push_back(newInstr);
   }
-  if (aInstrs.size() == 0) {
+  if (aInstrs.empty()) {
     return false;
   }
 
@@ -109,18 +108,17 @@ bool AkaoSnesInstrSet::GetInstrPointers() {
 AkaoSnesInstr::AkaoSnesInstr(VGMInstrSet *instrSet,
                              AkaoSnesVersion ver,
                              uint8_t srcn,
-                             uint32_t spcDirAddr,
-                             uint16_t addrTuningTable,
-                             uint16_t addrADSRTable,
-                             const std::wstring &name) :
-    VGMInstr(instrSet, addrTuningTable, 0, 0, srcn, name), version(ver),
-    spcDirAddr(spcDirAddr),
-    addrTuningTable(addrTuningTable),
-    addrADSRTable(addrADSRTable) {
+                             uint32_t _spcDirAddr,
+                             uint16_t _addrTuningTable,
+                             uint16_t _addrADSRTable,
+                             const std::wstring &_name) :
+    VGMInstr(instrSet, _addrTuningTable, 0, 0, srcn, _name), version(ver),
+    spcDirAddr(_spcDirAddr),
+    addrTuningTable(_addrTuningTable),
+    addrADSRTable(_addrADSRTable) {
 }
 
-AkaoSnesInstr::~AkaoSnesInstr() {
-}
+AkaoSnesInstr::~AkaoSnesInstr() = default;
 
 bool AkaoSnesInstr::LoadInstr() {
   uint32_t offDirEnt = spcDirAddr + (instrNum * 4);
@@ -149,28 +147,25 @@ bool AkaoSnesInstr::LoadInstr() {
 AkaoSnesDrumKit::AkaoSnesDrumKit(VGMInstrSet *instrSet,
                                  AkaoSnesVersion ver,
                                  uint32_t programNum,
-                                 uint32_t spcDirAddr,
-                                 uint16_t addrTuningTable,
-                                 uint16_t addrADSRTable,
-                                 uint16_t addrDrumKitTable,
-                                 const std::wstring &name) :
-  VGMInstr(instrSet, addrTuningTable, 0, ((programNum >> 6) & 0x7F00) | ((programNum >> 7) & 0x7F), programNum & 0xFF, name), version(ver),
-  spcDirAddr(spcDirAddr),
-  addrTuningTable(addrTuningTable),
-  addrADSRTable(addrADSRTable),
-  addrDrumKitTable(addrDrumKitTable) {
+                                 uint32_t _spcDirAddr,
+                                 uint16_t _addrTuningTable,
+                                 uint16_t _addrADSRTable,
+                                 uint16_t _addrDrumKitTable,
+                                 const std::wstring &_name) :
+  VGMInstr(instrSet, _addrTuningTable, 0, ((programNum >> 6) & 0x7F00) | ((programNum >> 7) & 0x7F), programNum & 0xFF, _name), version(ver),
+  spcDirAddr(_spcDirAddr),
+  addrTuningTable(_addrTuningTable),
+  addrADSRTable(_addrADSRTable),
+  addrDrumKitTable(_addrDrumKitTable) {
 }
 
-AkaoSnesDrumKit::~AkaoSnesDrumKit() {
-}
+AkaoSnesDrumKit::~AkaoSnesDrumKit() = default;
 
 bool AkaoSnesDrumKit::LoadInstr() {
   uint32_t offDirEnt = spcDirAddr + (instrNum * 4);
   if (offDirEnt + 4 > 0x10000) {
     return false;
   }
-
-  uint16_t addrSampStart = GetShort(offDirEnt);
 
   uint8_t NOTE_DUR_TABLE_SIZE;
   switch (version) {
@@ -198,15 +193,15 @@ bool AkaoSnesDrumKit::LoadInstr() {
       return false;
     }
 
-    uint32_t offDirEnt = spcDirAddr + (rgn->sampNum * 4);
-    if (offDirEnt + 4 > 0x10000) {
+    uint32_t _offDirEnt = spcDirAddr + (rgn->sampNum * 4);
+    if (_offDirEnt + 4 > 0x10000) {
       delete rgn;
       return false;
     }
 
-    uint16_t addrSampStart = GetShort(offDirEnt);
+    uint16_t _addrSampStart = GetShort(_offDirEnt);
 
-    rgn->sampOffset = addrSampStart - spcDirAddr;
+    rgn->sampOffset = _addrSampStart - spcDirAddr;
 
     aRgns.push_back(rgn);
   }
@@ -284,15 +279,14 @@ bool AkaoSnesRgn::InitializeRegion(uint8_t srcn,
   }
 
   sampNum = srcn;
-  unityKey = 69 - (int) (coarse_tuning);
-  fineTune = (int16_t) (fine_tuning * 100.0);
+  unityKey = 69 - static_cast<int>(coarse_tuning);
+  fineTune = static_cast<int16_t>(fine_tuning * 100.0);
   SNESConvADSR<VGMRgn>(this, adsr1, adsr2, 0xa0);
 
   return true;
 }
 
-AkaoSnesRgn::~AkaoSnesRgn() {
-}
+AkaoSnesRgn::~AkaoSnesRgn() = default;
 
 bool AkaoSnesRgn::LoadRgn() {
   SetGuessedLength();
@@ -346,5 +340,4 @@ bool AkaoSnesDrumKitRgn::InitializePercussionRegion(uint8_t percussionIndex,
   return true;
 }
 
-AkaoSnesDrumKitRgn::~AkaoSnesDrumKitRgn() {
-}
+AkaoSnesDrumKitRgn::~AkaoSnesDrumKitRgn() = default;

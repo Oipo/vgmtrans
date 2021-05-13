@@ -18,10 +18,9 @@ FFTSeq::FFTSeq(RawFile *file, uint32_t offset)
   UseReverb();
 }
 
-FFTSeq::~FFTSeq(void) {
-}
+FFTSeq::~FFTSeq() = default;
 
-bool FFTSeq::GetHeaderInfo(void) {
+bool FFTSeq::GetHeaderInfo() {
 
 //-----------------------------------------------------------
 //	Written by "Sound tester 774" in "内蔵音源をMIDI変換するスレ(in http://www.2ch.net)"
@@ -30,7 +29,7 @@ bool FFTSeq::GetHeaderInfo(void) {
 //-----------------------------------------------------------
   unLength = GetShort(dwOffset + 0x08);
   nNumTracks = GetByte(dwOffset + 0x14);    //uint8_t (8bit)		GetWord() から修正
-  uint8_t cNumPercussion = GetByte(dwOffset + 0x15);    //uint8_t (8bit)	Quantity of Percussion struct
+  /*uint8_t cNumPercussion =*/ GetByte(dwOffset + 0x15);    //uint8_t (8bit)	Quantity of Percussion struct
 //	unsigned char	cBankNum		= GetByte(dwOffset+0x16);
   assocWdsID = GetShort(dwOffset + 0x16);    //uint16_t (16bit)	Default program bank No.
   uint16_t ptSongTitle = GetShort(dwOffset + 0x1E);    //uint16_t (16bit)	Pointer of music title (AscII strings)
@@ -54,7 +53,7 @@ bool FFTSeq::GetHeaderInfo(void) {
   VGMHeader *trackPtrs = AddHeader(dwOffset + 0x22, nNumTracks * 2, L"Track Pointers");
   for (unsigned int i = 0; i < nNumTracks; i++)
     trackPtrs->AddSimpleItem(dwOffset + 0x22 + i * 2, 2, L"Track Pointer");
-  VGMHeader *titleHdr = AddHeader(dwOffset + ptSongTitle, titleLength, L"Song Name");
+  /*VGMHeader *titleHdr =*/ AddHeader(dwOffset + ptSongTitle, titleLength, L"Song Name");
 
 //	if(cNumPercussion!=0){										//これ、やっぱ、いらない。
 //		hdr->AddSimpleItem(dwOffset+ptPercussionTbl, cNumPercussion*5, L"Drumkit Struct");
@@ -78,7 +77,7 @@ bool FFTSeq::GetHeaderInfo(void) {
 }
 
 
-bool FFTSeq::GetTrackPointers(void) {
+bool FFTSeq::GetTrackPointers() {
   for (unsigned int i = 0; i < nNumTracks; i++)
     aTracks.push_back(new FFTTrack(this, GetShort(dwOffset + 0x22 + (i * 2)) + dwOffset));
   return true;
@@ -117,7 +116,7 @@ void FFTTrack::ResetVars() {
 //	2009. 6.17(Wed.) :	Re-make by "Sound tester 774" in "内蔵音源をMIDI変換するスレ(in http://www.2ch.net)"
 //						Add un-known command(op-code).
 //--------------------------------------------------
-bool FFTTrack::ReadEvent(void) {
+bool FFTTrack::ReadEvent() {
   uint32_t beginOffset = curOffset;
   uint8_t status_byte = GetByte(curOffset++);
 
@@ -185,7 +184,8 @@ bool FFTTrack::ReadEvent(void) {
 
         //Set octave
       case 0x94:
-        AddSetOctave(curOffset - 2, 2, GetByte(curOffset++));
+        curOffset++;
+        AddSetOctave(curOffset - 2, 2, GetByte(curOffset));
         break;
 
         //Inc octave
@@ -203,7 +203,7 @@ bool FFTTrack::ReadEvent(void) {
       case 0x97: {
         uint8_t numer = GetByte(curOffset++);
         uint8_t denom = GetByte(curOffset++);
-        AddTimeSig(beginOffset, curOffset - beginOffset, numer, denom, (uint8_t) parentSeq->GetPPQN());
+        AddTimeSig(beginOffset, curOffset - beginOffset, numer, denom,  parentSeq->GetPPQN());
         break;
       }
 
@@ -282,7 +282,7 @@ bool FFTTrack::ReadEvent(void) {
 
         //tempo slide
       case 0xA2: {
-        uint8_t cTempoSlideTimes = GetByte(curOffset++);        //slide times [ticks]
+        /*uint8_t cTempoSlideTimes =*/ GetByte(curOffset++);        //slide times [ticks]
         uint8_t cTempoSlideTarget = (GetByte(curOffset++) * 256) / 218;        //Target Panpot
         AddTempoBPM(beginOffset, curOffset - beginOffset, cTempoSlideTarget, L"Tempo slide");
         break;
@@ -410,11 +410,6 @@ bool FFTTrack::ReadEvent(void) {
 
         // unknown
       case 0xD0:
-        curOffset++;
-        AddUnknown(beginOffset, curOffset - beginOffset);
-        break;
-
-        // unknown
       case 0xD1:
         curOffset++;
         AddUnknown(beginOffset, curOffset - beginOffset);
@@ -428,8 +423,8 @@ bool FFTTrack::ReadEvent(void) {
 
         //Portamento (Pitch bend slide)
       case 0xD4: {
-        uint8_t cPitchSlideTimes = GetByte(curOffset++);        //slide times [ticks]
-        uint8_t cPitchSlideDepth = GetByte(curOffset++);        //Target Panpot
+        /*uint8_t cPitchSlideTimes =*/ GetByte(curOffset++);        //slide times [ticks]
+        /*uint8_t cPitchSlideDepth =*/ GetByte(curOffset++);        //Target Panpot
         AddGenericEvent(beginOffset, curOffset - beginOffset, L"Portamento", L"", CLR_PORTAMENTO);
         break;
       }
@@ -442,16 +437,16 @@ bool FFTTrack::ReadEvent(void) {
 
         // LFO Depth
       case 0xD7: {
-        uint8_t cPitchLFO_Depth = GetByte(curOffset++);        //slide times [ticks]
+        /*uint8_t cPitchLFO_Depth =*/ GetByte(curOffset++);        //slide times [ticks]
         AddGenericEvent(beginOffset, curOffset - beginOffset, L"LFO Depth (Pitch bend)", L"", CLR_LFO);
         break;
       }
 
         // LFO Length
       case 0xD8: {
-        uint8_t cPitchLFO_Decay2 = GetByte(curOffset++);
-        uint8_t cPitchLFO_Cycle = GetByte(curOffset++);
-        uint8_t cPitchLFO_Decay1 = GetByte(curOffset++);
+        /*uint8_t cPitchLFO_Decay2 =*/ GetByte(curOffset++);
+        /*uint8_t cPitchLFO_Cycle =*/ GetByte(curOffset++);
+        /*uint8_t cPitchLFO_Decay1 =*/ GetByte(curOffset++);
         AddGenericEvent(beginOffset, curOffset - beginOffset, L"LFO Length (Pitch bend)", L"", CLR_LFO);
         break;
       }
@@ -474,7 +469,8 @@ bool FFTTrack::ReadEvent(void) {
 
         // Volume
       case 0xE0:
-        AddVol(curOffset - 2, 2, GetByte(curOffset++));
+        curOffset++;
+        AddVol(curOffset - 2, 2, GetByte(curOffset));
         break;
 
         // add volume... add the value to the current vol.
@@ -493,16 +489,16 @@ bool FFTTrack::ReadEvent(void) {
 
         // LFO Depth
       case 0xE3: {
-        uint8_t cVolLFO_Depth = GetByte(curOffset++);        //
+        /*uint8_t cVolLFO_Depth =*/ GetByte(curOffset++);        //
         AddGenericEvent(beginOffset, curOffset - beginOffset, L"LFO Depth (Volume)", L"", CLR_LFO);
         break;
       }
 
         // LFO Length
       case 0xE4: {
-        uint8_t cVolLFO_Decay2 = GetByte(curOffset++);
-        uint8_t cVolLFO_Cycle = GetByte(curOffset++);
-        uint8_t cVolLFO_Decay1 = GetByte(curOffset++);
+        /*uint8_t cVolLFO_Decay2 =*/ GetByte(curOffset++);
+        /*uint8_t cVolLFO_Cycle =*/ GetByte(curOffset++);
+        /*uint8_t cVolLFO_Decay1 =*/ GetByte(curOffset++);
         AddGenericEvent(beginOffset, curOffset - beginOffset, L"LFO Length (Volume)", L"", CLR_LFO);
         break;
       }
@@ -525,7 +521,8 @@ bool FFTTrack::ReadEvent(void) {
 
         // Panpot
       case 0xE8:
-        AddPan(curOffset - 2, 2, GetByte(curOffset++));
+        curOffset++;
+        AddPan(curOffset - 2, 2, GetByte(curOffset));
         break;
 
         // unknown
@@ -544,16 +541,16 @@ bool FFTTrack::ReadEvent(void) {
 
         // LFO Depth
       case 0xEB: {
-        uint8_t cPanLFO_Depth = GetByte(curOffset++);
+        /*uint8_t cPanLFO_Depth =*/ GetByte(curOffset++);
         AddGenericEvent(beginOffset, curOffset - beginOffset, L"LFO Depth (Panpot)", L"", CLR_LFO);
         break;
       }
 
         // LFO Length
       case 0xEC: {
-        uint8_t cPanLFO_Decay2 = GetByte(curOffset++);
-        uint8_t cPanLFO_Cycle = GetByte(curOffset++);
-        uint8_t cPanLFO_Decay1 = GetByte(curOffset++);
+        /*uint8_t cPanLFO_Decay2 =*/ GetByte(curOffset++);
+        /*uint8_t cPanLFO_Cycle =*/ GetByte(curOffset++);
+        /*uint8_t cPanLFO_Decay1 =*/ GetByte(curOffset++);
         AddGenericEvent(beginOffset, curOffset - beginOffset, L"LFO Length (Panpot)", L"", CLR_LFO);
         break;
       }
@@ -610,7 +607,7 @@ bool FFTTrack::ReadEvent(void) {
 
         // Program(WDS) bank select
       case 0xFE:
-        uint8_t cProgBankNum = GetByte(curOffset++);        //Bank Number [ticks]
+        /*uint8_t cProgBankNum = */ GetByte(curOffset++);        //Bank Number [ticks]
         AddGenericEvent(beginOffset, curOffset - beginOffset, L"Program bank select", L"", CLR_PROGCHANGE);
         break;
 

@@ -5,9 +5,9 @@
 class GSFLoader:
     public VGMLoader {
  public:
-  GSFLoader(void);
+  GSFLoader();
  public:
-  virtual ~GSFLoader(void);
+  virtual ~GSFLoader();
 
   virtual PostLoadCommand Apply(RawFile *theFile);
   const wchar_t *psf_read_exe(RawFile *file, unsigned char *&exebuffer, size_t &exebuffersize);

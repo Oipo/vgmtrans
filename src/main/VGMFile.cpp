@@ -3,6 +3,8 @@
 #include "common.h"
 #include "Root.h"
 #include "VGMFile.h"
+
+#include <utility>
 #include "Format.h"
 
 DECLARE_MENU(VGMFile)
@@ -16,25 +18,22 @@ VGMFile::VGMFile(FileType fileType,
                  uint32_t length,
                  wstring theName)
     : VGMContainerItem(this, offset, length),
+      file_type(fileType),
+      format(fmt),
+      name(std::move(theName)),
       rawfile(theRawFile),
       bUsingRawFile(true),
-      bUsingCompressedLocalData(false),
-      format(fmt),
-      file_type(fileType),
-      name(theName),
-      id(-1) {
+      bUsingCompressedLocalData(false) {
 }
 
-VGMFile::~VGMFile(void) {
-
-}
+VGMFile::~VGMFile() = default;
 
 // Only difference between this AddToUI and VGMItemContainer's version is that we do not add
 // this as an item because we do not want the VGMFile to be itself an item in the Item View
 void VGMFile::AddToUI(VGMItem *parent, void *UI_specific) {
-  for (uint32_t i = 0; i < containers.size(); i++) {
-    for (uint32_t j = 0; j < containers[i]->size(); j++)
-      (*containers[i])[j]->AddToUI(this, UI_specific);
+  for (auto & container : containers) {
+    for (auto & j : *container)
+      j->AddToUI(this, UI_specific);
   }
 }
 
@@ -83,7 +82,7 @@ const string &VGMFile::GetFormatName() {
 }
 
 
-const wstring *VGMFile::GetName(void) const {
+const wstring *VGMFile::GetName() const {
   return &name;
 }
 
@@ -92,14 +91,14 @@ void VGMFile::AddCollAssoc(VGMColl *coll) {
 }
 
 void VGMFile::RemoveCollAssoc(VGMColl *coll) {
-  list<VGMColl *>::iterator iter = find(assocColls.begin(), assocColls.end(), coll);
+  auto iter = find(assocColls.begin(), assocColls.end(), coll);
   if (iter != assocColls.end())
     assocColls.erase(iter);
 }
 
 //These functions are common to all VGMItems, but no reason to refer to vgmfile
 //or call GetRawFile() if the item itself is a VGMFile
-RawFile *VGMFile::GetRawFile() {
+RawFile *VGMFile::GetRawFile() const {
   return rawfile;
 }
 
@@ -149,27 +148,26 @@ uint32_t VGMFile::GetBytes(uint32_t nIndex, uint32_t nCount, void *pBuffer) {
 // VGMHeader
 // *********
 
-VGMHeader::VGMHeader(VGMItem *parItem, uint32_t offset, uint32_t length, const std::wstring &name)
-    : VGMContainerItem(parItem->vgmfile, offset, length, name) {
+VGMHeader::VGMHeader(VGMItem *parItem, uint32_t offset, uint32_t length, const std::wstring &_name)
+    : VGMContainerItem(parItem->vgmfile, offset, length, _name) {
 }
 
-VGMHeader::~VGMHeader() {
-}
+VGMHeader::~VGMHeader() = default;
 
 void VGMHeader::AddPointer(uint32_t offset,
                            uint32_t length,
                            uint32_t destAddress,
                            bool notNull,
-                           const std::wstring &name) {
-  localitems.push_back(new VGMHeaderItem(this, VGMHeaderItem::HIT_POINTER, offset, length, name));
+                           const std::wstring &_name) {
+  localitems.push_back(new VGMHeaderItem(this, VGMHeaderItem::HIT_POINTER, offset, length, _name));
 }
 
-void VGMHeader::AddTempo(uint32_t offset, uint32_t length, const std::wstring &name) {
-  localitems.push_back(new VGMHeaderItem(this, VGMHeaderItem::HIT_TEMPO, offset, length, name));
+void VGMHeader::AddTempo(uint32_t offset, uint32_t length, const std::wstring &_name) {
+  localitems.push_back(new VGMHeaderItem(this, VGMHeaderItem::HIT_TEMPO, offset, length, _name));
 }
 
-void VGMHeader::AddSig(uint32_t offset, uint32_t length, const std::wstring &name) {
-  localitems.push_back(new VGMHeaderItem(this, VGMHeaderItem::HIT_SIG, offset, length, name));
+void VGMHeader::AddSig(uint32_t offset, uint32_t length, const std::wstring &_name) {
+  localitems.push_back(new VGMHeaderItem(this, VGMHeaderItem::HIT_SIG, offset, length, _name));
 }
 
 // *************
@@ -180,8 +178,8 @@ VGMHeaderItem::VGMHeaderItem(VGMHeader *hdr,
                              HdrItemType theType,
                              uint32_t offset,
                              uint32_t length,
-                             const std::wstring &name)
-    : VGMItem(hdr->vgmfile, offset, length, name, CLR_HEADER), type(theType) {
+                             const std::wstring &_name)
+    : VGMItem(hdr->vgmfile, offset, length, _name, CLR_HEADER), type(theType) {
 }
 
 VGMItem::Icon VGMHeaderItem::GetIcon() {
@@ -193,7 +191,6 @@ VGMItem::Icon VGMHeaderItem::GetIcon() {
     case HIT_TEMPO:
       return ICON_TEMPO;
     case HIT_SIG:
-      return ICON_BINARY;
     default:
       return ICON_BINARY;
   }

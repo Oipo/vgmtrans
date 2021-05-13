@@ -11,7 +11,7 @@ TriAcePS1InstrSet::TriAcePS1InstrSet(RawFile *file, uint32_t offset)
     : VGMInstrSet(TriAcePS1Format::name, file, offset, 0, L"TriAce InstrSet") {
 }
 
-TriAcePS1InstrSet::~TriAcePS1InstrSet(void) {
+TriAcePS1InstrSet::~TriAcePS1InstrSet() {
 }
 
 
@@ -82,7 +82,7 @@ TriAcePS1Instr::TriAcePS1Instr(VGMInstrSet *instrSet,
                                uint32_t theBank,
                                uint32_t theInstrNum)
     : VGMInstr(instrSet, offset, length, theBank, theInstrNum),
-      rgns(NULL) {
+      rgns(nullptr) {
 }
 
 //==============================================================
@@ -130,7 +130,7 @@ bool TriAcePS1Instr::LoadInstr() {
     rgn->AddUnityKey((int8_t) 0x3B - rgninfo->pitchTuneSemitones,
                      rgn->dwOffset + 13);  //You would think it would be 0x3C (middle c)
     rgn->AddSimpleItem(rgn->dwOffset + 14, 1, L"Pitch Fine Tune");
-    rgn->fineTune = (short) ((double) rgninfo->pitchTuneFine / 64.0 * 100);
+    rgn->fineTune = (short) (static_cast<double>( rgninfo->pitchTuneFine / 64.0 * 100);
     rgn->sampCollPtr = ((VGMInstrSet *) this->vgmfile)->sampColl;
     rgn->AddSimpleItem(rgn->dwOffset + 15, 5, L"Unknown values");
 
@@ -138,7 +138,7 @@ bool TriAcePS1Instr::LoadInstr() {
     PSXConvADSR(rgn, instrinfo.ADSR1, instrinfo.ADSR2, false);
     // Attenuation is not using a linear scale. Will need to look at the original code.  For now, it's ignored.
     //  also, be aware the same scale may be employed for vol and expression events (haven't investigated).
-    //long dlsAtten = -(ConvertPercentVolToAttenDB(rgninfo->attenuation/((double)255)) * DLS_DECIBEL_UNIT);
+    //long dlsAtten = -(ConvertPercentVolToAttenDB(rgninfo->attenuation/(static_cast<double>(255)) * DLS_DECIBEL_UNIT);
     //rgn->SetAttenuation(dlsAtten);
     aRgns.push_back(rgn);
   }

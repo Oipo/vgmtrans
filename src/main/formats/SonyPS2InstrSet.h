@@ -5,9 +5,6 @@
 #include "VGMRgn.h"
 #include "SonyPS2Format.h"
 
-//FORWARD_DECLARE_TYPEDEF_STRUCT(ProgParam);
-
-
 #define SCEHD_LFO_NON        0
 #define SCEHD_LFO_SAWUP      1
 #define SCEHD_LFO_SAWDOWN    2
@@ -98,9 +95,9 @@ class SonyPS2Instr
   } SplitBlock;
 
   SonyPS2Instr(VGMInstrSet *instrSet, uint32_t offset, uint32_t length, uint32_t theBank, uint32_t theInstrNum);
-  virtual ~SonyPS2Instr(void);
+  virtual ~SonyPS2Instr();
 
-  virtual bool LoadInstr();
+  bool LoadInstr() override;
   int8_t ConvertPanVal(uint8_t panVal);
 
  public:
@@ -245,10 +242,10 @@ class SonyPS2InstrSet
   } VAGInfoCk;
 
   SonyPS2InstrSet(RawFile *file, uint32_t offset);
-  virtual ~SonyPS2InstrSet(void);
+  virtual ~SonyPS2InstrSet();
 
-  virtual bool GetHeaderInfo();
-  virtual bool GetInstrPointers();
+  bool GetHeaderInfo() override;
+  bool GetInstrPointers() override;
 
  protected:
   VersCk versCk;

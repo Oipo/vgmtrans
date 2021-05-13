@@ -7,10 +7,10 @@ enum CompileSnesVersion: uint8_t; // see CompileSnesFormat.h
 class CompileSnesScanner:
     public VGMScanner {
  public:
-  CompileSnesScanner(void) {
+  CompileSnesScanner() {
     USE_EXTENSION(L"spc");
   }
-  virtual ~CompileSnesScanner(void) {
+  virtual ~CompileSnesScanner() {
   }
 
   virtual void Scan(RawFile *file, void *info = 0);

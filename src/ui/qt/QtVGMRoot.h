@@ -12,8 +12,8 @@ class QtVGMRoot
     Q_OBJECT
 
 public:
-    QtVGMRoot(void);
-    virtual ~QtVGMRoot(void);
+    QtVGMRoot();
+    virtual ~QtVGMRoot();
 
     virtual void UI_SetRootPtr(VGMRoot** theRoot);
     virtual void UI_PreExit();

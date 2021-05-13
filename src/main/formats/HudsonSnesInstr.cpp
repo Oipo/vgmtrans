@@ -10,16 +10,15 @@ HudsonSnesInstrSet::HudsonSnesInstrSet(RawFile *file,
                                        HudsonSnesVersion ver,
                                        uint32_t offset,
                                        uint32_t length,
-                                       uint32_t spcDirAddr,
-                                       uint32_t addrSampTuningTable,
-                                       const std::wstring &name) :
-    VGMInstrSet(HudsonSnesFormat::name, file, offset, length, name), version(ver),
-    spcDirAddr(spcDirAddr),
-    addrSampTuningTable(addrSampTuningTable) {
+                                       uint32_t _spcDirAddr,
+                                       uint32_t _addrSampTuningTable,
+                                       const std::wstring &_name) :
+    VGMInstrSet(HudsonSnesFormat::name, file, offset, length, _name), version(ver),
+    spcDirAddr(_spcDirAddr),
+    addrSampTuningTable(_addrSampTuningTable) {
 }
 
-HudsonSnesInstrSet::~HudsonSnesInstrSet() {
-}
+HudsonSnesInstrSet::~HudsonSnesInstrSet() = default;
 
 bool HudsonSnesInstrSet::GetHeaderInfo() {
   return true;
@@ -52,7 +51,7 @@ bool HudsonSnesInstrSet::GetInstrPointers() {
         new HudsonSnesInstr(this, version, ofsInstrEntry, instrNum, spcDirAddr, addrSampTuningTable, instrName.str());
     aInstrs.push_back(newInstr);
   }
-  if (aInstrs.size() == 0) {
+  if (aInstrs.empty()) {
     return false;
   }
 
@@ -73,17 +72,16 @@ bool HudsonSnesInstrSet::GetInstrPointers() {
 HudsonSnesInstr::HudsonSnesInstr(VGMInstrSet *instrSet,
                                  HudsonSnesVersion ver,
                                  uint32_t offset,
-                                 uint8_t instrNum,
-                                 uint32_t spcDirAddr,
-                                 uint32_t addrSampTuningTable,
-                                 const std::wstring &name) :
-    VGMInstr(instrSet, offset, 4, 0, instrNum, name), version(ver),
-    spcDirAddr(spcDirAddr),
-    addrSampTuningTable(addrSampTuningTable) {
+                                 uint8_t _instrNum,
+                                 uint32_t _spcDirAddr,
+                                 uint32_t _addrSampTuningTable,
+                                 const std::wstring &_name) :
+    VGMInstr(instrSet, offset, 4, 0, _instrNum, _name), version(ver),
+    spcDirAddr(_spcDirAddr),
+    addrSampTuningTable(_addrSampTuningTable) {
 }
 
-HudsonSnesInstr::~HudsonSnesInstr() {
-}
+HudsonSnesInstr::~HudsonSnesInstr() = default;
 
 bool HudsonSnesInstr::LoadInstr() {
   uint8_t srcn = GetByte(dwOffset);
@@ -118,7 +116,7 @@ HudsonSnesRgn::HudsonSnesRgn(HudsonSnesInstr *instr,
                              uint32_t addrTuningEntry) :
     VGMRgn(instr, offset, 4),
     version(ver) {
-  uint8_t srcn = GetByte(dwOffset);
+//  uint8_t srcn = GetByte(dwOffset);
   uint8_t adsr1 = GetByte(dwOffset + 1);
   uint8_t adsr2 = GetByte(dwOffset + 2);
   uint8_t gain = GetByte(dwOffset + 3);
@@ -146,8 +144,8 @@ HudsonSnesRgn::HudsonSnesRgn(HudsonSnesInstr *instr,
   int8_t coarse_tuning_byte = GetByte(addrTuningEntry + 2);
   int8_t fine_tuning_byte = GetByte(addrTuningEntry + 3);
 
-  unityKey = 71 - (int) (coarse_tuning) - coarse_tuning_byte;
-  fineTune = (int16_t) (fine_tuning + (fine_tuning_byte / 256.0) * 100.0);
+  unityKey = 71 - static_cast<int> (coarse_tuning) - coarse_tuning_byte;
+  fineTune = static_cast<int16_t>(fine_tuning + (fine_tuning_byte / 256.0) * 100.0);
 
   AddSimpleItem(addrTuningEntry, 2, L"Pitch Multiplier");
   AddSimpleItem(addrTuningEntry + 2, 1, L"Coarse Tune");
@@ -155,8 +153,7 @@ HudsonSnesRgn::HudsonSnesRgn(HudsonSnesInstr *instr,
   SNESConvADSR<VGMRgn>(this, adsr1, adsr2, gain);
 }
 
-HudsonSnesRgn::~HudsonSnesRgn() {
-}
+HudsonSnesRgn::~HudsonSnesRgn() = default;
 
 bool HudsonSnesRgn::LoadRgn() {
   return true;

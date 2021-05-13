@@ -8,18 +8,17 @@
 
 CompileSnesInstrSet::CompileSnesInstrSet(RawFile *file,
                                          CompileSnesVersion ver,
-                                         uint16_t addrTuningTable,
-                                         uint16_t addrPitchTablePtrs,
-                                         uint32_t spcDirAddr,
-                                         const std::wstring &name)
-    : VGMInstrSet(CompileSnesFormat::name, file, addrTuningTable, 0, name), version(ver),
-      addrTuningTable(addrTuningTable),
-      addrPitchTablePtrs(addrPitchTablePtrs),
-      spcDirAddr(spcDirAddr) {
+                                         uint16_t _addrTuningTable,
+                                         uint16_t _addrPitchTablePtrs,
+                                         uint32_t _spcDirAddr,
+                                         const std::wstring &_name)
+    : VGMInstrSet(CompileSnesFormat::name, file, _addrTuningTable, 0, _name), version(ver),
+      addrTuningTable(_addrTuningTable),
+      addrPitchTablePtrs(_addrPitchTablePtrs),
+      spcDirAddr(_spcDirAddr) {
 }
 
-CompileSnesInstrSet::~CompileSnesInstrSet() {
-}
+CompileSnesInstrSet::~CompileSnesInstrSet() = default;
 
 bool CompileSnesInstrSet::GetHeaderInfo() {
   return true;
@@ -59,7 +58,7 @@ bool CompileSnesInstrSet::GetInstrPointers() {
         new CompileSnesInstr(this, version, ofsInstrEntry, addrPitchTablePtrs, srcn, spcDirAddr, instrName.str());
     aInstrs.push_back(newInstr);
   }
-  if (aInstrs.size() == 0) {
+  if (aInstrs.empty()) {
     return false;
   }
 
@@ -80,17 +79,16 @@ bool CompileSnesInstrSet::GetInstrPointers() {
 CompileSnesInstr::CompileSnesInstr(VGMInstrSet *instrSet,
                                    CompileSnesVersion ver,
                                    uint16_t addrTuningTableItem,
-                                   uint16_t addrPitchTablePtrs,
+                                   uint16_t _addrPitchTablePtrs,
                                    uint8_t srcn,
-                                   uint32_t spcDirAddr,
-                                   const std::wstring &name)
-    : VGMInstr(instrSet, addrTuningTableItem, CompileSnesInstr::ExpectedSize(ver), 0, srcn, name), version(ver),
-      addrPitchTablePtrs(addrPitchTablePtrs),
-      spcDirAddr(spcDirAddr) {
+                                   uint32_t _spcDirAddr,
+                                   const std::wstring &_name)
+    : VGMInstr(instrSet, addrTuningTableItem, CompileSnesInstr::ExpectedSize(ver), 0, srcn, _name), version(ver),
+      addrPitchTablePtrs(_addrPitchTablePtrs),
+      spcDirAddr(_spcDirAddr) {
 }
 
-CompileSnesInstr::~CompileSnesInstr() {
-}
+CompileSnesInstr::~CompileSnesInstr() = default;
 
 bool CompileSnesInstr::LoadInstr() {
   uint32_t offDirEnt = spcDirAddr + (instrNum * 4);
@@ -184,7 +182,7 @@ CompileSnesRgn::CompileSnesRgn(CompileSnesInstr *instr,
   uint8_t theUnityKey = 0;
   uint16_t bestPitchDistance = 0xffff;
   for (uint8_t key = 0; key < pitchTable.size(); key++) {
-    uint16_t pitchDistance = abs((int) pitchTable[key] - 0x1000);
+    uint16_t pitchDistance = abs(pitchTable[key] - 0x1000);
     if (pitchDistance < bestPitchDistance) {
       bestPitchDistance = pitchDistance;
       theUnityKey = key;
@@ -211,8 +209,8 @@ CompileSnesRgn::CompileSnesRgn(CompileSnesInstr *instr,
   coarse_tuning += transpose;
 
   // set final result
-  unityKey = theUnityKey - 24 - (int) (coarse_tuning);
-  fineTune = (int16_t) (fine_tuning * 100.0);
+  unityKey = theUnityKey - 24 - static_cast<int>(coarse_tuning);
+  fineTune = static_cast<int16_t>(fine_tuning * 100.0);
 
   uint8_t adsr1 = 0x8f;
   uint8_t adsr2 = 0xe0;

@@ -6,9 +6,9 @@ enum PostLoadCommand { KEEP_IT, DELETE_IT };
 
 class VGMLoader {
  public:
-  VGMLoader(void);
+  VGMLoader();
  public:
-  virtual ~VGMLoader(void);
+  virtual ~VGMLoader();
 
   virtual PostLoadCommand Apply(RawFile *theFile);
 };

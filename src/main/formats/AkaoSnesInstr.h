@@ -15,15 +15,15 @@ class AkaoSnesInstrSet:
 
   AkaoSnesInstrSet(RawFile *file,
                    AkaoSnesVersion ver,
-                   uint32_t spcDirAddr,
-                   uint16_t addrTuningTable,
-                   uint16_t addrADSRTable,
-                   uint16_t addrDrumKitTable,
-                   const std::wstring &name = L"AkaoSnesInstrSet");
-  virtual ~AkaoSnesInstrSet(void);
+                   uint32_t _spcDirAddr,
+                   uint16_t _addrTuningTable,
+                   uint16_t _addrADSRTable,
+                   uint16_t _addrDrumKitTable,
+                   const std::wstring &_name = L"AkaoSnesInstrSet");
+  virtual ~AkaoSnesInstrSet();
 
-  virtual bool GetHeaderInfo();
-  virtual bool GetInstrPointers();
+  bool GetHeaderInfo() override;
+  bool GetInstrPointers() override;
 
   AkaoSnesVersion version;
 
@@ -45,13 +45,13 @@ class AkaoSnesInstr
   AkaoSnesInstr(VGMInstrSet *instrSet,
                 AkaoSnesVersion ver,
                 uint8_t srcn,
-                uint32_t spcDirAddr,
-                uint16_t addrTuningTable,
-                uint16_t addrADSRTable,
-                const std::wstring &name = L"AkaoSnesInstr");
-  virtual ~AkaoSnesInstr(void);
+                uint32_t _spcDirAddr,
+                uint16_t _addrTuningTable,
+                uint16_t _addrADSRTable,
+                const std::wstring &_name = L"AkaoSnesInstr");
+  virtual ~AkaoSnesInstr();
 
-  virtual bool LoadInstr();
+  bool LoadInstr() override;
 
   AkaoSnesVersion version;
 
@@ -71,14 +71,14 @@ public:
   AkaoSnesDrumKit(VGMInstrSet *instrSet,
                   AkaoSnesVersion ver,
                   uint32_t programNum,
-                  uint32_t spcDirAddr,
-                  uint16_t addrTuningTable,
-                  uint16_t addrADSRTable,
-                  uint16_t addrDrumKitTable,
-                  const std::wstring &name = L"AkaoSnesDrumKit");
-  virtual ~AkaoSnesDrumKit(void);
+                  uint32_t _spcDirAddr,
+                  uint16_t _addrTuningTable,
+                  uint16_t _addrADSRTable,
+                  uint16_t _addrDrumKitTable,
+                  const std::wstring &_name = L"AkaoSnesDrumKit");
+  virtual ~AkaoSnesDrumKit();
 
-  virtual bool LoadInstr();
+  bool LoadInstr() override;
 
   AkaoSnesVersion version;
 
@@ -99,12 +99,12 @@ class AkaoSnesRgn
   AkaoSnesRgn(VGMInstr *instr,
               AkaoSnesVersion ver,
               uint16_t addrTuningTable);
-  virtual ~AkaoSnesRgn(void);
+  virtual ~AkaoSnesRgn();
 
   bool InitializeRegion(uint8_t srcn,
                         uint32_t spcDirAddr,
                         uint16_t addrADSRTable);
-  virtual bool LoadRgn();
+  bool LoadRgn() override;
 
   AkaoSnesVersion version;
 };
@@ -126,7 +126,7 @@ public:
   AkaoSnesDrumKitRgn(AkaoSnesDrumKit *instr,
                      AkaoSnesVersion ver,
                      uint16_t addrTuningTable);
-  virtual ~AkaoSnesDrumKitRgn(void);
+  virtual ~AkaoSnesDrumKitRgn();
 
   bool InitializePercussionRegion(uint8_t srcn,
                                   uint32_t spcDirAddr,

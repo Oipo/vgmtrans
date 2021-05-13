@@ -5,10 +5,10 @@
 
 #define SRCH_BUF_SIZE 0x20000
 
-SquarePS2Scanner::SquarePS2Scanner(void) {
+SquarePS2Scanner::SquarePS2Scanner() {
 }
 
-SquarePS2Scanner::~SquarePS2Scanner(void) {
+SquarePS2Scanner::~SquarePS2Scanner() {
 }
 
 void SquarePS2Scanner::Scan(RawFile *file, void *info) {
@@ -81,7 +81,7 @@ void SquarePS2Scanner::SearchForWDSet(RawFile *file) {
 
             //if there are at least 3 zeroOffsetCounters and more than half
             // /of all samples are offset 0, something is fishy.  Assume false-positive
-            if (zeroOffsetCounter >= 3 && zeroOffsetCounter / (float) numRegions > 0.50) {
+            if (zeroOffsetCounter >= 3 && zeroOffsetCounter / static_cast<float>( numRegions > 0.50) {
               bValid = false;
               break;
             }

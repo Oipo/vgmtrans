@@ -6,7 +6,7 @@
 VGMScanner::VGMScanner() {
 }
 
-VGMScanner::~VGMScanner(void) {
+VGMScanner::~VGMScanner() {
 }
 
 bool VGMScanner::Init() {

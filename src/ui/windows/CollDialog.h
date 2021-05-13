@@ -69,8 +69,8 @@ public:
 	END_DLGRESIZE_MAP()
 
 protected:
-	void InitializeControls(void);
-	void InitializeValues(void);
+	void InitializeControls();
+	void InitializeValues();
 public:
 	void Clear();
 	void DisplayCollection(VGMColl* coll);

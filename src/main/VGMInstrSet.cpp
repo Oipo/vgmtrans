@@ -1,5 +1,7 @@
 #include "pch.h"
 #include "VGMInstrSet.h"
+
+#include <utility>
 #include "VGMSampColl.h"
 #include "VGMRgn.h"
 #include "VGMColl.h"
@@ -13,13 +15,13 @@ using namespace std;
 // VGMInstrSet
 // ***********
 
-VGMInstrSet::VGMInstrSet(const string &format,/*FmtID fmtID,*/
+VGMInstrSet::VGMInstrSet(const string &_format,/*FmtID fmtID,*/
                          RawFile *file,
                          uint32_t offset,
                          uint32_t length,
-                         wstring name,
+                         wstring _name,
                          VGMSampColl *theSampColl)
-    : VGMFile(FILETYPE_INSTRSET, /*fmtID,*/format, file, offset, length, name), sampColl(theSampColl), allowEmptyInstrs(false) {
+    : VGMFile(FILETYPE_INSTRSET, /*fmtID,*/_format, file, offset, length, std::move(_name)), sampColl(theSampColl), allowEmptyInstrs(false) {
   AddContainer<VGMInstr>(aInstrs);
 }
 
@@ -31,13 +33,13 @@ VGMInstrSet::~VGMInstrSet() {
 
 VGMInstr *VGMInstrSet::AddInstr(uint32_t offset, uint32_t length, unsigned long bank,
                                 unsigned long instrNum, const wstring &instrName) {
-  wostringstream name;
-  if (instrName == L"")
-    name << L"Instrument " << aInstrs.size();
+  wostringstream _name;
+  if (instrName.empty())
+    _name << L"Instrument " << aInstrs.size();
   else
-    name << instrName;
+    _name << instrName;
 
-  VGMInstr *instr = new VGMInstr(this, offset, length, bank, instrNum, name.str());
+  VGMInstr *instr = new VGMInstr(this, offset, length, bank, instrNum, _name.str());
   aInstrs.push_back(instr);
   return instr;
 }
@@ -57,7 +59,7 @@ bool VGMInstrSet::Load() {
     SetGuessedLength();
   }
 
-  if (sampColl != NULL) {
+  if (sampColl != nullptr) {
     if (!sampColl->Load()) {
       pRoot->AddLogItem(new LogItem(L"Failed to load VGMSampColl.", LOG_LEVEL_ERR, L"VGMInstrSet"));
     }
@@ -88,7 +90,7 @@ bool VGMInstrSet::LoadInstrs() {
 }
 
 
-bool VGMInstrSet::OnSaveAsDLS(void) {
+bool VGMInstrSet::OnSaveAsDLS() {
   wstring filepath = pRoot->UI_GetSaveFilePath(ConvertToSafeFileName(name), L"dls");
   if (filepath.length() != 0) {
     return SaveAsDLS(filepath.c_str());
@@ -96,7 +98,7 @@ bool VGMInstrSet::OnSaveAsDLS(void) {
   return false;
 }
 
-bool VGMInstrSet::OnSaveAsSF2(void) {
+bool VGMInstrSet::OnSaveAsSF2() {
   wstring filepath = pRoot->UI_GetSaveFilePath(ConvertToSafeFileName(name), L"sf2");
   if (filepath.length() != 0) {
     return SaveAsSF2(filepath);
@@ -109,7 +111,7 @@ bool VGMInstrSet::SaveAsDLS(const std::wstring &filepath) {
   DLSFile dlsfile;
   bool dlsCreationSucceeded = false;
 
-  if (assocColls.size())
+  if (!assocColls.empty())
     dlsCreationSucceeded = assocColls.front()->CreateDLSFile(dlsfile);
   else
     return false;
@@ -121,13 +123,13 @@ bool VGMInstrSet::SaveAsDLS(const std::wstring &filepath) {
 }
 
 bool VGMInstrSet::SaveAsSF2(const std::wstring &filepath) {
-  SF2File *sf2file = NULL;
+  SF2File *sf2file = nullptr;
 
-  if (assocColls.size())
+  if (!assocColls.empty())
     sf2file = assocColls.front()->CreateSF2File();
   else
     return false;
-  if (sf2file != NULL) {
+  if (sf2file != nullptr) {
     bool bResult = sf2file->SaveSF2File(filepath);
     delete sf2file;
     return bResult;
@@ -141,11 +143,11 @@ bool VGMInstrSet::SaveAsSF2(const std::wstring &filepath) {
 // ********
 
 VGMInstr::VGMInstr(VGMInstrSet *instrSet, uint32_t offset, uint32_t length, uint32_t theBank,
-                   uint32_t theInstrNum, const wstring &name)
-    : VGMContainerItem(instrSet, offset, length, name),
-      parInstrSet(instrSet),
+                   uint32_t theInstrNum, const wstring &_name)
+    : VGMContainerItem(instrSet, offset, length, _name),
       bank(theBank),
-      instrNum(theInstrNum) {
+      instrNum(theInstrNum),
+      parInstrSet(instrSet) {
   AddContainer<VGMRgn>(aRgns);
 }
 

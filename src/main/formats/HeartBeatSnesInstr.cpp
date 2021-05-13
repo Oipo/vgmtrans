@@ -10,18 +10,17 @@ HeartBeatSnesInstrSet::HeartBeatSnesInstrSet(RawFile *file,
                                              HeartBeatSnesVersion ver,
                                              uint32_t offset,
                                              uint32_t length,
-                                             uint16_t addrSRCNTable,
-                                             uint8_t songIndex,
-                                             uint32_t spcDirAddr,
-                                             const std::wstring &name) :
-    VGMInstrSet(HeartBeatSnesFormat::name, file, offset, length, name), version(ver),
-    addrSRCNTable(addrSRCNTable),
-    songIndex(songIndex),
-    spcDirAddr(spcDirAddr) {
+                                             uint16_t _addrSRCNTable,
+                                             uint8_t _songIndex,
+                                             uint32_t _spcDirAddr,
+                                             const std::wstring &_name) :
+    VGMInstrSet(HeartBeatSnesFormat::name, file, offset, length, _name), version(ver),
+    addrSRCNTable(_addrSRCNTable),
+    songIndex(_songIndex),
+    spcDirAddr(_spcDirAddr) {
 }
 
-HeartBeatSnesInstrSet::~HeartBeatSnesInstrSet() {
-}
+HeartBeatSnesInstrSet::~HeartBeatSnesInstrSet() = default;
 
 bool HeartBeatSnesInstrSet::GetHeaderInfo() {
   return true;
@@ -60,7 +59,7 @@ bool HeartBeatSnesInstrSet::GetInstrPointers() {
       break;
     }
 
-    std::vector<uint8_t>::iterator itrSRCN = std::find(usedSRCNs.begin(), usedSRCNs.end(), srcn);
+    auto itrSRCN = std::find(usedSRCNs.begin(), usedSRCNs.end(), srcn);
     if (itrSRCN == usedSRCNs.end()) {
       usedSRCNs.push_back(srcn);
     }
@@ -79,7 +78,7 @@ bool HeartBeatSnesInstrSet::GetInstrPointers() {
     aInstrs.push_back(newInstr);
   }
 
-  if (aInstrs.size() == 0) {
+  if (aInstrs.empty()) {
     return false;
   }
 
@@ -102,18 +101,17 @@ HeartBeatSnesInstr::HeartBeatSnesInstr(VGMInstrSet *instrSet,
                                        uint32_t offset,
                                        uint32_t theBank,
                                        uint32_t theInstrNum,
-                                       uint16_t addrSRCNTable,
-                                       uint8_t songIndex,
-                                       uint32_t spcDirAddr,
-                                       const std::wstring &name) :
-    VGMInstr(instrSet, offset, 6, theBank, theInstrNum, name), version(ver),
-    addrSRCNTable(addrSRCNTable),
-    songIndex(songIndex),
-    spcDirAddr(spcDirAddr) {
+                                       uint16_t _addrSRCNTable,
+                                       uint8_t _songIndex,
+                                       uint32_t _spcDirAddr,
+                                       const std::wstring &_name) :
+    VGMInstr(instrSet, offset, 6, theBank, theInstrNum, _name), version(ver),
+    addrSRCNTable(_addrSRCNTable),
+    songIndex(_songIndex),
+    spcDirAddr(_spcDirAddr) {
 }
 
-HeartBeatSnesInstr::~HeartBeatSnesInstr() {
-}
+HeartBeatSnesInstr::~HeartBeatSnesInstr() = default;
 
 bool HeartBeatSnesInstr::LoadInstr() {
   uint8_t sampleIndex = GetByte(dwOffset) + (songIndex * 0x10);
@@ -168,8 +166,8 @@ HeartBeatSnesRgn::HeartBeatSnesRgn(HeartBeatSnesInstr *instr, HeartBeatSnesVersi
   AddSimpleItem(offset + 1, 1, L"ADSR1");
   AddSimpleItem(offset + 2, 1, L"ADSR2");
   AddSimpleItem(offset + 3, 1, L"GAIN");
-  AddUnityKey(72 - (int) (coarse_tuning), offset + 4, 1);
-  AddFineTune((int16_t) (fine_tuning * 100.0), offset + 5, 1);
+  AddUnityKey(72 - static_cast<int>(coarse_tuning), offset + 4, 1);
+  AddFineTune(static_cast<int16_t>(fine_tuning * 100.0), offset + 5, 1);
   SNESConvADSR<VGMRgn>(this, adsr1, adsr2, gain);
 
   // use ADSR sustain for release rate
@@ -177,11 +175,10 @@ HeartBeatSnesRgn::HeartBeatSnesRgn(HeartBeatSnesInstr *instr, HeartBeatSnesVersi
   // so here I put a random value commonly used
   // TODO: obtain proper release rate from sequence
   uint8_t sr_release = 0x1c;
-  ConvertSNESADSR(adsr1, (adsr2 & 0xe0) | sr_release, gain, 0x7ff, NULL, NULL, NULL, &this->release_time, NULL);
+  ConvertSNESADSR(adsr1, (adsr2 & 0xe0) | sr_release, gain, 0x7ff, nullptr, nullptr, nullptr, &this->release_time, nullptr);
 }
 
-HeartBeatSnesRgn::~HeartBeatSnesRgn() {
-}
+HeartBeatSnesRgn::~HeartBeatSnesRgn() = default;
 
 bool HeartBeatSnesRgn::LoadRgn() {
   return true;

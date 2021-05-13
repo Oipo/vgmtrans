@@ -213,7 +213,7 @@ class AkaoTrack final
   bool ReadEvent() override;
 
   [[nodiscard]] AkaoSeq * seq() const noexcept {
-    return reinterpret_cast<AkaoSeq*>(this->parentSeq);
+    return dynamic_cast<AkaoSeq*>(this->parentSeq);
   }
 
  protected:

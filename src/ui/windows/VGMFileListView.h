@@ -56,7 +56,7 @@ public:
 
 	LRESULT OnCreate(UINT uMsg, WPARAM wParam, LPARAM lParam, BOOL& bHandled);
 	void OnSize(UINT nType, CSize size);
-	void OnDestroy(void);
+	void OnDestroy();
 	void OnCloseFile(UINT uCode, int nID, HWND hwndCtrl);
 	void OnKeyDown(TCHAR vkey, UINT repeats, UINT code);
 	LRESULT OnContextMenu(HWND hwndCtrl, CPoint ptClick );

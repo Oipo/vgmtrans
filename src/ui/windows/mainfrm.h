@@ -208,18 +208,18 @@ public:
 	//void SetItemTreeViewPane(VGMFile* vgmfile);
 	void SelectItem(VGMItem* item);
 	void SelectColl(VGMColl* coll);
-	VGMFile* GetActiveFile(void);
+	VGMFile* GetActiveFile();
 
 // CDropFilesHandler requisites.
 	void SetPaneWidths(int* arrWidths, int nPanes);
-	BOOL IsReadyForDrop(void);
+	BOOL IsReadyForDrop();
 	BOOL HandleDroppedFile(LPCTSTR szBuff);
-	void EndDropFiles(void);
+	void EndDropFiles();
 
 // Helper methods
 protected:
-	void InitializeDefaultPanes(void);
-	void UninitializeDefaultPanes(void);
+	void InitializeDefaultPanes();
+	void UninitializeDefaultPanes();
 	HWND CreateFileListViewPane(CRawFileListView& view, LPCTSTR sName, HICON hIcon, CRect& rcFloat, CRect& rcDock, HWND hDockTo);
 	HWND CreateVGMFilesTreeViewPane(CVGMFileTreeView& view, LPCTSTR sName, HICON hIcon, CRect& rcFloat, CRect& rcDock, HWND hDockTo);
 	HWND CreateVGMFileListViewPane(CVGMFileListView& view, LPCTSTR sName, HICON hIcon, CRect& rcFloat, CRect& rcDock, HWND hDockTo);

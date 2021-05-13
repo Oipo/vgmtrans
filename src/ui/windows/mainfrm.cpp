@@ -544,7 +544,7 @@ void CMainFrame::WriteItemToStatusBar(VGMItem* item)
 	}
 }
 
-void CMainFrame::InitializeDefaultPanes(void)
+void CMainFrame::InitializeDefaultPanes()
 {
 	CRect rcClient;
 	this->GetClientRect(&rcClient);
@@ -578,7 +578,7 @@ void CMainFrame::InitializeDefaultPanes(void)
 
 }
 
-void CMainFrame::UninitializeDefaultPanes(void)
+void CMainFrame::UninitializeDefaultPanes()
 {
 	rawFileListView.SendMessage(WM_CLOSE);
 	theVGMFileListView.SendMessage(WM_CLOSE);
@@ -930,7 +930,7 @@ void CMainFrame::SelectColl(VGMColl* coll)
 		
 }
 
-VGMFile* CMainFrame::GetActiveFile(void)
+VGMFile* CMainFrame::GetActiveFile()
 {
 	HWND hActiveTab = MDIGetActive();
 	if (hActiveTab != NULL)
@@ -950,7 +950,7 @@ VGMFile* CMainFrame::GetActiveFile(void)
 
 // CDropFilesHandler
 
-BOOL CMainFrame::IsReadyForDrop(void)
+BOOL CMainFrame::IsReadyForDrop()
 {
 	return TRUE;
 }
@@ -964,6 +964,6 @@ BOOL CMainFrame::HandleDroppedFile(LPCTSTR szBuff)
 	return TRUE;
 }
 
-void CMainFrame::EndDropFiles(void)
+void CMainFrame::EndDropFiles()
 {
 }

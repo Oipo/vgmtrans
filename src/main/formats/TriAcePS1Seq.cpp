@@ -24,7 +24,7 @@ TriAcePS1Seq::~TriAcePS1Seq() {
 }
 
 
-bool TriAcePS1Seq::GetHeaderInfo(void) {
+bool TriAcePS1Seq::GetHeaderInfo() {
   SetPPQN(0x30);
 
   header = AddHeader(dwOffset, 0xD5);
@@ -38,7 +38,7 @@ bool TriAcePS1Seq::GetHeaderInfo(void) {
   return true;
 }
 
-bool TriAcePS1Seq::GetTrackPointers(void) {
+bool TriAcePS1Seq::GetTrackPointers() {
   VGMHeader *TrkInfoHeader = header->AddHeader(dwOffset + 0x16, 6 * 32, L"Track Info Blocks");
 
 
@@ -52,7 +52,7 @@ bool TriAcePS1Seq::GetTrackPointers(void) {
   return true;
 }
 
-void TriAcePS1Seq::ResetVars(void) {
+void TriAcePS1Seq::ResetVars() {
   VGMSeq::ResetVars();
 }
 
@@ -70,7 +70,7 @@ void TriAcePS1Track::LoadTrackMainLoop(uint32_t stopOffset, int32_t stopTime) {
   uint16_t scorePatternOffset = GetShort(scorePatternPtrOffset);
   while (scorePatternOffset != 0xFFFF) {
     if (seq->patternMap[scorePatternOffset])
-      seq->curScorePattern = NULL;
+      seq->curScorePattern = nullptr;
     else {
       TriAcePS1ScorePattern *pattern = new TriAcePS1ScorePattern(seq, scorePatternOffset);
       seq->patternMap[scorePatternOffset] = pattern;
@@ -98,7 +98,7 @@ uint32_t TriAcePS1Track::ReadScorePattern(uint32_t offset) {
   return curOffset;
 }
 
-bool TriAcePS1Track::ReadEvent(void) {
+bool TriAcePS1Track::ReadEvent() {
   uint32_t beginOffset = curOffset;
 
   uint8_t status_byte = GetByte(curOffset++);
@@ -318,7 +318,7 @@ bool TriAcePS1Track::IsOffsetUsed(uint32_t offset) {
 
 void TriAcePS1Track::AddEvent(SeqEvent *pSeqEvent) {
   TriAcePS1ScorePattern *pattern = ((TriAcePS1Seq *) parentSeq)->curScorePattern;
-  if (pattern == NULL) {
+  if (pattern == nullptr) {
     // it must be already added, reject it
     delete pSeqEvent;
     return;

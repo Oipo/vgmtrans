@@ -17,11 +17,11 @@ class NeverlandSnesSeq
     : public VGMSeq {
  public:
   NeverlandSnesSeq(RawFile *file, NeverlandSnesVersion ver, uint32_t seqdataOffset);
-  virtual ~NeverlandSnesSeq(void);
+  virtual ~NeverlandSnesSeq();
 
-  virtual bool GetHeaderInfo(void);
-  virtual bool GetTrackPointers(void);
-  virtual void ResetVars(void);
+  bool GetHeaderInfo() override;
+  virtual bool GetTrackPointers();
+  virtual void ResetVars();
 
   NeverlandSnesVersion version;
   std::map<uint8_t, NeverlandSnesSeqEventType> EventMap;
@@ -30,7 +30,7 @@ class NeverlandSnesSeq
   uint16_t GetShortAddress(uint32_t offset);
 
  private:
-  void LoadEventMap(void);
+  void LoadEventMap();
 };
 
 
@@ -38,8 +38,8 @@ class NeverlandSnesTrack
     : public SeqTrack {
  public:
   NeverlandSnesTrack(NeverlandSnesSeq *parentFile, long offset = 0, long length = 0);
-  virtual void ResetVars(void);
-  virtual bool ReadEvent(void);
+  virtual void ResetVars();
+  virtual bool ReadEvent();
 
   uint16_t ConvertToAPUAddress(uint16_t offset);
   uint16_t GetShortAddress(uint32_t offset);

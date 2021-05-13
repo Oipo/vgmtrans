@@ -9,21 +9,22 @@
 
 #include "pch.h"
 #include "MP2kSeq.h"
+
+#include <utility>
 #include "MP2kFormat.h"
 
 DECLARE_FORMAT(MP2k);
 
 using namespace std;
 
-MP2kSeq::MP2kSeq(RawFile *file, uint32_t offset, std::wstring name)
-    : VGMSeq(MP2kFormat::name, file, offset, 0, name) {
+MP2kSeq::MP2kSeq(RawFile *file, uint32_t offset, std::wstring _name)
+    : VGMSeq(MP2kFormat::name, file, offset, 0, std::move(_name)) {
   bAllowDiscontinuousTrackData = true;
 }
 
-MP2kSeq::~MP2kSeq(void) {
-}
+MP2kSeq::~MP2kSeq() = default;
 
-bool MP2kSeq::GetHeaderInfo(void) {
+bool MP2kSeq::GetHeaderInfo() {
   if (dwOffset + 2 > vgmfile->GetEndOffset()) {
     return false;
   }
@@ -57,7 +58,7 @@ bool MP2kSeq::GetHeaderInfo(void) {
 }
 
 
-bool MP2kSeq::GetTrackPointers(void) {
+bool MP2kSeq::GetTrackPointers() {
   // Add each tracks
   for (unsigned int i = 0; i < nNumTracks; i++) {
     uint32_t dwTrackPtrOffset = dwOffset + 8 + i * 4;
@@ -66,8 +67,7 @@ bool MP2kSeq::GetTrackPointers(void) {
   }
 
   // Make seq offset the first track offset
-  for (vector<SeqTrack *>::iterator itr = aTracks.begin(); itr != aTracks.end(); ++itr) {
-    SeqTrack *track = (*itr);
+  for (auto track : aTracks) {
     if (track->dwOffset < dwOffset) {
       if (unLength != 0) {
         unLength += (dwOffset - track->dwOffset);
@@ -99,12 +99,12 @@ MP2kTrack::MP2kTrack(MP2kSeq *parentFile, long offset, long length)
 	{
 		MP2kEvent* pMP2kEvent = new MP2kEvent(this, state);
 		aEvents.push_back(pMP2kEvent);
-		parentSeq->AddItem(pMP2kEvent, NULL, sEventName);
+		parentSeq->AddItem(pMP2kEvent, nullptr, sEventName);
 //		pMP2kEvent->AddToTreePlus(sEventName, nImage, pTreeItem, offset, length, color);
 	}
 }*/
 
-bool MP2kTrack::ReadEvent(void) {
+bool MP2kTrack::ReadEvent() {
 
   uint32_t beginOffset = curOffset;
   uint8_t status_byte = GetByte(curOffset++);
@@ -143,7 +143,7 @@ bool MP2kTrack::ReadEvent(void) {
         AddPan(beginOffset, curOffset - beginOffset, status_byte);
         break;
       case STATE_PITCHBEND :
-        AddPitchBend(beginOffset, curOffset - beginOffset, ((int16_t) (status_byte - 0x40)) * 128);
+        AddPitchBend(beginOffset, curOffset - beginOffset, (static_cast<int16_t> (status_byte - 0x40)) * 128);
         break;
       case STATE_MODULATION :
         AddModulation(beginOffset, curOffset - beginOffset, status_byte);
@@ -192,7 +192,7 @@ bool MP2kTrack::ReadEvent(void) {
         uint32_t dwEndTrackOffset = curOffset;
 
         curOffset = destOffset;
-        if (!IsOffsetUsed(destOffset) || loopEndPositions.size() != 0) {
+        if (!IsOffsetUsed(destOffset) || !loopEndPositions.empty()) {
           AddGenericEvent(beginOffset, length, L"Goto", L"", CLR_LOOPFOREVER);
         }
         else {
@@ -372,12 +372,12 @@ bool MP2kTrack::ReadEvent(void) {
   return bContinue;
 }
 
-/*void FFTSeq::OnSaveAsMidi(void)
+/*void FFTSeq::OnSaveAsMidi()
 {
 	SaveAsMidi((LPTSTR)(name.GetString()), true);
 }
 
-void FFTSeq::OnSaveAllAsMidi(void)
+void FFTSeq::OnSaveAllAsMidi()
 {
 	((BGM_WDPlugin*)pPlugin)->SaveAllBGMAsMidi();
 }*/
@@ -387,6 +387,6 @@ void FFTSeq::OnSaveAllAsMidi(void)
 //  MP2kEvent
 //  *********
 
-MP2kEvent::MP2kEvent(MP2kTrack *pTrack, uint8_t stateType)
-    : SeqEvent(pTrack), eventState(stateType) {
-}
+//MP2kEvent::MP2kEvent(MP2kTrack *pTrack, uint8_t stateType)
+//    : SeqEvent(pTrack), eventState(stateType) {
+//}

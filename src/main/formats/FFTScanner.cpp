@@ -6,30 +6,17 @@
 #define SRCH_BUF_SIZE 0x20000
 
 //==============================================================
-//		Constructor
-//--------------------------------------------------------------
-FFTScanner::FFTScanner(void) {
-}
-
-//==============================================================
-//		Destructor
-//--------------------------------------------------------------
-FFTScanner::~FFTScanner(void) {
-}
-
-//==============================================================
 //		scan "smds" and "wds"
 //--------------------------------------------------------------
 void FFTScanner::Scan(RawFile *file, void *info) {
   SearchForFFTSeq(file);
   SearchForFFTwds(file);
-  return;
 }
 
 //==============================================================
 //		scan "smds"		(Sequence)
 //--------------------------------------------------------------
-void FFTScanner::SearchForFFTSeq(RawFile *file) {
+void FFTScanner::SearchForFFTSeq(RawFile *file) const {
   uint32_t nFileLength = file->size();
   for (uint32_t i = 0; i + 4 < nFileLength; i++) {
     if (file->GetWordBE(i) != 0x736D6473)
@@ -50,7 +37,7 @@ void FFTScanner::SearchForFFTSeq(RawFile *file) {
 //	memo:
 //		object "SampColl" は、class "WdsInstrSet"内で生成する。
 //--------------------------------------------------------------
-void FFTScanner::SearchForFFTwds(RawFile *file) {
+void FFTScanner::SearchForFFTwds(RawFile *file) const {
   uint32_t nFileLength = file->size();
   for (uint32_t i = 0; i + 0x30 < nFileLength; i++) {
     uint32_t sig = file->GetWordBE(i);

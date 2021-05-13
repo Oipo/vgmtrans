@@ -49,12 +49,11 @@ static bool test_pointer_validity(RawFile *file, off_t offset, uint32_t inGBA_le
       && ((file->GetWord(offset) & 0xff000000) == 0);
 }
 
-MP2kScanner::MP2kScanner(void) {
+MP2kScanner::MP2kScanner() {
 //	USE_EXTENSION(L"gba")
 }
 
-MP2kScanner::~MP2kScanner(void) {
-}
+MP2kScanner::~MP2kScanner() = default;
 
 void MP2kScanner::Scan(RawFile *file, void *info) {
   uint32_t sound_engine_adr;
@@ -98,9 +97,7 @@ void MP2kScanner::Scan(RawFile *file, void *info) {
     }
 
     i++;
-  };
-
-  return;
+  }
 }
 
 // Sappy sound engine detector (c) 2014 by Bregalad, loveemu
@@ -120,7 +117,7 @@ bool MP2kScanner::Mp2kDetector(RawFile *file, uint32_t &mp2k_offset) {
       {0x00, 0xB5}
   };
 
-  const int M4A_INIT_PATT_COUNT = 2;
+//  const int M4A_INIT_PATT_COUNT = 2;
   const int M4A_INIT_LEN = 2;
 
   const off_t M4A_OFFSET_SONGTABLE = 40;
@@ -184,10 +181,10 @@ bool MP2kScanner::Mp2kDetector(RawFile *file, uint32_t &mp2k_offset) {
   if (!IsValidOffset(m4a_main_offset_tmp + M4A_MAIN_LEN - 1, file->size())) {
     return false;
   }
-  while (m4a_main_offset_tmp > 0 && m4a_main_offset_tmp > ((uint32_t) m4a_selectsong_offset - 0x20)) {
-    for (int mainpattern = 0; mainpattern < M4A_MAIN_PATT_COUNT; mainpattern++) {
-      if (file->MatchBytes(CODESEG_MAIN[mainpattern], m4a_main_offset_tmp, M4A_INIT_LEN)) {
-        m4a_main_offset = (long) m4a_main_offset_tmp;
+  while (m4a_main_offset_tmp > 0 && m4a_main_offset_tmp > (static_cast<uint32_t>(m4a_selectsong_offset) - 0x20)) {
+    for (auto mainpattern : CODESEG_MAIN) {
+      if (file->MatchBytes(mainpattern, m4a_main_offset_tmp, M4A_INIT_LEN)) {
+        m4a_main_offset = m4a_main_offset_tmp;
         break;
       }
     }

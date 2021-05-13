@@ -901,7 +901,7 @@ public:
 // Implementation
 protected:
 
-	void InitializeTooltips(void)
+	void InitializeTooltips()
 	{
 		ATLASSERT(!m_tooltip.IsWindow());
 		if(!m_tooltip.IsWindow())
@@ -2149,7 +2149,7 @@ public:
 // Overridables
 public:
 
-	void Initialize(void)
+	void Initialize()
 	{
 		ATLASSERT(::IsWindow(this->m_hWnd));
 
@@ -2182,7 +2182,7 @@ public:
 		}
 	}
 
-	void Uninitialize(void)
+	void Uninitialize()
 	{
 		T* pT = static_cast<T*>(this);
 
@@ -2239,7 +2239,7 @@ public:
 #endif
 	}
 
-	void UpdateLayout(void)
+	void UpdateLayout()
 	{
 		if(	!this->m_hWnd ||
 			!::IsWindow(this->m_hWnd) ||
@@ -2341,7 +2341,7 @@ public:
 		dc.SelectFont(hOldFont);
 	}
 
-	void UpdateTabItemTooltipRects(void)
+	void UpdateTabItemTooltipRects()
 	{
 		// The way we implement tooltips for tab items
 		// is to have as many "tools" as there are tabs.
@@ -2401,7 +2401,7 @@ public:
 		}
 	}
 
-	void UpdateScrollOverflowStatus(void)
+	void UpdateScrollOverflowStatus()
 	{
 		// Check for overflow left
 		if(m_iScrollOffset >= 0)
@@ -2711,7 +2711,7 @@ public:
 		return true;
 	}
 
-	UINT GetScrollDelta(void)
+	UINT GetScrollDelta()
 	{
 		return ((m_dwState & ectcScrollDeltaMask) >> ectcScrollDeltaShift);
 	}
@@ -2724,7 +2724,7 @@ public:
 		return true;
 	}
 
-	ScrollRepeat GetScrollRepeat(void)
+	ScrollRepeat GetScrollRepeat()
 	{
 		return (m_dwState & ectcScrollRepeat);
 	}

@@ -495,13 +495,13 @@ public:
 
 // DynamicDialog::CDynamicDialogImpl overrides
 public:
-	bool ConstructDialogResource(void);
+	bool ConstructDialogResource();
 
 protected:
-	bool InitializeControls(void);
-	bool InitializeValues(void);
-	bool InitializeColumns(void);
-	int AutoHideUnusedColumns(void);
+	bool InitializeControls();
+	bool InitializeValues();
+	bool InitializeColumns();
+	int AutoHideUnusedColumns();
 	bool FindUsedColumns(ITabbedMDIChildModifiedList* list, int columnUseCount[eColumn_Count]);
 	bool AddItems(ITabbedMDIChildModifiedList* list, int indent);
 	_CSTRING_NS::CString FormatLastModifiedDateString(DATE lastModifiedUTC);
@@ -512,8 +512,8 @@ protected:
 	void SetTristateCheckState(int item, CheckState checkState);
 	CheckState GetTristateCheckState(int item);
 	void UpdateParentCheckState(int item, CheckState checkState);
-	void CreateDefaultImages(void);
-	void CreateDefaultStateImages(void);
+	void CreateDefaultImages();
+	void CreateDefaultStateImages();
 	int AddCheckStateImage(HDC dcScreen, int cx, int cy, enum CheckState checkState);
 
 // Members

@@ -247,7 +247,7 @@ int CapcomSnesScanner::GetLengthOfSongList(RawFile *file, uint16_t addrSongList)
   int length = 0;
 
   // do heuristic search for each songs
-  for (int8_t songIndex = 0; songIndex <= 0x7f; songIndex++) {
+  for (int16_t songIndex = 0; songIndex <= 0x7f; songIndex++) {
     // check the address range of song pointer
     if (addrSongList + songIndex * 2 + 2 > 0x10000) {
       break;

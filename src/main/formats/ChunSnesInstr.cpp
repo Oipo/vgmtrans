@@ -9,18 +9,17 @@
 ChunSnesInstrSet::ChunSnesInstrSet(RawFile *file,
                                    ChunSnesVersion ver,
                                    uint16_t addrInstrSet,
-                                   uint16_t addrSampNumTable,
-                                   uint16_t addrSampleTable,
-                                   uint32_t spcDirAddr,
-                                   const std::wstring &name) :
-    VGMInstrSet(ChunSnesFormat::name, file, addrInstrSet, 0, name), version(ver),
-    addrSampNumTable(addrSampNumTable),
-    addrSampleTable(addrSampleTable),
-    spcDirAddr(spcDirAddr) {
+                                   uint16_t _addrSampNumTable,
+                                   uint16_t _addrSampleTable,
+                                   uint32_t _spcDirAddr,
+                                   const std::wstring &_name) :
+    VGMInstrSet(ChunSnesFormat::name, file, addrInstrSet, 0, _name), version(ver),
+    spcDirAddr(_spcDirAddr),
+    addrSampNumTable(_addrSampNumTable),
+    addrSampleTable(_addrSampleTable) {
 }
 
-ChunSnesInstrSet::~ChunSnesInstrSet() {
-}
+ChunSnesInstrSet::~ChunSnesInstrSet() = default;
 
 bool ChunSnesInstrSet::GetHeaderInfo() {
   uint32_t curOffset = dwOffset;
@@ -59,7 +58,7 @@ bool ChunSnesInstrSet::GetInstrPointers() {
   for (unsigned int instrNum = 0; instrNum < nNumInstrs; instrNum++) {
     std::wstringstream instrName;
     instrName << L"Instrument " << (instrNum + 1);
-    AddSimpleItem(curOffset, 1, instrName.str().c_str());
+    AddSimpleItem(curOffset, 1, instrName.str());
 
     uint8_t globalInstrNum = GetByte(curOffset);
     curOffset++;
@@ -71,7 +70,7 @@ bool ChunSnesInstrSet::GetInstrPointers() {
 
     uint8_t srcn = GetByte(addrInstr);
     if (srcn != 0xff) {
-      std::vector<uint8_t>::iterator itrSRCN = find(usedSRCNs.begin(), usedSRCNs.end(), srcn);
+      auto itrSRCN = find(usedSRCNs.begin(), usedSRCNs.end(), srcn);
       if (itrSRCN == usedSRCNs.end()) {
         usedSRCNs.push_back(srcn);
       }
@@ -85,7 +84,7 @@ bool ChunSnesInstrSet::GetInstrPointers() {
     }
   }
 
-  if (aInstrs.size() == 0) {
+  if (aInstrs.empty()) {
     return false;
   }
 
@@ -107,16 +106,15 @@ ChunSnesInstr::ChunSnesInstr(VGMInstrSet *instrSet,
                              ChunSnesVersion ver,
                              uint8_t theInstrNum,
                              uint16_t addrInstr,
-                             uint16_t addrSampleTable,
-                             uint32_t spcDirAddr,
-                             const std::wstring &name) :
-    VGMInstr(instrSet, addrInstr, 0, 0, theInstrNum, name), version(ver),
-    addrSampleTable(addrSampleTable),
-    spcDirAddr(spcDirAddr) {
+                             uint16_t _addrSampleTable,
+                             uint32_t _spcDirAddr,
+                             const std::wstring &_name) :
+    VGMInstr(instrSet, addrInstr, 0, 0, theInstrNum, _name), version(ver),
+    addrSampleTable(_addrSampleTable),
+    spcDirAddr(_spcDirAddr) {
 }
 
-ChunSnesInstr::~ChunSnesInstr() {
-}
+ChunSnesInstr::~ChunSnesInstr() = default;
 
 bool ChunSnesInstr::LoadInstr() {
   uint8_t srcn = GetByte(dwOffset);
@@ -181,21 +179,20 @@ ChunSnesRgn::ChunSnesRgn(ChunSnesInstr *instr, ChunSnesVersion ver, uint8_t srcn
 
   sampNum = srcn;
   if (version == CHUNSNES_SUMMER) {
-    unityKey = 95 - (int) coarse_tuning;
+    unityKey = 95 - static_cast<int>(coarse_tuning);
   }
   else {
-    unityKey = 119 - (int) coarse_tuning;
+    unityKey = 119 - static_cast<int>(coarse_tuning);
   }
-  fineTune = (int16_t) (fine_tuning * 100.0);
+  fineTune = static_cast<int16_t>(fine_tuning * 100.0);
   SNESConvADSR<VGMRgn>(this, adsr1, adsr2, gain);
 
   // use ADSR sustain for release rate
   uint8_t sr_release = 0x19; // default release rate
-  ConvertSNESADSR(adsr1, (adsr2 & 0xe0) | sr_release, gain, 0x7ff, NULL, NULL, NULL, &this->release_time, NULL);
+  ConvertSNESADSR(adsr1, (adsr2 & 0xe0) | sr_release, gain, 0x7ff, nullptr, nullptr, nullptr, &this->release_time, nullptr);
 }
 
-ChunSnesRgn::~ChunSnesRgn() {
-}
+ChunSnesRgn::~ChunSnesRgn() = default;
 
 bool ChunSnesRgn::LoadRgn() {
   return true;

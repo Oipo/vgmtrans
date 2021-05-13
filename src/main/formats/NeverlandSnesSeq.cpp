@@ -21,14 +21,14 @@ NeverlandSnesSeq::NeverlandSnesSeq(RawFile *file, NeverlandSnesVersion ver, uint
   LoadEventMap();
 }
 
-NeverlandSnesSeq::~NeverlandSnesSeq(void) {
+NeverlandSnesSeq::~NeverlandSnesSeq() {
 }
 
-void NeverlandSnesSeq::ResetVars(void) {
+void NeverlandSnesSeq::ResetVars() {
   VGMSeq::ResetVars();
 }
 
-bool NeverlandSnesSeq::GetHeaderInfo(void) {
+bool NeverlandSnesSeq::GetHeaderInfo() {
   SetPPQN(SEQ_PPQN);
 
   VGMHeader *header = AddHeader(dwOffset, 0);
@@ -87,14 +87,14 @@ bool NeverlandSnesSeq::GetHeaderInfo(void) {
       aTracks.push_back(track);
     }
     else {
-      header->AddSimpleItem(sectionListOffsetPtr, 2, L"NULL");
+      header->AddSimpleItem(sectionListOffsetPtr, 2, L"nullptr");
     }
   }
 
   return true;
 }
 
-bool NeverlandSnesSeq::GetTrackPointers(void) {
+bool NeverlandSnesSeq::GetTrackPointers() {
   return true;
 }
 
@@ -126,11 +126,11 @@ NeverlandSnesTrack::NeverlandSnesTrack(NeverlandSnesSeq *parentFile, long offset
   bWriteGenericEventAsTextEvent = false;
 }
 
-void NeverlandSnesTrack::ResetVars(void) {
+void NeverlandSnesTrack::ResetVars() {
   SeqTrack::ResetVars();
 }
 
-bool NeverlandSnesTrack::ReadEvent(void) {
+bool NeverlandSnesTrack::ReadEvent() {
   NeverlandSnesSeq *parentSeq = (NeverlandSnesSeq *) this->parentSeq;
 
   uint32_t beginOffset = curOffset;

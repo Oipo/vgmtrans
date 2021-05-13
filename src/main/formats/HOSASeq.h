@@ -9,13 +9,12 @@
 //--------------------------------------------------------------
 class HOSASeq: public VGMSeq {
  public:
-  HOSASeq(RawFile *file, uint32_t offset, const std::wstring &name = L"HOSA Seq");
-  virtual ~HOSASeq(void);
+  HOSASeq(RawFile *file, uint32_t offset, const std::wstring &_name = L"HOSA Seq");
+  ~HOSASeq() override;
 
-  virtual bool GetHeaderInfo(void);
-  virtual bool
-      GetTrackPointers(void);    //Function to find all of the track pointers.   Returns number of total tracks.
-  virtual uint32_t GetID() { return assocHOSA_ID; }
+  bool GetHeaderInfo() override;
+  bool GetTrackPointers() override;    //Function to find all of the track pointers.   Returns number of total tracks.
+  std::optional<uint32_t> GetID() override { return assocHOSA_ID; }
 
  protected:
   uint16_t seqID;
@@ -30,7 +29,7 @@ class HOSATrack: public SeqTrack {
  public:
   HOSATrack(HOSASeq *parentFile, long offset = 0, long length = 0);
 
-  virtual bool ReadEvent(void);
+  bool ReadEvent() override;
   void ReadDeltaTime(unsigned char cCom_bit5, unsigned int *iVariable);
   uint32_t DecodeVariable();    //Decode of 可変長
 

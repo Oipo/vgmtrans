@@ -322,7 +322,6 @@ void AkaoSnesScanner::Scan(RawFile *file, void *info) {
   else {
     SearchForAkaoSnesFromROM(file);
   }
-  return;
 }
 
 void AkaoSnesScanner::SearchForAkaoSnesFromARAM(RawFile *file) {
@@ -332,18 +331,18 @@ void AkaoSnesScanner::SearchForAkaoSnesFromARAM(RawFile *file) {
 
   // search for note length table
   uint32_t ofsReadNoteLength;
-  uint16_t addrNoteLengthTable;
+//  uint16_t addrNoteLengthTable;
   AkaoSnesVersion verReadNoteLength = AKAOSNES_NONE;
   if (file->SearchBytePattern(ptnReadNoteLengthV4, ofsReadNoteLength)) {
-    addrNoteLengthTable = file->GetShort(ofsReadNoteLength + 6);
+//    addrNoteLengthTable = file->GetShort(ofsReadNoteLength + 6);
     verReadNoteLength = AKAOSNES_V4;
   }
   else if (file->SearchBytePattern(ptnReadNoteLengthV2, ofsReadNoteLength)) {
-    addrNoteLengthTable = file->GetShort(ofsReadNoteLength + 8);
+//    addrNoteLengthTable = file->GetShort(ofsReadNoteLength + 8);
     verReadNoteLength = AKAOSNES_V2;
   }
   else if (file->SearchBytePattern(ptnReadNoteLengthV1, ofsReadNoteLength)) {
-    addrNoteLengthTable = file->GetShort(ofsReadNoteLength + 8);
+//    addrNoteLengthTable = file->GetShort(ofsReadNoteLength + 8);
     verReadNoteLength = AKAOSNES_V1;
   }
   else {

@@ -27,16 +27,16 @@ SuzukiSnesSeq::SuzukiSnesSeq(RawFile *file, SuzukiSnesVersion ver, uint32_t seqd
   LoadEventMap();
 }
 
-SuzukiSnesSeq::~SuzukiSnesSeq(void) {
+SuzukiSnesSeq::~SuzukiSnesSeq() {
 }
 
-void SuzukiSnesSeq::ResetVars(void) {
+void SuzukiSnesSeq::ResetVars() {
   VGMSeq::ResetVars();
 
   spcTempo = 0x81; // just in case
 }
 
-bool SuzukiSnesSeq::GetHeaderInfo(void) {
+bool SuzukiSnesSeq::GetHeaderInfo() {
   SetPPQN(SEQ_PPQN);
 
   VGMHeader *header = AddHeader(dwOffset, 0);
@@ -75,7 +75,7 @@ bool SuzukiSnesSeq::GetHeaderInfo(void) {
     }
     else {
       // example: Super Mario RPG - Where Am I Going?
-      header->AddSimpleItem(curOffset, 2, L"NULL");
+      header->AddSimpleItem(curOffset, 2, L"nullptr");
     }
 
     curOffset += 2;
@@ -86,7 +86,7 @@ bool SuzukiSnesSeq::GetHeaderInfo(void) {
   return true;        //successful
 }
 
-bool SuzukiSnesSeq::GetTrackPointers(void) {
+bool SuzukiSnesSeq::GetTrackPointers() {
   return true;
 }
 
@@ -189,7 +189,7 @@ void SuzukiSnesSeq::LoadEventMap() {
 
 double SuzukiSnesSeq::GetTempoInBPM(uint8_t tempo) {
   if (tempo != 0) {
-    return (double) 60000000 / (125 * tempo * SEQ_PPQN);
+    return static_cast<double>( 60000000 / (125 * tempo * SEQ_PPQN);
   }
   else {
     return 1.0; // since tempo 0 cannot be expressed, this function returns a very small value.
@@ -204,7 +204,7 @@ SuzukiSnesTrack::SuzukiSnesTrack(SuzukiSnesSeq *parentFile, long offset, long le
     : SeqTrack(parentFile, offset, length) {
 }
 
-void SuzukiSnesTrack::ResetVars(void) {
+void SuzukiSnesTrack::ResetVars() {
   SeqTrack::ResetVars();
 
   vel = 100;
@@ -214,7 +214,7 @@ void SuzukiSnesTrack::ResetVars(void) {
   infiniteLoopPoint = 0;
 }
 
-bool SuzukiSnesTrack::ReadEvent(void) {
+bool SuzukiSnesTrack::ReadEvent() {
   SuzukiSnesSeq *parentSeq = (SuzukiSnesSeq *) this->parentSeq;
 
   uint32_t beginOffset = curOffset;

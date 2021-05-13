@@ -8,29 +8,30 @@ using namespace std;
 
 #define BUF_SIZE 0x100000        //1mb
 
-RawFile::RawFile(void)
+RawFile::RawFile()
     : propreRatio(0.5),
       processFlags(PF_USESCANNERS | PF_USELOADERS),
-      parRawFileFullPath(L""),
       bCanFileRead(true),
-      fileSize(0) {
+      fileSize(0),
+      parRawFileFullPath(L"") {
   bufSize = (BUF_SIZE > fileSize) ? fileSize : BUF_SIZE;
 }
 
-RawFile::RawFile(const wstring name, uint32_t theFileSize, bool bCanRead, const VGMTag tag)
-    : fileSize(theFileSize),
-      fullpath(name),
-      parRawFileFullPath(L""),        //this should only be defined by VirtFile
+RawFile::RawFile(const wstring _name, uint32_t theFileSize, bool bCanRead, const VGMTag _tag)
+    :
       propreRatio(0.5),
+      processFlags(PF_USESCANNERS | PF_USELOADERS),
       bCanFileRead(bCanRead),
-      tag(tag),
-      processFlags(PF_USESCANNERS | PF_USELOADERS) {
+      fileSize(theFileSize),
+      fullpath(_name),
+      parRawFileFullPath(L""),        //this should only be defined by VirtFile
+      tag(_tag) {
   filename = getFileNameFromPath(fullpath);
   extension = getExtFromPath(fullpath);
 }
 
 
-RawFile::~RawFile(void) {
+RawFile::~RawFile() {
   pRoot->UI_BeginRemoveVGMFiles();
   size_t size = containedVGMFiles.size();
   for (size_t i = 0; i < size; i++) {
@@ -53,7 +54,7 @@ bool RawFile::open(const wstring &theFileName) {
   file.open(theFileName,  ios::in | ios::binary);
 #endif
   if (!file.is_open()) {
-    pRoot->AddLogItem(new LogItem((std::wstring(L"File ") + theFileName.c_str() + L" could not be opened"),
+    pRoot->AddLogItem(new LogItem((std::wstring(L"File ") + theFileName + L" could not be opened"),
                                   LOG_LEVEL_ERR,
                                   L"RawFile"));
     return false;
@@ -63,7 +64,7 @@ bool RawFile::open(const wstring &theFileName) {
   pbuf = file.rdbuf();
 
   // get file size using buffer's members
-  fileSize = (uint32_t) pbuf->pubseekoff(0, ios::end, ios::in);
+  fileSize = static_cast<uint32_t>(pbuf->pubseekoff(0, ios::end, ios::in));
 
   bufSize = (BUF_SIZE > fileSize) ? fileSize : BUF_SIZE;
   buf.alloc(bufSize);
@@ -76,7 +77,7 @@ void RawFile::close() {
 }
 
 // returns the size of the file
-unsigned long RawFile::size(void) {
+unsigned long RawFile::size() const {
   return fileSize;
 }
 
@@ -122,21 +123,21 @@ void RawFile::SetProPreRatio(float newRatio) {
 
 // given an offset, determines which, if any, VGMItem is encompasses the offset
 VGMItem *RawFile::GetItemFromOffset(long offset) {
-  for (list<VGMFile *>::iterator iter = containedVGMFiles.begin(); iter != containedVGMFiles.end(); iter++) {
-    VGMItem *item = (*iter)->GetItemFromOffset(offset);
-    if (item != NULL)
+  for (auto & containedVGMFile : containedVGMFiles) {
+    VGMItem *item = containedVGMFile->GetItemFromOffset(offset, {}, {});
+    if (item != nullptr)
       return item;
   }
-  return NULL;
+  return nullptr;
 }
 
 // given an offset, determines which, if any, VGMFile encompasses the offset.
 VGMFile *RawFile::GetVGMFileFromOffset(long offset) {
-  for (list<VGMFile *>::iterator iter = containedVGMFiles.begin(); iter != containedVGMFiles.end(); iter++) {
-    if ((*iter)->IsItemAtOffset(offset))
-      return *iter;
+  for (auto & containedVGMFile : containedVGMFiles) {
+    if (containedVGMFile->IsItemAtOffset(offset, {}, {}))
+      return containedVGMFile;
   }
-  return NULL;
+  return nullptr;
 }
 
 // adds the association of a VGMFile to this RawFile
@@ -146,7 +147,7 @@ void RawFile::AddContainedVGMFile(VGMFile *vgmfile) {
 
 // removes the association of a VGMFile with this RawFile
 void RawFile::RemoveContainedVGMFile(VGMFile *vgmfile) {
-  list<VGMFile *>::iterator iter = find(containedVGMFiles.begin(), containedVGMFiles.end(), vgmfile);
+  auto iter = find(containedVGMFiles.begin(), containedVGMFiles.end(), vgmfile);
   if (iter != containedVGMFiles.end())
     containedVGMFiles.erase(iter);
   else
@@ -155,7 +156,7 @@ void RawFile::RemoveContainedVGMFile(VGMFile *vgmfile) {
                                   LOG_LEVEL_DEBUG,
                                   L"RawFile"));
 
-  if (containedVGMFiles.size() == 0)
+  if (containedVGMFiles.empty())
     pRoot->CloseRawFile(this);
 }
 
@@ -164,7 +165,7 @@ int RawFile::FileRead(void *dest, uint32_t index, uint32_t length) {
   assert(bCanFileRead);
   assert(index + length <= fileSize);
   pbuf->pubseekpos(index, ios::in);
-  return (int) pbuf->sgetn((char *) dest, length);    //return bool value based on whether we read all requested bytes
+  return static_cast<int>(pbuf->sgetn(static_cast<char *>(dest), length));    //return bool value based on whether we read all requested bytes
 }
 
 // reads a bunch of data from a given offset.  If the requested data goes beyond the bounds
@@ -254,7 +255,7 @@ void RawFile::UpdateBuffer(uint32_t index) {
   if (!buf.bAlloced)
     buf.alloc(bufSize);
 
-  uint32_t proBytes = (uint32_t) (buf.size * propreRatio);
+  uint32_t proBytes = static_cast<uint32_t>(buf.size * propreRatio);
   uint32_t preBytes = buf.size - proBytes;
   if (proBytes + index > fileSize) {
     preBytes += (proBytes + index) - fileSize;
@@ -288,10 +289,10 @@ bool RawFile::OnSaveAsRaw() {
   wstring filepath = pRoot->UI_GetSaveFilePath(ConvertToSafeFileName(filename));
   if (filepath.length() != 0) {
     bool result;
-    uint8_t *buf = new uint8_t[fileSize];        //create a buffer the size of the file
-    GetBytes(0, fileSize, buf);
-    result = pRoot->UI_WriteBufferToFile(filepath, buf, fileSize);
-    delete[] buf;
+    uint8_t *_buf = new uint8_t[fileSize];        //create a buffer the size of the file
+    GetBytes(0, fileSize, _buf);
+    result = pRoot->UI_WriteBufferToFile(filepath, _buf, fileSize);
+    delete[] _buf;
     return result;
   }
   return false;
@@ -305,8 +306,8 @@ VirtFile::VirtFile()
     : RawFile() {
 }
 
-VirtFile::VirtFile(uint8_t *data, uint32_t fileSize, const wstring &name, const wchar_t *rawFileName, const VGMTag tag)
-    : RawFile(name, fileSize, false, tag) {
+VirtFile::VirtFile(uint8_t *data, uint32_t _fileSize, const wstring &name, const wchar_t *rawFileName, const VGMTag _tag)
+    : RawFile(name, _fileSize, false, _tag) {
   parRawFileFullPath = rawFileName;
   buf.load(data, 0, fileSize);
   //buf.insert_back(data, fileSize);

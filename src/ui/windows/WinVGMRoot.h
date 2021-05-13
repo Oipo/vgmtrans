@@ -14,9 +14,9 @@ class WinVGMRoot : public VGMRoot {
 public:
   void SelectItem(VGMItem* item);
   void SelectColl(VGMColl* coll);
-  void Play(void);
-  void Pause(void);
-  void Stop(void);
+  void Play();
+  void Pause();
+  void Stop();
   inline bool AreWeExiting() { return bExiting; }
 
   virtual void UI_SetRootPtr(VGMRoot** theRoot);

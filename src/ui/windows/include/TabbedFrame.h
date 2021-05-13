@@ -294,13 +294,13 @@ public:
 		}
 	}
 
-	void ShowTabControl(void)
+	void ShowTabControl()
 	{
 		T* pT = static_cast<T*>(this);
 		pT->KeepTabsHidden(false);
 	}
 
-	void HideTabControl(void)
+	void HideTabControl()
 	{
 		T* pT = static_cast<T*>(this);
 		pT->KeepTabsHidden(true);
@@ -322,7 +322,7 @@ public:
 
 	// A derived class might not need to override this although they can.
 	// (but they will probably need to specialize SetTabAreaHeight)
-	void CalcTabAreaHeight(void)
+	void CalcTabAreaHeight()
 	{
 		// Dynamically figure out a reasonable tab area height
 		// based on the tab's font metrics
@@ -360,12 +360,12 @@ public:
 
 // Methods
 public:
-	TTabCtrl& GetTabCtrl(void)
+	TTabCtrl& GetTabCtrl()
 	{
 		return m_TabCtrl;
 	}
 
-	int GetTabAreaHeight(void) const
+	int GetTabAreaHeight() const
 	{
 		return m_nTabAreaHeight;
 	}
@@ -886,7 +886,7 @@ public:
 		m_bReflectNotifications = bReflectNotifications;
 	}
 
-	bool GetReflectNotifications(void) const
+	bool GetReflectNotifications() const
 	{
 		return m_bReflectNotifications;
 	}
@@ -896,7 +896,7 @@ public:
 		m_bForwardNotifications = bForwardNotifications;
 	}
 
-	bool GetForwardNotifications(void) const
+	bool GetForwardNotifications() const
 	{
 		return m_bForwardNotifications;
 	}
@@ -906,7 +906,7 @@ public:
 		m_nTabStyles = nTabStyles;
 	}
 
-	DWORD GetTabStyles(void) const
+	DWORD GetTabStyles() const
 	{
 		return m_nTabStyles;
 	}
@@ -920,7 +920,7 @@ public:
 		}
 	}
 
-	HWND GetActiveView(void) const
+	HWND GetActiveView() const
 	{
 		return m_hWndActive;
 	}
@@ -1350,7 +1350,7 @@ public:
 
 // Accessors
 public:
-	WORD GetCloseCommand(void) const
+	WORD GetCloseCommand() const
 	{
 		return m_nCloseCommand;
 	}

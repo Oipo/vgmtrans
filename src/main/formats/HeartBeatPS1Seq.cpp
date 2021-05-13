@@ -7,53 +7,52 @@
 
 DECLARE_FORMAT(HeartBeatPS1)
 
-HeartBeatPS1Seq::HeartBeatPS1Seq(RawFile *file, uint32_t offset, uint32_t length, const std::wstring &name)
-    : VGMSeqNoTrks(HeartBeatPS1Format::name, file, offset, name) {
+HeartBeatPS1Seq::HeartBeatPS1Seq(RawFile *file, uint32_t offset, uint32_t length, const std::wstring &_name)
+    : VGMSeqNoTrks(HeartBeatPS1Format::name, file, offset, _name) {
   this->length() = length;
 
   UseReverb();
 }
 
-HeartBeatPS1Seq::~HeartBeatPS1Seq(void) {
-}
+HeartBeatPS1Seq::~HeartBeatPS1Seq() = default;
 
-bool HeartBeatPS1Seq::GetHeaderInfo(void) {
-  uint32_t curOffset = offset();
+bool HeartBeatPS1Seq::GetHeaderInfo() {
+  uint32_t _curOffset = offset();
 
-  uint32_t seq_size = GetWord(curOffset);
+  uint32_t seq_size = GetWord(_curOffset);
   if (seq_size < 0x13) {
     return false;
   }
 
-  VGMHeader *header = VGMSeq::AddHeader(curOffset, 0x3c);
+  VGMHeader *header = VGMSeq::AddHeader(_curOffset, 0x3c);
 
-  header->AddSimpleItem(curOffset, 4, L"Sequence Size");
-  header->AddSimpleItem(curOffset + 4, 2, L"Sequence ID");
-  header->AddSimpleItem(curOffset + 6, 1, L"Number of Instrument Set");
-  header->AddSimpleItem(curOffset + 7, 1, L"Load Position");
-  header->AddSimpleItem(curOffset + 8, 4, L"Reserved");
+  header->AddSimpleItem(_curOffset, 4, L"Sequence Size");
+  header->AddSimpleItem(_curOffset + 4, 2, L"Sequence ID");
+  header->AddSimpleItem(_curOffset + 6, 1, L"Number of Instrument Set");
+  header->AddSimpleItem(_curOffset + 7, 1, L"Load Position");
+  header->AddSimpleItem(_curOffset + 8, 4, L"Reserved");
 
-  curOffset += 0x0c;
+  _curOffset += 0x0c;
 
   // validate instrument header
   uint32_t total_instr_size = 0;
   for (uint8_t instrset_index = 0; instrset_index < 4; instrset_index++) {
-    uint32_t sampcoll_size = GetWord(curOffset);
-    uint32_t instrset_size = GetWord(curOffset + 0x04);
+    uint32_t sampcoll_size = GetWord(_curOffset);
+    uint32_t instrset_size = GetWord(_curOffset + 0x04);
 
     std::wostringstream instrHeaderName;
     instrHeaderName << L"Instrument Set " << (instrset_index + 1);
-    VGMHeader *instrHeader = header->AddHeader(curOffset, 0x0c, instrHeaderName.str());
+    VGMHeader *instrHeader = header->AddHeader(_curOffset, 0x0c, instrHeaderName.str());
 
-    instrHeader->AddSimpleItem(curOffset, 4, L"Sample Collection Size");
-    instrHeader->AddSimpleItem(curOffset + 4, 4, L"Instrument Set Size");
-    instrHeader->AddSimpleItem(curOffset + 8, 2, L"Instrument Set ID");
-    instrHeader->AddUnknownItem(curOffset + 10, 2);
+    instrHeader->AddSimpleItem(_curOffset, 4, L"Sample Collection Size");
+    instrHeader->AddSimpleItem(_curOffset + 4, 4, L"Instrument Set Size");
+    instrHeader->AddSimpleItem(_curOffset + 8, 2, L"Instrument Set ID");
+    instrHeader->AddUnknownItem(_curOffset + 10, 2);
 
     total_instr_size += sampcoll_size;
     total_instr_size += instrset_size;
 
-    curOffset += 0x0c;
+    _curOffset += 0x0c;
   }
 
   // check total file size
@@ -84,7 +83,7 @@ bool HeartBeatPS1Seq::GetHeaderInfo(void) {
   nNumTracks = 16;
 
   uint8_t numer = GetByte(seqHeaderOffset + 0x0D);
-  uint8_t denom = GetByte(seqHeaderOffset + 0x0E);
+//  uint8_t denom = GetByte(seqHeaderOffset + 0x0E);
   if (numer == 0 || numer > 32) {                //sanity check
     return false;
   }
@@ -99,7 +98,7 @@ bool HeartBeatPS1Seq::GetHeaderInfo(void) {
   return true;
 }
 
-void HeartBeatPS1Seq::ResetVars(void) {
+void HeartBeatPS1Seq::ResetVars() {
   VGMSeqNoTrks::ResetVars();
 
   uint32_t initialTempo = (GetShortBE(seqHeaderOffset + 10) << 8) | GetByte(seqHeaderOffset + 10 + 2);
@@ -107,10 +106,10 @@ void HeartBeatPS1Seq::ResetVars(void) {
 
   uint8_t numer = GetByte(seqHeaderOffset + 0x0D);
   uint8_t denom = GetByte(seqHeaderOffset + 0x0E);
-  AddTimeSigNoItem(numer, 1 << denom, (uint8_t) GetPPQN());
+  AddTimeSigNoItem(numer, 1 << denom, GetPPQN());
 }
 
-bool HeartBeatPS1Seq::ReadEvent(void) {
+bool HeartBeatPS1Seq::ReadEvent() {
   uint32_t beginOffset = curOffset;
 
   // in this format, end of track (FF 2F 00) comes without delta-time.
@@ -143,6 +142,8 @@ bool HeartBeatPS1Seq::ReadEvent(void) {
   channel = status_byte & 0x0F;
   SetCurTrack(channel);
 
+  uint8_t key{};
+  uint8_t vel{};
   switch (status_byte & 0xF0) {
     //note off
     case 0x80 :
@@ -498,7 +499,7 @@ bool HeartBeatPS1Seq::ReadEvent(void) {
           case 0x58 : {
             uint8_t numer = GetByte(curOffset);
             uint8_t denom = GetByte(curOffset + 1);
-            AddTimeSig(beginOffset, curOffset + metaLen - beginOffset, numer, 1 << denom, (uint8_t) GetPPQN());
+            AddTimeSig(beginOffset, curOffset + metaLen - beginOffset, numer, 1 << denom, GetPPQN());
             curOffset += metaLen;
             break;
           }

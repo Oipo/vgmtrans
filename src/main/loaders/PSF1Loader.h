@@ -5,9 +5,9 @@
 class PSF1Loader:
     public VGMLoader {
  public:
-  PSF1Loader(void);
+  PSF1Loader();
  public:
-  virtual ~PSF1Loader(void);
+  virtual ~PSF1Loader();
 
   virtual PostLoadCommand Apply(RawFile *theFile);
   const wchar_t *psf_read_exe(RawFile *file, unsigned char *exebuffer, unsigned exebuffersize);

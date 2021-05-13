@@ -20,7 +20,7 @@ NinSnesSeq::NinSnesSeq(RawFile *file,
                        const std::vector<uint8_t> &theDurRateTable,
                        std::wstring theName)
     : VGMMultiSectionSeq(NinSnesFormat::name, file, offset, 0, theName), version(ver),
-      header(NULL),
+      header(nullptr),
       volumeTable(theVolumeTable),
       durRateTable(theDurRateTable),
       spcPercussionBaseInit(percussion_base),
@@ -218,7 +218,7 @@ bool NinSnesSeq::ReadEvent(long stopTime) {
     }
 
     NinSnesSection *section = (NinSnesSection *) GetSectionFromOffset(sectionAddress);
-    if (section == NULL) {
+    if (section == nullptr) {
       section = new NinSnesSection(this, sectionAddress);
       if (!section->Load()) {
         pRoot->AddLogItem(new LogItem(L"Failed to load section\n", LOG_LEVEL_ERR, L"NinSnesSeq"));
@@ -594,7 +594,7 @@ void NinSnesSeq::LoadStandardVcmdMap(uint8_t statusByte) {
 
 double NinSnesSeq::GetTempoInBPM(uint8_t tempo) {
   if (tempo != 0) {
-    return (double) 60000000 / (SEQ_PPQN * 2000) * ((double) tempo / 256);
+    return static_cast<double>( 60000000 / (SEQ_PPQN * 2000) * (static_cast<double>( tempo / 256);
   }
   else {
     return 1.0; // since tempo 0 cannot be expressed, this function returns a very small value.
@@ -661,7 +661,7 @@ bool NinSnesSection::GetTrackPointers() {
     }
     else {
       // add an inactive track
-      track = new NinSnesTrack(this, curOffset, 2, L"NULL");
+      track = new NinSnesTrack(this, curOffset, 2, L"nullptr");
       track->available = false;
     }
     track->shared = &parentSeq->sharedTrackData[trackIndex];
@@ -695,7 +695,7 @@ NinSnesTrackSharedData::NinSnesTrackSharedData() {
   ResetVars();
 }
 
-void NinSnesTrackSharedData::ResetVars(void) {
+void NinSnesTrackSharedData::ResetVars() {
   loopCount = 0;
   spcTranspose = 0;
 
@@ -716,22 +716,22 @@ void NinSnesTrackSharedData::ResetVars(void) {
 NinSnesTrack::NinSnesTrack(NinSnesSection *parentSection, long offset, long length, const std::wstring &theName)
     : SeqTrack(parentSection->parentSeq, offset, length, theName),
       parentSection(parentSection),
-      shared(NULL),
+      shared(nullptr),
       available(true) {
   ResetVars();
   bDetermineTrackLengthEventByEvent = true;
 }
 
-void NinSnesTrack::ResetVars(void) {
+void NinSnesTrack::ResetVars() {
   SeqTrack::ResetVars();
 
   cKeyCorrection = SEQ_KEYOFS;
-  if (shared != NULL) {
+  if (shared != nullptr) {
     transpose = shared->spcTranspose;
   }
 }
 
-bool NinSnesTrack::ReadEvent(void) {
+bool NinSnesTrack::ReadEvent() {
   if (!available) {
     return false;
   }

@@ -15,14 +15,14 @@ class HeartBeatSnesInstrSet:
                         HeartBeatSnesVersion ver,
                         uint32_t offset,
                         uint32_t length,
-                        uint16_t addrSRCNTable,
-                        uint8_t songIndex,
-                        uint32_t spcDirAddr,
-                        const std::wstring &name = L"HeartBeatSnesInstrSet");
-  virtual ~HeartBeatSnesInstrSet(void);
+                        uint16_t _addrSRCNTable,
+                        uint8_t _songIndex,
+                        uint32_t _spcDirAddr,
+                        const std::wstring &_name = L"HeartBeatSnesInstrSet");
+  ~HeartBeatSnesInstrSet() override;
 
-  virtual bool GetHeaderInfo();
-  virtual bool GetInstrPointers();
+  bool GetHeaderInfo() override;
+  bool GetInstrPointers() override;
 
   HeartBeatSnesVersion version;
 
@@ -45,13 +45,13 @@ class HeartBeatSnesInstr
                      uint32_t offset,
                      uint32_t theBank,
                      uint32_t theInstrNum,
-                     uint16_t addrSRCNTable,
-                     uint8_t songIndex,
-                     uint32_t spcDirAddr,
-                     const std::wstring &name = L"HeartBeatSnesInstr");
-  virtual ~HeartBeatSnesInstr(void);
+                     uint16_t _addrSRCNTable,
+                     uint8_t _songIndex,
+                     uint32_t _spcDirAddr,
+                     const std::wstring &_name = L"HeartBeatSnesInstr");
+  ~HeartBeatSnesInstr() override;
 
-  virtual bool LoadInstr();
+  bool LoadInstr() override;
 
   HeartBeatSnesVersion version;
 
@@ -69,9 +69,9 @@ class HeartBeatSnesRgn
     : public VGMRgn {
  public:
   HeartBeatSnesRgn(HeartBeatSnesInstr *instr, HeartBeatSnesVersion ver, uint32_t offset);
-  virtual ~HeartBeatSnesRgn(void);
+  ~HeartBeatSnesRgn() override;
 
-  virtual bool LoadRgn();
+  bool LoadRgn() override;
 
   HeartBeatSnesVersion version;
 };

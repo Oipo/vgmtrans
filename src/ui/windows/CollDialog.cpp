@@ -26,7 +26,7 @@ LRESULT CCollDialog::OnInitDialog(UINT /*uMsg*/, WPARAM /*wParam*/, LPARAM /*lPa
 	(LVS_REPORT | LVS_SHOWSELALWAYS |/*LVS_SINGLESEL |*/ /*LVS_NOCOLUMNHEADER |*/ LVS_SHOWSELALWAYS | \
    LVS_SHAREIMAGELISTS | LVS_AUTOARRANGE )
 
-void CCollDialog::InitializeControls(void)
+void CCollDialog::InitializeControls()
 {
 	//m_edit = this->GetDlgItem(IDC_EDIT_COMMAND);
 	m_button = this->GetDlgItem(IDC_BTN_CREATE);
@@ -108,7 +108,7 @@ LRESULT CCollDialog::OnExecute(WORD /*wNotifyCode*/, WORD /*wID*/, HWND /*hWndCt
 	return 0;
 }
 
-void CCollDialog::InitializeValues(void)
+void CCollDialog::InitializeValues()
 {
 	//m_edit.SetWindowText(_T("Test"));
 	m_button.SetFocus();

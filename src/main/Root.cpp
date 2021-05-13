@@ -4,6 +4,7 @@
 #include "Root.h"
 #include "VGMFile.h"
 #include "VGMColl.h"
+#include "VGMMiscFile.h"
 
 #include "Format.h"
 #include "AkaoFormat.h"
@@ -22,10 +23,10 @@ using namespace std;
 
 VGMRoot *pRoot;
 
-VGMRoot::VGMRoot(void) {
+VGMRoot::VGMRoot() {
 }
 
-VGMRoot::~VGMRoot(void) {
+VGMRoot::~VGMRoot() {
   DeleteVect<VGMLoader>(vLoader);
   //DeleteVect<VGMScanner>(vScanner);
   DeleteVect<RawFile>(vRawFile);
@@ -35,7 +36,7 @@ VGMRoot::~VGMRoot(void) {
 
 // initializes the VGMRoot class by pushing every VGMScanner and
 // VGMLoader onto the vectors.
-bool VGMRoot::Init(void) {
+bool VGMRoot::Init() {
   UI_SetRootPtr(&pRoot);
 
   AddScanner("NDS");
@@ -85,13 +86,13 @@ void VGMRoot::AddScanner(const string &formatname) {
 }
 
 
-void VGMRoot::Exit(void) {
+void VGMRoot::Exit() {
   UI_PreExit();
   Reset();
   UI_Exit();
 }
 
-void VGMRoot::Reset(void) {
+void VGMRoot::Reset() {
   //Close all RawFiles
   DeleteVect<RawFile>(vRawFile);
 }
@@ -118,8 +119,8 @@ bool VGMRoot::CreateVirtFile(uint8_t *databuf,
                              const VGMTag tag) {
   assert(fileSize != 0);
 
-  VirtFile *newVirtFile = new VirtFile(databuf, fileSize, filename.c_str(), parRawFileFullPath.c_str(), tag);
-  if (newVirtFile == NULL) {
+  auto *newVirtFile = new VirtFile(databuf, fileSize, filename, parRawFileFullPath.c_str(), tag);
+  if (newVirtFile == nullptr) {
     return false;
   }
 
@@ -134,11 +135,11 @@ bool VGMRoot::CreateVirtFile(uint8_t *databuf,
 // called by OpenRawFile.  Applies all of the loaders and scanners
 // to the RawFile
 bool VGMRoot::SetupNewRawFile(RawFile *newRawFile) {
-  newRawFile->SetProPreRatio((float) 0.80);
+  newRawFile->SetProPreRatio(0.80f);
 
   if (newRawFile->processFlags & PF_USELOADERS)
-    for (uint32_t i = 0; i < vLoader.size(); i++) {
-      if (vLoader[i]->Apply(newRawFile) == DELETE_IT) {
+    for (auto &loader : vLoader) {
+      if (loader->Apply(newRawFile) == DELETE_IT) {
         delete newRawFile;
         return true;
       }
@@ -150,18 +151,18 @@ bool VGMRoot::SetupNewRawFile(RawFile *newRawFile) {
     list<VGMScanner *> *lScanners = ExtensionDiscriminator::instance().GetScannerList(newRawFile->GetExtension());
     if (lScanners) {
       // if there is, scan with all relevant scanners
-      for (list<VGMScanner *>::iterator iter = lScanners->begin(); iter != lScanners->end(); iter++)
-        (*iter)->Scan(newRawFile);
+      for (auto &scanner : *lScanners)
+        scanner->Scan(newRawFile);
     }
     else {
       //otherwise, use every scanner
-      for (uint32_t i = 0; i < vScanner.size(); i++)
-        vScanner[i]->Scan(newRawFile);
+      for (auto &scanner : vScanner)
+        scanner->Scan(newRawFile);
     }
   }
   //this->UI_OnEndScan();
 
-  if (newRawFile->containedVGMFiles.size() == 0) {
+  if (newRawFile->containedVGMFiles.empty()) {
     delete newRawFile;
     return true;
   }
@@ -173,9 +174,9 @@ bool VGMRoot::SetupNewRawFile(RawFile *newRawFile) {
 
 // Name says it all.
 bool VGMRoot::CloseRawFile(RawFile *targFile) {
-  if (targFile == NULL)
+  if (targFile == nullptr)
     return false;
-  vector<RawFile *>::iterator iter = find(vRawFile.begin(), vRawFile.end(), targFile);
+  auto iter = find(vRawFile.begin(), vRawFile.end(), targFile);
   if (iter != vRawFile.end())
     vRawFile.erase(iter);
   else
@@ -204,7 +205,7 @@ void VGMRoot::RemoveVGMFile(VGMFile *targFile, bool bRemoveFromRaw) {
   if (fmt)
     fmt->OnCloseFile(targFile);
 
-  vector<VGMFile *>::iterator iter = find(vVGMFile.begin(), vVGMFile.end(), targFile);
+  auto iter = find(vVGMFile.begin(), vVGMFile.end(), targFile);
   if (iter != vVGMFile.end())
     vVGMFile.erase(iter);
   else
@@ -213,7 +214,7 @@ void VGMRoot::RemoveVGMFile(VGMFile *targFile, bool bRemoveFromRaw) {
                                   L"Root"));
   if (bRemoveFromRaw)
     targFile->rawfile->RemoveContainedVGMFile(targFile);
-  while (targFile->assocColls.size())
+  while (!targFile->assocColls.empty())
     RemoveVGMColl(targFile->assocColls.back());
 
 
@@ -230,7 +231,7 @@ void VGMRoot::AddVGMColl(VGMColl *theColl) {
 
 void VGMRoot::RemoveVGMColl(VGMColl *targColl) {
   targColl->RemoveFileAssocs();
-  vector<VGMColl *>::iterator iter = find(vVGMColl.begin(), vVGMColl.end(), targColl);
+  auto iter = find(vVGMColl.begin(), vVGMColl.end(), targColl);
   if (iter != vVGMColl.end())
     vVGMColl.erase(iter);
   else
@@ -249,16 +250,18 @@ void VGMRoot::RemoveVGMColl(VGMColl *targColl) {
 void VGMRoot::UI_AddVGMFile(VGMFile *theFile) {
   switch (theFile->GetFileType()) {
     case FILETYPE_SEQ:
-      UI_AddVGMSeq((VGMSeq *) theFile);
+      UI_AddVGMSeq(dynamic_cast<VGMSeq *>(theFile));
       break;
     case FILETYPE_INSTRSET:
-      UI_AddVGMInstrSet((VGMInstrSet *) theFile);
+      UI_AddVGMInstrSet(dynamic_cast<VGMInstrSet *>(theFile));
       break;
     case FILETYPE_SAMPCOLL:
-      UI_AddVGMSampColl((VGMSampColl *) theFile);
+      UI_AddVGMSampColl(dynamic_cast<VGMSampColl *>(theFile));
       break;
     case FILETYPE_MISC:
-      UI_AddVGMMisc((VGMMiscFile *) theFile);
+      UI_AddVGMMisc(dynamic_cast<VGMMiscFile *>(theFile));
+      break;
+    case FILETYPE_UNDEFINED:
       break;
   }
 }
@@ -276,7 +279,7 @@ bool VGMRoot::UI_WriteBufferToFile(const wstring &filepath, uint8_t *buf, uint32
   if (!outfile.is_open())        //if attempt to open file failed
     return false;
 
-  outfile.write((const char *) buf, size);
+  outfile.write(reinterpret_cast<const char *>(buf), size);
   outfile.close();
   return true;
 
@@ -286,13 +289,11 @@ bool VGMRoot::UI_WriteBufferToFile(const wstring &filepath, uint8_t *buf, uint32
 bool VGMRoot::SaveAllAsRaw() {
   wstring dirpath = UI_GetSaveDirPath();\
     if (dirpath.length() != 0) {
-    for (uint32_t i = 0; i < vVGMFile.size(); i++) {
-      bool result;
-      VGMFile *file = vVGMFile[i];
+    for (auto file : vVGMFile) {
       wstring filepath = dirpath + L"\\" + file->GetName()->c_str();
       uint8_t *buf = new uint8_t[file->unLength];        //create a buffer the size of the file
       file->GetBytes(file->dwOffset, file->unLength, buf);
-      result = UI_WriteBufferToFile(filepath.c_str(), buf, file->unLength);
+      UI_WriteBufferToFile(filepath, buf, file->unLength);
       delete[] buf;
     }
     return true;

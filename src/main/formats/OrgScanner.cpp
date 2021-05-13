@@ -4,10 +4,10 @@
 
 #define SRCH_BUF_SIZE 0x20000
 
-OrgScanner::OrgScanner(void) {
+OrgScanner::OrgScanner() {
 }
 
-OrgScanner::~OrgScanner(void) {
+OrgScanner::~OrgScanner() {
 }
 
 

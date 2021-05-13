@@ -26,7 +26,7 @@ const uint8_t PrismSnesSeq::PAN_TABLE_2[21] = {
 
 PrismSnesSeq::PrismSnesSeq(RawFile *file, PrismSnesVersion ver, uint32_t seqdataOffset, std::wstring newName)
     : VGMSeq(PrismSnesFormat::name, file, seqdataOffset, 0, newName), version(ver),
-      envContainer(NULL) {
+      envContainer(nullptr) {
   bLoadTickByTick = true;
   bAllowDiscontinuousTrackData = true;
   bUseLinearAmplitudeScale = true;
@@ -38,11 +38,11 @@ PrismSnesSeq::PrismSnesSeq(RawFile *file, PrismSnesVersion ver, uint32_t seqdata
   LoadEventMap();
 }
 
-PrismSnesSeq::~PrismSnesSeq(void) {
+PrismSnesSeq::~PrismSnesSeq() {
 }
 
 void PrismSnesSeq::DemandEnvelopeContainer(uint32_t offset) {
-  if (envContainer == NULL) {
+  if (envContainer == nullptr) {
     envContainer = AddHeader(offset, 0, L"Envelopes");
   }
 
@@ -54,13 +54,13 @@ void PrismSnesSeq::DemandEnvelopeContainer(uint32_t offset) {
   }
 }
 
-void PrismSnesSeq::ResetVars(void) {
+void PrismSnesSeq::ResetVars() {
   VGMSeq::ResetVars();
 
   conditionSwitch = false;
 }
 
-bool PrismSnesSeq::GetHeaderInfo(void) {
+bool PrismSnesSeq::GetHeaderInfo() {
   SetPPQN(SEQ_PPQN);
 
   VGMHeader *header = AddHeader(dwOffset, 0);
@@ -102,7 +102,7 @@ bool PrismSnesSeq::GetHeaderInfo(void) {
   return true;
 }
 
-bool PrismSnesSeq::GetTrackPointers(void) {
+bool PrismSnesSeq::GetTrackPointers() {
   return true;
 }
 
@@ -230,7 +230,7 @@ PrismSnesTrack::PrismSnesTrack(PrismSnesSeq *parentFile, long offset, long lengt
   bWriteGenericEventAsTextEvent = false;
 }
 
-void PrismSnesTrack::ResetVars(void) {
+void PrismSnesTrack::ResetVars() {
   SeqTrack::ResetVars();
 
   panTable.assign(std::begin(PrismSnesSeq::PAN_TABLE_1), std::end(PrismSnesSeq::PAN_TABLE_1));
@@ -247,7 +247,7 @@ void PrismSnesTrack::ResetVars(void) {
   subReturnAddr = 0;
 }
 
-bool PrismSnesTrack::ReadEvent(void) {
+bool PrismSnesTrack::ReadEvent() {
   PrismSnesSeq *parentSeq = (PrismSnesSeq *) this->parentSeq;
 
   uint32_t beginOffset = curOffset;

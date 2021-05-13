@@ -100,12 +100,12 @@ class HudsonSnesSeq
  public:
   HudsonSnesSeq
       (RawFile *file, HudsonSnesVersion ver, uint32_t seqdataOffset, std::wstring newName = L"Hudson SNES Seq");
-  virtual ~HudsonSnesSeq(void);
+  ~HudsonSnesSeq() override;
 
-  virtual bool GetHeaderInfo(void);
+  bool GetHeaderInfo() override;
   bool GetTrackPointersInHeaderInfo(VGMHeader *header, uint32_t &offset);
-  virtual bool GetTrackPointers(void);
-  virtual void ResetVars(void);
+  bool GetTrackPointers() override;
+  void ResetVars() override;
 
   HudsonSnesVersion version;
   std::map<uint8_t, HudsonSnesSeqEventType> EventMap;
@@ -128,16 +128,16 @@ class HudsonSnesSeq
   bool UserCarry;
 
  private:
-  void LoadEventMap(void);
+  void LoadEventMap();
 };
 
 
 class HudsonSnesTrack
     : public SeqTrack {
  public:
-  HudsonSnesTrack(HudsonSnesSeq *parentFile, long offset = 0, long length = 0);
-  virtual void ResetVars(void);
-  virtual bool ReadEvent(void);
+  explicit HudsonSnesTrack(HudsonSnesSeq *parentFile, long offset = 0, long length = 0);
+  void ResetVars() override;
+  bool ReadEvent() override;
 
  private:
   int8_t prevNoteKey;
@@ -148,4 +148,5 @@ class HudsonSnesTrack
   uint8_t spcVolume;
   uint8_t spcCallStack[HUDSONSNES_CALLSTACK_SIZE]; // shared by multiple commands
   uint8_t spcCallStackPtr;
+  uint8_t vel;
 };

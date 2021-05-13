@@ -3,7 +3,7 @@
 #include "common.h"
 #include "ScaleConversion.h"
 
-#define M_PI_2      1.57079632679489661923132169163975144   /* pi/2           */
+#define PI_2      1.57079632679489661923132169163975144   /* pi/2           */
 
 // A lot of games use a simple linear amplitude decay/release for their envelope.
 // In other words, the envelope level drops at a constant rate (say from
@@ -140,7 +140,7 @@ double ConvertPercentAmplitudeToAttenDB_SF2(double percent) {
 }
 
 double SecondsToTimecents(double secs) {
-  return log(secs) / log((double) 2) * 1200;
+  return log(secs) / log(2.) * 1200;
 }
 
 // Convert percent pan to midi pan (with no scale conversion)
@@ -171,7 +171,7 @@ uint8_t ConvertLinearPercentPanValToStdMidiVal(double percent, double *ptrVolume
   }
   else {
     double percentArcPan = atan2(percent, 1.0 - percent);
-    midiPan = ConvertPercentPanValToStdMidiVal(percentArcPan / M_PI_2);
+    midiPan = ConvertPercentPanValToStdMidiVal(percentArcPan / PI_2);
 
     double percentLeft;
     double percentRight;
@@ -179,7 +179,7 @@ uint8_t ConvertLinearPercentPanValToStdMidiVal(double percent, double *ptrVolume
     volumeScale = 1.0 / (percentLeft + percentRight); // <= 1.0
   }
 
-  if (ptrVolumeScale != NULL) {
+  if (ptrVolumeScale != nullptr) {
     *ptrVolumeScale = volumeScale;
   }
   return midiPan;
@@ -215,8 +215,8 @@ void ConvertStdMidiPanToVolumeBalance(uint8_t midiPan, double &percentLeft, doub
   }
 
   double percentPan = (midiPan - 1) / 126.0;
-  percentLeft = cos(M_PI_2 * percentPan);
-  percentRight = sin(M_PI_2 * percentPan);
+  percentLeft = cos(PI_2 * percentPan);
+  percentRight = sin(PI_2 * percentPan);
   return;
 }
 
@@ -237,7 +237,7 @@ uint8_t ConvertVolumeBalanceToStdMidiPan(double percentLeft, double percentRight
     midiPan = ConvertLinearPercentPanValToStdMidiVal(percentPan);
   }
 
-  if (ptrVolumeScale != NULL) {
+  if (ptrVolumeScale != nullptr) {
     double volumeLeftMidi;
     double volumeRightMidi;
     ConvertStdMidiPanToVolumeBalance(midiPan, volumeLeftMidi, volumeRightMidi);

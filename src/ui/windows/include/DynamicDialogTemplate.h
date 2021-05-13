@@ -97,12 +97,12 @@ public:
 	operator HGLOBAL() { return m_hDialogTemplateMemory; }
 	operator DLGTEMPLATE*()	{ return this->GetDLGTEMPLATE(); }
 
-	HGLOBAL GetHGLOBAL(void)
+	HGLOBAL GetHGLOBAL()
 	{
 		return m_hDialogTemplateMemory;
 	}
 
-	DLGTEMPLATE* GetDLGTEMPLATE(void)
+	DLGTEMPLATE* GetDLGTEMPLATE()
 	{
 		DLGTEMPLATE* dialogTemplate = (DLGTEMPLATE*)::GlobalLock(m_hDialogTemplateMemory);
 		::GlobalUnlock(m_hDialogTemplateMemory);
@@ -188,7 +188,7 @@ public:
 		return m_hDialogTemplateMemory ? true : false;
 	}
 
-	void Destroy(void)
+	void Destroy()
 	{
 		if(m_hDialogTemplateMemory)
 		{
@@ -481,7 +481,7 @@ protected:
 // Overrideables
 public:
 	// You always need to override ConstructDialogResource
-	//bool ConstructDialogResource(void) { }
+	//bool ConstructDialogResource() { }
 
 public:
 #ifdef _DEBUG
@@ -621,9 +621,9 @@ public:
 // Overrideables
 public:
 	// You always need to override ConstructDialogResource
-	//bool ConstructDialogResource(void) { }
+	//bool ConstructDialogResource() { }
 
-	void InitializeDialogResource(void)
+	void InitializeDialogResource()
 	{
 		if(!m_dialogResourceInitialized)
 		{

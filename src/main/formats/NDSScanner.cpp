@@ -172,7 +172,7 @@ uint32_t NDSScanner::LoadFromSDAT(RawFile *file, uint32_t baseOff) {
       //for (vector<uint16_t>::iterator iter = vUniqueWAs.begin(); iter != new_end; iter++)
     {
       if (valid[i] != 1 || waFileIDs[i] == (uint16_t) -1) {
-        WAs.push_back(NULL);
+        WAs.push_back(nullptr);
         continue;
       }
       uint32_t offset = FAToff + 12 + waFileIDs[i] * 0x10;
@@ -183,7 +183,7 @@ uint32_t NDSScanner::LoadFromSDAT(RawFile *file, uint32_t baseOff) {
       if (!NewNDSwa->LoadVGMFile()) {
         pRoot->AddLogItem(new LogItem(FormatString<wstring>(L"Failed to load NDSWaveArch at 0x%08x\n",
                                                             pWAFatData).c_str(), LOG_LEVEL_ERR, L"NDSScanner"));
-        WAs.push_back(NULL);
+        WAs.push_back(nullptr);
         delete NewNDSwa;
         continue;
       }
@@ -216,7 +216,7 @@ uint32_t NDSScanner::LoadFromSDAT(RawFile *file, uint32_t baseOff) {
         if (WAnum != -1)
           NewNDSInstrSet->sampCollWAList.push_back(WAs[WAnum]);
         else
-          NewNDSInstrSet->sampCollWAList.push_back(NULL);
+          NewNDSInstrSet->sampCollWAList.push_back(nullptr);
       }
       if (!NewNDSInstrSet->LoadVGMFile()) {
         pRoot->AddLogItem(new LogItem(FormatString<wstring>(L"Failed to load NDSInstrSet at 0x%08x\n",

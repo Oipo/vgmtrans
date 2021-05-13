@@ -16,10 +16,10 @@ class NinSnesInstrSet:
                   uint32_t offset,
                   uint32_t spcDirAddr,
                   const std::wstring &name = L"NinSnesInstrSet");
-  virtual ~NinSnesInstrSet(void);
+  virtual ~NinSnesInstrSet();
 
-  virtual bool GetHeaderInfo();
-  virtual bool GetInstrPointers();
+  bool GetHeaderInfo() override;
+  bool GetInstrPointers() override;
 
   NinSnesVersion version;
 
@@ -45,9 +45,9 @@ class NinSnesInstr
                uint32_t theInstrNum,
                uint32_t spcDirAddr,
                const std::wstring &name = L"NinSnesInstr");
-  virtual ~NinSnesInstr(void);
+  virtual ~NinSnesInstr();
 
-  virtual bool LoadInstr();
+  bool LoadInstr() override;
 
   static bool IsValidHeader
       (RawFile *file, NinSnesVersion version, uint32_t addrInstrHeader, uint32_t spcDirAddr, bool validateSample);
@@ -74,9 +74,9 @@ class NinSnesRgn
              uint32_t offset,
              uint16_t konamiTuningTableAddress = 0,
              uint8_t konamiTuningTableSize = 0);
-  virtual ~NinSnesRgn(void);
+  virtual ~NinSnesRgn();
 
-  virtual bool LoadRgn();
+  bool LoadRgn() override;
 
   NinSnesVersion version;
 };

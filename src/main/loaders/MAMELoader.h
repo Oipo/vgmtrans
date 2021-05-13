@@ -13,8 +13,8 @@ enum LoadMethod {
 
 using namespace std;
 
-typedef struct _MAMERomGroupEntry {
-  _MAMERomGroupEntry() : file(NULL) { }
+struct MAMERomGroupEntry {
+  MAMERomGroupEntry() : file(nullptr) { }
   template<class T>
   bool GetAttribute(const std::string &attrName, T *out) {
     string strValue = attributes[attrName];
@@ -32,19 +32,19 @@ typedef struct _MAMERomGroupEntry {
   std::map<const std::string, std::string> attributes;
   std::list<std::string> roms;
   VirtFile *file;
-} MAMERomGroupEntry;
+};
 
-typedef struct _MAMEGameEntry {
-  _MAMEGameEntry() { }
+struct MAMEGameEntry {
+  MAMEGameEntry() = default;
   MAMERomGroupEntry *GetRomGroupOfType(const std::string &strType);
 
   std::string name;
   std::string format;
-  float fmt_version;
+  float fmt_version{};
   std::string fmt_version_str;
   //map<const std::string, const std::string> attributes;
   std::list<MAMERomGroupEntry> romgroupentries;
-} MAMEGameEntry;
+};
 
 typedef std::map<std::string, MAMEGameEntry *> GameMap;
 
@@ -53,8 +53,8 @@ class MAMELoader:
     public VGMLoader {
  public:
   MAMELoader();
-  ~MAMELoader();
-  virtual PostLoadCommand Apply(RawFile *theFile);
+  ~MAMELoader() override;
+  PostLoadCommand Apply(RawFile *theFile) override;
  private:
   VirtFile *LoadRomGroup(MAMERomGroupEntry *romgroupentry, const std::string &format, unzFile &cur_file);
   void DeleteBuffers(std::list<std::pair<uint8_t *, uint32_t>> &buffers);

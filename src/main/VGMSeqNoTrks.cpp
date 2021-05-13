@@ -1,19 +1,20 @@
 #include "pch.h"
 #include "VGMSeqNoTrks.h"
+
+#include <utility>
 #include "SeqEvent.h"
 #include "Root.h"
 
 using namespace std;
 
-VGMSeqNoTrks::VGMSeqNoTrks(const string &format, RawFile *file, uint32_t offset, wstring name)
-    : VGMSeq(format, file, offset, 0, name),
+VGMSeqNoTrks::VGMSeqNoTrks(const string &_format, RawFile *file, uint32_t offset, wstring _name)
+    : VGMSeq(_format, file, offset, 0, std::move(_name)),
       SeqTrack(this) {
   ResetVars();
   VGMSeq::AddContainer<SeqEvent>(aEvents);
 }
 
-VGMSeqNoTrks::~VGMSeqNoTrks(void) {
-}
+VGMSeqNoTrks::~VGMSeqNoTrks() = default;
 
 void VGMSeqNoTrks::ResetVars() {
   midiTracks.clear();        //no need to delete the contents, that happens when the midi is deleted
@@ -71,7 +72,7 @@ bool VGMSeqNoTrks::LoadEvents(long stopTime) {
   bInLoop = false;
   curOffset = eventsOffset();    //start at beginning of track
   while (curOffset < rawfile->size()) {
-    if (GetTime() >= (unsigned) stopTime) {
+    if (GetTime() >= stopTime) {
       break;
     }
 
@@ -87,9 +88,9 @@ MidiFile *VGMSeqNoTrks::ConvertToMidi() {
   this->SeqTrack::readMode = this->VGMSeq::readMode = READMODE_FIND_DELTA_LENGTH;
 
   if (!LoadEvents())
-    return NULL;
+    return nullptr;
   if (!PostLoad())
-    return NULL;
+    return nullptr;
 
   long stopTime = -1;
   stopTime = deltaLength;
@@ -99,20 +100,20 @@ MidiFile *VGMSeqNoTrks::ConvertToMidi() {
   this->SeqTrack::readMode = this->VGMSeq::readMode = READMODE_CONVERT_TO_MIDI;
   if (!LoadEvents(stopTime)) {
     delete midi;
-    this->midi = NULL;
-    return NULL;
+    this->midi = nullptr;
+    return nullptr;
   }
   if (!PostLoad()) {
     delete midi;
-    this->midi = NULL;
-    return NULL;
+    this->midi = nullptr;
+    return nullptr;
   }
-  this->midi = NULL;
+  this->midi = nullptr;
   return newmidi;
 }
 
 MidiTrack *VGMSeqNoTrks::GetFirstMidiTrack() {
-  if (midiTracks.size() > 0) {
+  if (!midiTracks.empty()) {
     return midiTracks[0];
   }
   else {
@@ -144,7 +145,7 @@ void VGMSeqNoTrks::SetCurTrack(uint32_t trackNum) {
 void VGMSeqNoTrks::AddTime(uint32_t delta) {
   VGMSeq::time += delta;
   if (VGMSeq::readMode == READMODE_CONVERT_TO_MIDI) {
-    for (uint32_t i = 0; i < midiTracks.size(); i++)
-      midiTracks[i]->AddDelta(delta);
+    for (auto & midiTrack : midiTracks)
+      midiTrack->AddDelta(delta);
   }
 }

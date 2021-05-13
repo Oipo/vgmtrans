@@ -4,7 +4,7 @@
 class KonamiGXScanner:
     public VGMScanner {
  public:
-  virtual void Scan(RawFile *file, void *info = 0);
+  void Scan(RawFile *file, void *info = 0) override;
   void LoadSeqTable(RawFile *file, uint32_t offset);
 };
 

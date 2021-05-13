@@ -21,11 +21,11 @@ const uint8_t length_table[0x31] =
 class MP2kSeq:
     public VGMSeq {
  public:
-  MP2kSeq(RawFile *file, uint32_t offset, std::wstring name = L"MP2kSeq");
-  virtual ~MP2kSeq(void);
+  MP2kSeq(RawFile *file, uint32_t offset, std::wstring _name = L"MP2kSeq");
+  ~MP2kSeq() override;
 
-  virtual bool GetHeaderInfo(void);
-  virtual bool GetTrackPointers(void);
+  bool GetHeaderInfo() override;
+  bool GetTrackPointers() override;
 };
 
 
@@ -34,7 +34,7 @@ class MP2kTrack
  public:
   MP2kTrack(MP2kSeq *parentSeq, long offset = 0, long length = 0);
 
-  virtual bool ReadEvent(void);
+  bool ReadEvent() override;
 
  public:
   uint8_t state;
@@ -45,12 +45,12 @@ class MP2kTrack
 };
 
 
-class MP2kEvent:
-    public SeqEvent {
- public:
-  MP2kEvent(MP2kTrack *pTrack, uint8_t stateType);
-
- public:
-  //Keep record of the state, because otherwise, all 0-0x7F events are ambiguous
-  uint8_t eventState;
-};
+//class MP2kEvent:
+//    public SeqEvent {
+// public:
+//  MP2kEvent(MP2kTrack *pTrack, uint8_t stateType);
+//
+// public:
+//  //Keep record of the state, because otherwise, all 0-0x7F events are ambiguous
+//  uint8_t eventState;
+//};

@@ -18,8 +18,7 @@ HOSAInstrSet::HOSAInstrSet(RawFile *file, uint32_t offset)
 //==============================================================
 //		Destructor
 //--------------------------------------------------------------
-HOSAInstrSet::~HOSAInstrSet(void) {
-}
+HOSAInstrSet::~HOSAInstrSet() = default;
 
 
 //==============================================================
@@ -82,7 +81,7 @@ bool HOSAInstrSet::GetInstrPointers() {
 //--------------------------------------------------------------
 HOSAInstr::HOSAInstr(VGMInstrSet *instrSet, uint32_t offset, uint32_t length, uint32_t theBank, uint32_t theInstrNum)
     : VGMInstr(instrSet, offset, length, theBank, theInstrNum),
-      rgns(NULL) {
+      rgns(nullptr) {
 }
 
 //==============================================================
@@ -120,9 +119,9 @@ bool HOSAInstr::LoadInstr() {
     rgn->AddKeyHigh(rgninfo->note_range_high, rgn->dwOffset + 0x05);
     cKeyLow = (rgninfo->note_range_high) + 1;
 
-    rgn->AddUnityKey((int8_t) 0x3C + 0x3C - rgninfo->iSemiToneTune, rgn->dwOffset + 0x06);
+    rgn->AddUnityKey(static_cast<int8_t>(0x3C) + 0x3C - rgninfo->iSemiToneTune, rgn->dwOffset + 0x06);
     rgn->AddSimpleItem(rgn->dwOffset + 0x07, 1, L"Semi Tone Tune");
-    rgn->fineTune = (short) ((double) rgninfo->iFineTune * (100.0 / 256.0));
+    rgn->fineTune = static_cast<short>(static_cast<double>( rgninfo->iFineTune) * (100.0 / 256.0));
 
     // Might want to simplify the code below.  I'm being nitpicky.
     if (rgninfo->iPan == 0x80) rgn->pan = 0;
@@ -130,7 +129,7 @@ bool HOSAInstr::LoadInstr() {
     else if ((rgninfo->iPan == 0xC0) ||
         (rgninfo->iPan < 0x80))
       rgn->pan = 0.5;
-    else rgn->pan = (double) (rgninfo->iPan - 0x80) / (double) 0x7F;
+    else rgn->pan = (static_cast<double>(rgninfo->iPan) - 0x80) / static_cast<double>(0x7F);
 
     // The ADSR value ordering is all messed up for the hell of it.  This was a bitch to reverse-engineer.
     rgn->AddSimpleItem(rgn->dwOffset + 0x0C, 4, L"ADSR Values (non-standard ordering)");
@@ -147,8 +146,8 @@ bool HOSAInstr::LoadInstr() {
 
 
     // Unsure if volume is using a linear scale, but it sounds like it.
-    double vol = rgninfo->volume / (double) 255;
-    rgn->SetVolume(vol);
+    double _vol = rgninfo->volume / 255.;
+    rgn->SetVolume(_vol);
     aRgns.push_back(rgn);
   }
   return true;

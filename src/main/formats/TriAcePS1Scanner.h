@@ -7,9 +7,9 @@ class TriAcePS1InstrSet;
 class TriAcePS1Scanner:
     public VGMScanner {
  public:
-  TriAcePS1Scanner(void);
+  TriAcePS1Scanner();
  public:
-  ~TriAcePS1Scanner(void);
+  ~TriAcePS1Scanner();
 
   virtual void Scan(RawFile *file, void *info = 0);
   void SearchForSLZSeq(RawFile *file);

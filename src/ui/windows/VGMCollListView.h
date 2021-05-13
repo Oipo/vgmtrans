@@ -42,7 +42,7 @@ public:
   END_MSG_MAP()
 
   LRESULT OnCreate(UINT uMsg, WPARAM wParam, LPARAM lParam, BOOL& bHandled);
-  void OnDestroy(void);
+  void OnDestroy();
   void OnChar(UINT nChar, UINT nRepCnt, UINT nFlags);
   LRESULT OnContextMenu(HWND hwndCtrl, CPoint ptClick);
 

@@ -15,17 +15,17 @@ class HOSAInstrSet
 
  public:
   HOSAInstrSet(RawFile *file, uint32_t offset);
-  virtual ~HOSAInstrSet(void);
+  ~HOSAInstrSet() override;
 
-  virtual bool GetHeaderInfo();
-  virtual bool GetInstrPointers();
+  bool GetHeaderInfo() override;
+  bool GetInstrPointers() override;
 
  public:
 
-  typedef struct _InstrHeader {
+  struct InstrHeader {
     char strHeader[8];
     uint32_t numInstr;
-  } InstrHeader;
+  };
 
  public:
   InstrHeader instrheader;
@@ -40,11 +40,11 @@ class HOSAInstr
     : public VGMInstr {
  public:
 
-  typedef struct _InstrInfo {
+  struct InstrInfo {
     uint32_t numRgns;
-  } InstrInfo;
+  };
 
-  typedef struct _RgnInfo {
+  struct RgnInfo {
     uint32_t sampOffset;
     uint8_t volume;           //percent volume 0-0xFF
     uint8_t note_range_high;
@@ -57,13 +57,13 @@ class HOSAInstr
     uint8_t unk_A;
     uint8_t iPan;             //pan 0x80 - hard left    0xFF - hard right.  anything below results in center (but may be undefined)
     uint32_t ADSR_vals;       //The ordering is all messed up.  The code which loads these values is at 8007D8EC
-  } RgnInfo;
+  };
 
 
  public:
   HOSAInstr(VGMInstrSet *instrSet, uint32_t offset, uint32_t length, uint32_t theBank, uint32_t theInstrNum);
-  ~HOSAInstr() { if (rgns) delete[] rgns; }
-  virtual bool LoadInstr();
+  ~HOSAInstr() override { delete[] rgns; }
+  bool LoadInstr() override;
 
  public:
   InstrInfo instrinfo;

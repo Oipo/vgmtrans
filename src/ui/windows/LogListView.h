@@ -45,7 +45,7 @@ public:
 
 	LRESULT OnCreate(UINT uMsg, WPARAM wParam, LPARAM lParam, BOOL& bHandled);
 	void OnSize(UINT nType, CSize size);
-	void OnDestroy(void);
+	void OnDestroy();
 
 	//Notification Handlers
 	LRESULT OnColumnClick ( NMHDR* phdr );

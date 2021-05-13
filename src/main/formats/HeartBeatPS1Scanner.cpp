@@ -4,10 +4,10 @@
 
 #define SRCH_BUF_SIZE 0x20000
 
-HeartBeatPS1Scanner::HeartBeatPS1Scanner(void) {
+HeartBeatPS1Scanner::HeartBeatPS1Scanner() {
 }
 
-HeartBeatPS1Scanner::~HeartBeatPS1Scanner(void) {
+HeartBeatPS1Scanner::~HeartBeatPS1Scanner() {
 }
 
 

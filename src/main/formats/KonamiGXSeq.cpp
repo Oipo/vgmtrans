@@ -15,10 +15,9 @@ KonamiGXSeq::KonamiGXSeq(RawFile *file, uint32_t offset)
   AlwaysWriteInitialVol(127);
 }
 
-KonamiGXSeq::~KonamiGXSeq(void) {
-}
+KonamiGXSeq::~KonamiGXSeq() = default;
 
-bool KonamiGXSeq::GetHeaderInfo(void) {
+bool KonamiGXSeq::GetHeaderInfo() {
   //nNumTracks = GetByte(dwOffset+8);
   SetPPQN(0x30);
 
@@ -28,7 +27,7 @@ bool KonamiGXSeq::GetHeaderInfo(void) {
   return true;
 }
 
-bool KonamiGXSeq::GetTrackPointers(void) {
+bool KonamiGXSeq::GetTrackPointers() {
   uint32_t pos = dwOffset;
   for (int i = 0; i < 17; i++) {
     uint32_t trackOffset = GetWordBE(pos);
@@ -41,7 +40,7 @@ bool KonamiGXSeq::GetTrackPointers(void) {
   return true;
 }
 
-//bool KonamiGXSeq::LoadTracks(void)
+//bool KonamiGXSeq::LoadTracks()
 //{
 //	for (uint32_t i=0; i<nNumTracks; i++)
 //	{
@@ -56,15 +55,15 @@ bool KonamiGXSeq::GetTrackPointers(void) {
 // *************
 
 
-KonamiGXTrack::KonamiGXTrack(KonamiGXSeq *parentSeq, long offset, long length)
-    : SeqTrack(parentSeq, offset, length), bInJump(false) {
+KonamiGXTrack::KonamiGXTrack(KonamiGXSeq *_parentSeq, long offset, long length)
+    : SeqTrack(_parentSeq, offset, length), bInJump(false) {
 }
 
 
 // I'm going to try to follow closely to the original Salamander 2 code at 0x30C6
-bool KonamiGXTrack::ReadEvent(void) {
+bool KonamiGXTrack::ReadEvent() {
   uint32_t beginOffset = curOffset;
-  uint32_t deltatest = GetTime();
+//  uint32_t deltatest = GetTime();
   //AddDelta(ReadVarLen(curOffset));
 
   uint8_t status_byte = GetByte(curOffset++);
@@ -223,7 +222,8 @@ bool KonamiGXTrack::ReadEvent(void) {
 
       //master vol
       case 0xEE: {
-        uint8_t vol = GetByte(curOffset++);
+        curOffset++;
+//        uint8_t vol = GetByte(curOffset++);
         //AddMasterVol(beginOffset, curOffset-beginOffset, vol);
         break;
       }

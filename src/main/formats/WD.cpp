@@ -13,7 +13,7 @@ WDInstrSet::WDInstrSet(RawFile *file, uint32_t offset)
     : VGMInstrSet(SquarePS2Format::name, file, offset) {
 }
 
-WDInstrSet::~WDInstrSet(void) {
+WDInstrSet::~WDInstrSet() {
 }
 
 
@@ -85,7 +85,7 @@ WDInstr::WDInstr(VGMInstrSet *instrSet,
     : VGMInstr(instrSet, offset, length, theBank, theInstrNum, name) {
 }
 
-WDInstr::~WDInstr(void) {
+WDInstr::~WDInstr() {
 }
 
 
@@ -134,9 +134,9 @@ bool WDInstr::LoadInstr() {
     rgn->velHigh = Convert7bitPercentVolValToStdMidiVal(GetByte(k * 0x20 + 0x15 + dwOffset));
 
     uint8_t vol = GetByte(k * 0x20 + 0x16 + dwOffset);
-    rgn->SetVolume((double) vol / 127.0);
+    rgn->SetVolume(static_cast<double>( vol / 127.0);
 
-    rgn->pan = (double) GetByte(k * 0x20 + 0x17 + dwOffset);        //need to convert
+    rgn->pan = static_cast<double>( GetByte(k * 0x20 + 0x17 + dwOffset);        //need to convert
 
     if (rgn->pan == 255)
       rgn->pan = 1.0;
@@ -145,7 +145,7 @@ bool WDInstr::LoadInstr() {
     else if (rgn->pan == 192)
       rgn->pan = 0.5;
     else if (rgn->pan > 127)
-      rgn->pan = (double) (rgn->pan - 128) / (double) 127;
+      rgn->pan = static_cast<double>( (rgn->pan - 128) / static_cast<double>( 127;
     else
       rgn->pan = 0.5;
 

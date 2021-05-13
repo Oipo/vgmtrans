@@ -7,10 +7,10 @@ enum MoriSnesVersion: uint8_t; // see MoriSnesFormat.h
 class MoriSnesScanner:
     public VGMScanner {
  public:
-  MoriSnesScanner(void) {
+  MoriSnesScanner() {
     USE_EXTENSION(L"spc");
   }
-  virtual ~MoriSnesScanner(void) {
+  virtual ~MoriSnesScanner() {
   }
 
   virtual void Scan(RawFile *file, void *info = 0);

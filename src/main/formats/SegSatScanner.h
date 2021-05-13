@@ -4,9 +4,9 @@
 class SegSatScanner:
     public VGMScanner {
  public:
-  SegSatScanner(void);
+  SegSatScanner();
  public:
-  virtual ~SegSatScanner(void);
+  virtual ~SegSatScanner();
 
   virtual void Scan(RawFile *file, void *info = 0);
 };

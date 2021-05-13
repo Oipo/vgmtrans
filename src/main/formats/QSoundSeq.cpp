@@ -93,17 +93,17 @@ QSoundSeq::QSoundSeq(RawFile *file, uint32_t offset, QSoundVer fmtVersion, wstri
   AlwaysWriteInitialVol(127);
 }
 
-QSoundSeq::~QSoundSeq(void) {
+QSoundSeq::~QSoundSeq() {
 }
 
-bool QSoundSeq::GetHeaderInfo(void) {
+bool QSoundSeq::GetHeaderInfo() {
   // for 100% accuracy, we'd left shift by 256, but that seems unnecessary and excessive
   SetPPQN(0x30 << 4);
   return true;        //successful
 }
 
 
-bool QSoundSeq::GetTrackPointers(void) {
+bool QSoundSeq::GetTrackPointers() {
   // Hack for D&D Shadow over Mystara...
   if (GetByte(dwOffset) == 0x92)
     return false;
@@ -202,9 +202,9 @@ bool QSoundSeq::PostLoad() {
 
         long segmentDurTicks = curTicks - startAbsTicks;
         double segmentDur = segmentDurTicks * mpt;    // duration of this segment in micros
-        double lfoTicks = segmentDur / (double) mpLFOt;
-        double numLfoPhases = (lfoTicks * (double) lfoRate) / (double) 0x20000;
-        double lfoRatePerMidiTick = (numLfoPhases * 0x20000) / (double) segmentDurTicks;
+        double lfoTicks = segmentDur / static_cast<double>( mpLFOt;
+        double numLfoPhases = (lfoTicks * static_cast<double>( lfoRate) / static_cast<double>( 0x20000;
+        double lfoRatePerMidiTick = (numLfoPhases * 0x20000) / static_cast<double>( segmentDurTicks;
 
         const uint8_t tickRes = 16;
         uint32_t lfoRatePerLoop = (uint32_t) ((tickRes * lfoRatePerMidiTick) * 256);
@@ -223,18 +223,18 @@ bool QSoundSeq::PostLoad() {
           else if (lfoStage == 3)
             effectiveLfoVal = -0x1000000 + lfoVal;
 
-          double lfoPercent = (effectiveLfoVal / (double) 0x1000000);
+          double lfoPercent = (effectiveLfoVal / static_cast<double>( 0x1000000);
 
           if (vibrato > 0) {
             lfoCents = (short) (lfoPercent * vibrato);
             track->InsertPitchBend(channel,
-                                   (short) (((lfoCents + pitchbend) / (double) pitchbendRange) * 8192),
+                                   (short) (((lfoCents + pitchbend) / static_cast<double>( pitchbendRange) * 8192),
                                    startAbsTicks + t);
           }
 
           if (tremelo > 0) {
             uint8_t
-                expression = ConvertPercentAmpToStdMidiVal((0x10000 - (tremelo * fabs(lfoPercent))) / (double) 0x10000);
+                expression = ConvertPercentAmpToStdMidiVal((0x10000 - (tremelo * fabs(lfoPercent))) / static_cast<double>( 0x10000);
             track->InsertExpression(channel, expression, startAbsTicks + t);
           }
         }
@@ -262,11 +262,11 @@ bool QSoundSeq::PostLoad() {
                                                * 100);    //+50 cents to allow for pitchbend values, which range -50/+50
             track->InsertPitchBendRange(channel, pitchbendRange / 100, pitchbendRange % 100, curTicks);
 
-            lfoCents = (short) ((effectiveLfoVal / (double) 0x1000000) * vibrato);
+            lfoCents = (short) ((effectiveLfoVal / static_cast<double>( 0x1000000) * vibrato);
 
             if (curTicks > 0)
               track->InsertPitchBend(channel,
-                                     (short) (((lfoCents + pitchbend) / (double) pitchbendRange) * 8192),
+                                     (short) (((lfoCents + pitchbend) / static_cast<double>( pitchbendRange) * 8192),
                                      curTicks);
           }
           else if (marker->name == "tremelo") {
@@ -285,14 +285,14 @@ bool QSoundSeq::PostLoad() {
             lfoStage = 0;
             lfoCents = 0;
             if (vibrato > 0)
-              track->InsertPitchBend(channel, (short) (((0 + pitchbend) / (double) pitchbendRange) * 8192), curTicks);
+              track->InsertPitchBend(channel, (short) (((0 + pitchbend) / static_cast<double>( pitchbendRange) * 8192), curTicks);
             if (tremelo > 0)
               track->InsertExpression(channel, 127, curTicks);
           }
           else if (marker->name == "pitchbend") {
             pitchbend = (short) (((char) marker->databyte1 / 256.0) * 100);
             track->InsertPitchBend(channel,
-                                   (short) (((lfoCents + pitchbend) / (double) pitchbendRange) * 8192),
+                                   (short) (((lfoCents + pitchbend) / static_cast<double>( pitchbendRange) * 8192),
                                    curTicks);
           }
         }
@@ -331,7 +331,7 @@ void QSoundTrack::ResetVars() {
 }
 
 
-bool QSoundTrack::ReadEvent(void) {
+bool QSoundTrack::ReadEvent() {
   uint32_t beginOffset = curOffset;
   uint8_t status_byte = GetByte(curOffset++);
 
@@ -361,7 +361,7 @@ bool QSoundTrack::ReadEvent(void) {
     //if it's not a rest
     if ((status_byte & 0x1F) != 0) {
       // for 100% accuracy, we'd be shifting by 8, but that seems excessive for MIDI
-      uint32_t absDur = (uint32_t) ((double) (delta / (double) (256 << 4)) * (double) (dur << 4));
+      uint32_t absDur = (uint32_t) (static_cast<double>( (delta / static_cast<double>( (256 << 4)) * static_cast<double>( (dur << 4));
 
       key = (status_byte & 0x1F) + octave_table[noteState & 0x0F] - 1;
 
@@ -487,7 +487,7 @@ bool QSoundTrack::ReadEvent(void) {
 
       case 0x07 :
         vol = GetByte(curOffset++);
-        vol = ConvertPercentAmpToStdMidiVal(vol_table[vol] / (double) 0x1FFF);
+        vol = ConvertPercentAmpToStdMidiVal(vol_table[vol] / static_cast<double>( 0x1FFF);
         this->AddVol(beginOffset, curOffset - beginOffset, vol);
         break;
 

@@ -79,12 +79,12 @@ uint32_t EmulateSDSPGAIN(uint8_t gain,
   }
 
   uint32_t total_samples = tick * SDSP_COUNTER_RATES[rate];
-  if (env_after_ptr != NULL) {
+  if (env_after_ptr != nullptr) {
     *env_after_ptr = env;
   }
 
   // calculate envelope time for soundfont use
-  if (sf2_envelope_time_ptr != NULL) {
+  if (sf2_envelope_time_ptr != nullptr) {
     double sf2_time;
     if (mode < 4) { // direct
       sf2_time = 0.0;
@@ -289,23 +289,23 @@ void ConvertSNESADSR(uint8_t adsr1,
     }
   }
 
-  if (ptr_attack_time != NULL && have_attack_time) {
+  if (ptr_attack_time != nullptr && have_attack_time) {
     *ptr_attack_time = attack_time;
   }
 
-  if (ptr_decay_time != NULL && have_decay_time) {
+  if (ptr_decay_time != nullptr && have_decay_time) {
     *ptr_decay_time = decay_time;
   }
 
-  if (ptr_sustain_level != NULL && have_sustain_level) {
+  if (ptr_sustain_level != nullptr && have_sustain_level) {
     *ptr_sustain_level = sustain_level;
   }
 
-  if (ptr_sustain_time != NULL && have_sustain_time) {
+  if (ptr_sustain_time != nullptr && have_sustain_time) {
     *ptr_sustain_time = sustain_time;
   }
 
-  if (ptr_release_time != NULL && have_release_time) {
+  if (ptr_release_time != nullptr && have_release_time) {
     *ptr_release_time = release_time;
   }
 }

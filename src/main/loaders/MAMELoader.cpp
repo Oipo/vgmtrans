@@ -32,7 +32,7 @@ MAMERomGroupEntry *MAMEGameEntry::GetRomGroupOfType(const string &strType) {
     if (it->type.compare(strType) == 0)
       return &(*it);
   }
-  return NULL;
+  return nullptr;
 }
 
 
@@ -74,11 +74,11 @@ MAMEGameEntry *MAMELoader::LoadGameEntry(TiXmlElement *gameElmt) {
 
   if (gameElmt->QueryValueAttribute("name", &gameentry->name) != TIXML_SUCCESS) {
     delete gameentry;
-    return NULL;
+    return nullptr;
   }
   if (gameElmt->QueryValueAttribute("format", &gameentry->format) != TIXML_SUCCESS) {
     delete gameentry;
-    return NULL;
+    return nullptr;
   }
   if (gameElmt->QueryValueAttribute("fmt_version", &fmtVersionStr) != TIXML_SUCCESS) {
     gameentry->fmt_version = 0;
@@ -96,11 +96,11 @@ MAMEGameEntry *MAMELoader::LoadGameEntry(TiXmlElement *gameElmt) {
        romgroupElmt = romgroupElmt->NextSiblingElement()) {
     if (romgroupElmt->ValueStr() != "romgroup") {
       delete gameentry;
-      return NULL;
+      return nullptr;
     }
     if (LoadRomGroupEntry(romgroupElmt, gameentry)) {
       delete gameentry;
-      return NULL;
+      return nullptr;
     }
   }
   return gameentry;
@@ -185,18 +185,18 @@ PostLoadCommand MAMELoader::Apply(RawFile *file) {
   int ret;
 
   //Now we try to load the rom groups.  We save the created file into the rom MAMERomGroupEntry's file member
-  // Note that this does not check for an error, so the romgroup entry's file member may receive NULL.
+  // Note that this does not check for an error, so the romgroup entry's file member may receive nullptr.
   // This must be checked for in Scan().
   for (list<MAMERomGroupEntry>::iterator it = gameentry->romgroupentries.begin();
        it != gameentry->romgroupentries.end(); it++)
     it->file = LoadRomGroup(&(*it), gameentry->format, cur_file);
 
 
-  fmt->GetScanner().Scan(NULL, gameentry);
+  fmt->GetScanner().Scan(nullptr, gameentry);
 
   for (list<MAMERomGroupEntry>::iterator it = gameentry->romgroupentries.begin();
        it != gameentry->romgroupentries.end(); it++) {
-    if (it->file != NULL)
+    if (it->file != nullptr)
       pRoot->SetupNewRawFile(it->file);
   }
 

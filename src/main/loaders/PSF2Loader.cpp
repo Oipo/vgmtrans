@@ -3,10 +3,10 @@
 #include "Root.h"
 #include <zlib.h>
 
-PSF2Loader::PSF2Loader(void) {
+PSF2Loader::PSF2Loader() {
 }
 
-PSF2Loader::~PSF2Loader(void) {
+PSF2Loader::~PSF2Loader() {
 }
 
 PostLoadCommand PSF2Loader::Apply(RawFile *file) {

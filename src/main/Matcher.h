@@ -1,4 +1,5 @@
 #pragma once
+
 #include "Root.h"
 #include "Format.h"
 
@@ -6,21 +7,6 @@
 #include "VGMInstrSet.h"
 #include "VGMSampColl.h"
 #include "VGMColl.h"
-
-
-/*#define USE_SIMPLE_MATCHER(fmt_id, id_var)													\
-	public:																					\
-	virtual void Announce()																	\
-	{																						\
-		Format* format = pRoot->GetFormat(fmt_id);											\
-		SimpleMatcher* matcher = (SimpleMatcher*)format->matcher;							\
-		vector<VGMFile*>* files = matcher->AddMatchItem(this, id_var);						\
-		if (files)																			\
-		{																					\
-			format->OnMatch(*files);														\
-			delete files;																	\
-		}																					\
-	}*/
 
 // *******
 // Matcher
@@ -70,12 +56,12 @@ class SimpleMatcher:
   virtual bool GetSampCollId(VGMSampColl *sampcoll, IdType &id) = 0;
 
 
-  SimpleMatcher(Format *format, bool bUsingSampColl = false)
+  SimpleMatcher(Format *format, bool _bUsingSampColl = false)
       : Matcher(format),
-        bRequiresSampColl(bUsingSampColl) {
+        bRequiresSampColl(_bUsingSampColl) {
   }
 
-  virtual bool OnNewSeq(VGMSeq *seq) {
+  bool OnNewSeq(VGMSeq *seq) override {
     IdType id;
     bool success = this->GetSeqId(seq, id);
     if (!success)
@@ -83,7 +69,7 @@ class SimpleMatcher:
 
     seqs.insert(std::pair<IdType, VGMSeq *>(id, seq));
 
-    VGMInstrSet *matchingInstrSet = NULL;
+    VGMInstrSet *matchingInstrSet = nullptr;
     matchingInstrSet = instrsets[id];
     if (matchingInstrSet) {
       if (bRequiresSampColl) {
@@ -119,7 +105,7 @@ class SimpleMatcher:
     return true;
   }
 
-  virtual bool OnNewInstrSet(VGMInstrSet *instrset) {
+  bool OnNewInstrSet(VGMInstrSet *instrset) override {
     IdType id;
     bool success = this->GetInstrSetId(instrset, id);
     if (!success)
@@ -147,7 +133,7 @@ class SimpleMatcher:
     // of element with key b
     itPair = seqs.equal_range(id);
     // Loop through range of maps with id key
-    for (typename std::multimap<IdType, VGMSeq *>::iterator it2 = itPair.first;
+    for (auto it2 = itPair.first;
          it2 != itPair.second;
          ++it2) {
       VGMSeq *matchingSeq = (*it2).second;
@@ -180,7 +166,7 @@ class SimpleMatcher:
     return true;
   }
 
-  virtual bool OnNewSampColl(VGMSampColl *sampcoll) {
+  bool OnNewSampColl(VGMSampColl *sampcoll) override {
     if (bRequiresSampColl) {
       IdType id;
       bool success = this->GetSampCollId(sampcoll, id);
@@ -209,7 +195,7 @@ class SimpleMatcher:
       // of element with key b
       itPair = seqs.equal_range(id);
       // Loop through range of maps with id key
-      for (typename std::multimap<IdType, VGMSeq *>::iterator it2 = itPair.first;
+      for (auto it2 = itPair.first;
            it2 != itPair.second;
            ++it2) {
         VGMSeq *matchingSeq = (*it2).second;
@@ -233,14 +219,14 @@ class SimpleMatcher:
     return true;
   }
 
-  virtual bool OnCloseSeq(VGMSeq *seq) {
+  bool OnCloseSeq(VGMSeq *seq) override {
     IdType id;
     bool success = this->GetSeqId(seq, id);
     if (!success)
       return false;
 
     //Find the first matching key.
-    typename std::multimap<IdType, VGMSeq *>::iterator itr = seqs.find(id);
+    auto itr = seqs.find(id);
     //Search for the specific seq to remove.
     if (itr != seqs.end()) {
       do {
@@ -255,7 +241,7 @@ class SimpleMatcher:
     return true;
   }
 
-  virtual bool OnCloseInstrSet(VGMInstrSet *instrset) {
+  bool OnCloseInstrSet(VGMInstrSet *instrset) override {
     IdType id;
     bool success = this->GetInstrSetId(instrset, id);
     if (!success)
@@ -264,7 +250,7 @@ class SimpleMatcher:
     return true;
   }
 
-  virtual bool OnCloseSampColl(VGMSampColl *sampcoll) {
+  bool OnCloseSampColl(VGMSampColl *sampcoll) override {
     IdType id;
     bool success = this->GetSampCollId(sampcoll, id);
     if (!success)
@@ -289,22 +275,31 @@ class SimpleMatcher:
 class GetIdMatcher:
     public SimpleMatcher<uint32_t> {
  public:
-  GetIdMatcher(Format *format, bool bRequiresSampColl = false)
-      : SimpleMatcher(format, bRequiresSampColl) { }
+  GetIdMatcher(Format *format, bool _bRequiresSampColl = false)
+      : SimpleMatcher(format, _bRequiresSampColl) { }
 
-  virtual bool GetSeqId(VGMSeq *seq, uint32_t &id) {
-    id = seq->GetID();
-    return (id != -1);
+  bool GetSeqId(VGMSeq *seq, uint32_t &id) override {
+    auto _id = seq->GetID();
+    if(_id) {
+      id = _id.value();
+    }
+    return _id.has_value();
   }
 
-  virtual bool GetInstrSetId(VGMInstrSet *instrset, uint32_t &id) {
-    id = instrset->GetID();
-    return (id != -1);
+  bool GetInstrSetId(VGMInstrSet *instrset, uint32_t &id) override {
+    auto _id = instrset->GetID();
+    if(_id) {
+      id = _id.value();
+    }
+    return _id.has_value();
   }
 
-  virtual bool GetSampCollId(VGMSampColl *sampcoll, uint32_t &id) {
-    id = sampcoll->GetID();
-    return (id != -1);
+  bool GetSampCollId(VGMSampColl *sampcoll, uint32_t &id) override {
+    auto _id = sampcoll->GetID();
+    if(_id) {
+      id = _id.value();
+    }
+    return _id.has_value();
   }
 };
 
@@ -316,31 +311,31 @@ class GetIdMatcher:
 class FilenameMatcher:
     public SimpleMatcher<std::wstring> {
  public:
-  FilenameMatcher(Format *format, bool bRequiresSampColl = false)
-      : SimpleMatcher(format, bRequiresSampColl) { }
+  FilenameMatcher(Format *format, bool _bRequiresSampColl = false)
+      : SimpleMatcher(format, _bRequiresSampColl) { }
 
-  virtual bool GetSeqId(VGMSeq *seq, std::wstring &id) {
+  bool GetSeqId(VGMSeq *seq, std::wstring &id) override {
     RawFile *rawfile = seq->GetRawFile();
     id = rawfile->GetParRawFileFullPath();
-    if (id == L"")        //wonder if empty() is equivalent?
+    if (id.empty())
       id = rawfile->GetFullPath();
-    return (id != L"");
+    return (!id.empty());
   }
 
-  virtual bool GetInstrSetId(VGMInstrSet *instrset, std::wstring &id) {
+  bool GetInstrSetId(VGMInstrSet *instrset, std::wstring &id) override {
     RawFile *rawfile = instrset->GetRawFile();
     id = rawfile->GetParRawFileFullPath();
-    if (id == L"")        //wonder if empty() is equivalent?
+    if (id.empty())
       id = rawfile->GetFullPath();
-    return (id != L"");
+    return (!id.empty());
   }
 
-  virtual bool GetSampCollId(VGMSampColl *sampcoll, std::wstring &id) {
+  bool GetSampCollId(VGMSampColl *sampcoll, std::wstring &id) override {
     RawFile *rawfile = sampcoll->GetRawFile();
     id = rawfile->GetParRawFileFullPath();
-    if (id == L"")        //wonder if empty() is equivalent?
+    if (id.empty())
       id = rawfile->GetFullPath();
-    return (id != L"");
+    return (!id.empty());
   }
 };
 
@@ -367,13 +362,13 @@ class FilegroupMatcher:
   FilegroupMatcher(Format *format);
 
  protected:
-  virtual bool OnNewSeq(VGMSeq *seq);
-  virtual bool OnNewInstrSet(VGMInstrSet *instrset);
-  virtual bool OnNewSampColl(VGMSampColl *sampcoll);
+  bool OnNewSeq(VGMSeq *seq) override;
+  bool OnNewInstrSet(VGMInstrSet *instrset) override;
+  bool OnNewSampColl(VGMSampColl *sampcoll) override;
 
-  virtual bool OnCloseSeq(VGMSeq *seq);
-  virtual bool OnCloseInstrSet(VGMInstrSet *instrset);
-  virtual bool OnCloseSampColl(VGMSampColl *sampcoll);
+  bool OnCloseSeq(VGMSeq *seq) override;
+  bool OnCloseInstrSet(VGMInstrSet *instrset) override;
+  bool OnCloseSampColl(VGMSampColl *sampcoll) override;
 
   virtual void LookForMatch();
   template<class T>

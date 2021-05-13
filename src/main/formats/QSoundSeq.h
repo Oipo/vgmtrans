@@ -9,11 +9,11 @@ class QSoundSeq:
     public VGMSeq {
  public:
   QSoundSeq(RawFile *file, uint32_t offset, QSoundVer fmt_version, std::wstring &name);
-  virtual ~QSoundSeq(void);
+  virtual ~QSoundSeq();
 
-  virtual bool GetHeaderInfo(void);
-  virtual bool GetTrackPointers(void);
-  virtual bool PostLoad(void);
+  bool GetHeaderInfo() override;
+  virtual bool GetTrackPointers();
+  virtual bool PostLoad();
 
  public:
   QSoundVer fmt_version;
@@ -25,7 +25,7 @@ class QSoundTrack
  public:
   QSoundTrack(QSoundSeq *parentSeq, long offset = 0, long length = 0);
   virtual void ResetVars();
-  virtual bool ReadEvent(void);
+  virtual bool ReadEvent();
 
  private:
   QSoundVer GetVersion() { return ((QSoundSeq *) this->parentSeq)->fmt_version; }

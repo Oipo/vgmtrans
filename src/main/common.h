@@ -12,15 +12,8 @@
 
 #define F_EPSILON 0.00001
 
-#define FORWARD_DECLARE_TYPEDEF_STRUCT(type) \
-    struct _##type;    \
-    typedef _##type type
-
 std::wstring StringToUpper(std::wstring myString);
 std::wstring StringToLower(std::wstring myString);
-
-//#define for_each(_ITER_, _COLL_) for (auto _ITER_ = _COLL_.begin(); \
-//    _ITER_ != _COLL_.end(); _ITER_++)
 
 /**
 Converts a std::string to any class with a proper overload of the >> opertor
@@ -84,7 +77,7 @@ inline bool isEqual(float x, float y) {
 }
 
 inline int roundi(double x) {
-  return (x > 0) ? (int) (x + 0.5) : (int) (x - 0.5);
+  return (x > 0) ? static_cast<int>(x + 0.5) : static_cast<int>(x - 0.5);
 }
 
 inline uint8_t pow7bit(uint8_t x, double y) {
@@ -110,9 +103,9 @@ struct SizeOffsetPair {
       offset(0) {
   }
 
-  SizeOffsetPair(uint32_t offset, uint32_t size) :
-      size(size),
-      offset(offset) {
+  SizeOffsetPair(uint32_t _offset, uint32_t _size) :
+      size(_size),
+      offset(_offset) {
   }
 };
 

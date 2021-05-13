@@ -7,10 +7,10 @@ SegSatSeq::SegSatSeq(RawFile *file, uint32_t offset)
     : VGMSeqNoTrks(SegSatFormat::name, file, offset) {
 }
 
-SegSatSeq::~SegSatSeq(void) {
+SegSatSeq::~SegSatSeq() {
 }
 
-bool SegSatSeq::GetHeaderInfo(void) {
+bool SegSatSeq::GetHeaderInfo() {
   //unLength = GetShort(dwOffset+8);
   SetPPQN(GetShortBE(offset()));
   SetEventsOffset(GetShortBE(offset() + 4) + offset());
@@ -30,7 +30,7 @@ bool SegSatSeq::GetHeaderInfo(void) {
 
 int counter = 0;
 
-bool SegSatSeq::ReadEvent(void) {
+bool SegSatSeq::ReadEvent() {
   if (bInLoop) {
     remainingEventsInLoop--;
     if (remainingEventsInLoop == -1) {

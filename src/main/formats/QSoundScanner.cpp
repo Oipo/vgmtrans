@@ -92,7 +92,7 @@ void QSoundScanner::Scan(RawFile *file, void *info) {
     articTable = new QSoundArticTable(programFile, artic_table_name, artic_table_offset, artic_table_length);
     if (!articTable->LoadVGMFile()) {
       delete articTable;
-      articTable = NULL;
+      articTable = nullptr;
     }
   }
 
@@ -105,12 +105,12 @@ void QSoundScanner::Scan(RawFile *file, void *info) {
                                 instrset_name);
   if (!instrset->LoadVGMFile()) {
     delete instrset;
-    instrset = NULL;
+    instrset = nullptr;
   }
   sampcoll = new QSoundSampColl(samplesFile, instrset, sampInfoTable, 0, 0, sampcoll_name);
   if (!sampcoll->LoadVGMFile()) {
     delete sampcoll;
-    sampcoll = NULL;
+    sampcoll = nullptr;
   }
 
 
@@ -128,7 +128,7 @@ void QSoundScanner::Scan(RawFile *file, void *info) {
       new VGMMiscFile(QSoundFormat::name, seqRomGroupEntry->file, seq_table_offset, seq_table_length, seq_table_name);
   if (!seqTable->LoadVGMFile()) {
     delete seqTable;
-    seqTable = NULL;
+    seqTable = nullptr;
   }
 
   for (k = 0; (seq_table_length == 0 || k < seq_table_length); k += 4) {

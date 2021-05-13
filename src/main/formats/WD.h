@@ -39,10 +39,10 @@ class WDInstrSet
     : public VGMInstrSet {
  public:
   WDInstrSet(RawFile *file, uint32_t offset);
-  virtual ~WDInstrSet(void);
+  virtual ~WDInstrSet();
 
-  virtual bool GetHeaderInfo();
-  virtual bool GetInstrPointers();
+  bool GetHeaderInfo() override;
+  bool GetInstrPointers() override;
 
  public:
   uint32_t dwSampSectOffset;
@@ -65,8 +65,8 @@ class WDInstr
           uint32_t theBank,
           uint32_t theInstrNum,
           std::wstring name);
-  virtual ~WDInstr(void);
-  virtual bool LoadInstr();
+  virtual ~WDInstr();
+  bool LoadInstr() override;
 
  protected:
   int info_ptr;        //pointer to start of instrument set block

@@ -5,10 +5,10 @@
 class SoftCreatSnesScanner:
     public VGMScanner {
  public:
-  SoftCreatSnesScanner(void) {
+  SoftCreatSnesScanner() {
     USE_EXTENSION(L"spc");
   }
-  virtual ~SoftCreatSnesScanner(void) {
+  virtual ~SoftCreatSnesScanner() {
   }
 
   virtual void Scan(RawFile *file, void *info = 0);

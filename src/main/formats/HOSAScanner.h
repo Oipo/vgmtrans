@@ -8,12 +8,12 @@ class PSXSampColl;
 class HOSAScanner:
     public VGMScanner {
  public:
-  HOSAScanner(void);
+  HOSAScanner();
  public:
-  virtual ~HOSAScanner(void);
+  ~HOSAScanner() override;
 
-  virtual void Scan(RawFile *file, void *info = 0);
-  HOSASeq *SearchForHOSASeq(RawFile *file);
+  void Scan(RawFile *file, void *info = 0) override;
+  HOSASeq *SearchForHOSASeq(RawFile *file) const;
   HOSAInstrSet *SearchForHOSAInstrSet(RawFile *file, PSXSampColl *sampcoll);
   bool RecursiveRgnCompare(RawFile *file, int i, int sampNum, int numSamples, int numFinds, uint32_t *sampOffsets);
 };

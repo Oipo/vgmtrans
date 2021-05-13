@@ -29,10 +29,10 @@ class VGMInstrSet:
               uint32_t offset,
               uint32_t length = 0,
               std::wstring name = L"VGMInstrSet",
-              VGMSampColl *theSampColl = NULL);
-  virtual ~VGMInstrSet(void);
+              VGMSampColl *theSampColl = nullptr);
+  ~VGMInstrSet() override;
 
-  virtual bool Load();
+  bool Load() override;
   virtual bool GetHeaderInfo();
   virtual bool GetInstrPointers();
   virtual bool LoadInstrs();
@@ -46,8 +46,8 @@ class VGMInstrSet:
   virtual FileType GetFileType() { return FILETYPE_INSTRSET; }
 
 
-  bool OnSaveAsDLS(void);
-  bool OnSaveAsSF2(void);
+  bool OnSaveAsDLS();
+  bool OnSaveAsSF2();
   virtual bool SaveAsDLS(const std::wstring &filepath);
   virtual bool SaveAsSF2(const std::wstring &filepath);
 
@@ -72,9 +72,9 @@ class VGMInstr:
  public:
   VGMInstr(VGMInstrSet *parInstrSet, uint32_t offset, uint32_t length, uint32_t bank,
            uint32_t instrNum, const std::wstring &name = L"Instrument");
-  virtual ~VGMInstr(void);
+  ~VGMInstr() override;
 
-  virtual Icon GetIcon() { return ICON_INSTR; };
+  Icon GetIcon() override { return ICON_INSTR; };
 
   inline void SetBank(uint32_t bankNum);
   inline void SetInstrNum(uint32_t theInstrNum);

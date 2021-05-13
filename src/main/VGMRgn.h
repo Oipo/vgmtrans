@@ -2,6 +2,7 @@
 #include "SynthFile.h"
 #include "VGMItem.h"
 #include "Loop.h"
+#include "Enums.h"
 
 class VGMInstr;
 class VGMRgnItem;
@@ -17,18 +18,18 @@ class VGMRgn:
   VGMRgn(VGMInstr *instr, uint32_t offset, uint32_t length = 0, const std::wstring &name = L"Region");
   VGMRgn(VGMInstr *instr, uint32_t offset, uint32_t length, uint8_t keyLow, uint8_t keyHigh, uint8_t velLow,
          uint8_t velHigh, int sampNum, const std::wstring &name = L"Region");
-  ~VGMRgn(void);
+  ~VGMRgn();
 
   virtual bool LoadRgn() { return true; }
 
   //VGMArt* AddArt(vector<connectionBlock*> connBlocks);
-  //VGMSamp* AddSamp(void);
+  //VGMSamp* AddSamp();
   void SetRanges(uint8_t keyLow, uint8_t keyHigh, uint8_t velLow = 0, uint8_t velHigh = 0x7F);
   void SetUnityKey(uint8_t unityNote);
   void SetSampNum(uint8_t sampNumber);
   void SetLoopInfo(int theLoopStatus, uint32_t theLoopStart, uint32_t theLoopLength);
-  void SetADSR(long attack_time, uint16_t atk_transform, long decay_time, long sustain_lev,
-               uint16_t rls_transform, long release_time);
+  void SetADSR(long attack_time, Transform atk_transform, long decay_time, long sustain_lev,
+               Transform rls_transform, long release_time);
 
   void AddGeneralItem(uint32_t offset, uint32_t length, const std::wstring &name);
   void AddUnknown(uint32_t offset, uint32_t length);
@@ -81,11 +82,11 @@ class VGMRgn:
   double volume;    // as percentage of full volume.  This will be converted to to an attenuation when we convert to a SynthFile
   double pan;        //percentage.  0 = full left. 0.5 = center.  1 = full right
   double attack_time;            //in seconds
-  uint16_t attack_transform;
+  Transform attack_transform;
   double decay_time;            //in seconds
   double sustain_level;        //as a percentage
   double sustain_time;        //in seconds (we don't support positive rate here, as is possible on psx)
-  uint16_t release_transform;
+  Transform release_transform;
   double release_time;        //in seconds
 
   std::vector<VGMRgnItem *> items;

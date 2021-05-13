@@ -8,9 +8,9 @@
 class PSF2Loader:
     public VGMLoader {
  public:
-  PSF2Loader(void);
+  PSF2Loader();
  public:
-  virtual ~PSF2Loader(void);
+  virtual ~PSF2Loader();
 
   virtual PostLoadCommand Apply(RawFile *theFile);
   uint32 get32lsb(uint8 *src);

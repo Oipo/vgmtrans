@@ -7,15 +7,15 @@ enum HeartBeatSnesVersion: uint8_t; // see HeartBeatSnesFormat.h
 class HeartBeatSnesScanner:
     public VGMScanner {
  public:
-  HeartBeatSnesScanner(void) {
+  HeartBeatSnesScanner() {
     USE_EXTENSION(L"spc");
   }
-  virtual ~HeartBeatSnesScanner(void) {
+  virtual ~HeartBeatSnesScanner() {
   }
 
   virtual void Scan(RawFile *file, void *info = 0);
-  void SearchForHeartBeatSnesFromARAM(RawFile *file);
-  void SearchForHeartBeatSnesFromROM(RawFile *file);
+  void SearchForHeartBeatSnesFromARAM(RawFile *file) const;
+  void SearchForHeartBeatSnesFromROM(RawFile *file) const;
 
  private:
   static BytePattern ptnReadSongList;

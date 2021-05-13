@@ -10,11 +10,11 @@ PS1Seq::PS1Seq(RawFile *file, uint32_t offset)
   //bWriteInitialTempo = false; // false, because the initial tempo is added by tempo event
 }
 
-PS1Seq::~PS1Seq(void) {
+PS1Seq::~PS1Seq() {
 }
 
 
-bool PS1Seq::GetHeaderInfo(void) {
+bool PS1Seq::GetHeaderInfo() {
   name() = L"PS1 SEQ";
 
   SetPPQN(GetShortBE(offset() + 8));
@@ -39,7 +39,7 @@ bool PS1Seq::GetHeaderInfo(void) {
       delete newPS1Seq;
     }
     //short relOffset = (short)GetShortBE(curOffset);
-    //AddGenericEvent(beginOffset, 4, L"Jump Relative", NULL, BG_CLR_PINK);
+    //AddGenericEvent(beginOffset, 4, L"Jump Relative", nullptr, BG_CLR_PINK);
     //curOffset += relOffset;
   }
   else {
@@ -49,7 +49,7 @@ bool PS1Seq::GetHeaderInfo(void) {
   return true;
 }
 
-void PS1Seq::ResetVars(void) {
+void PS1Seq::ResetVars() {
   VGMSeqNoTrks::ResetVars();
 
   uint32_t initialTempo = (GetShortBE(offset() + 10) << 8) | GetByte(offset() + 12);
@@ -60,7 +60,7 @@ void PS1Seq::ResetVars(void) {
   AddTimeSig(offset() + 0x0D, 2, numer, 1 << denom, (uint8_t) GetPPQN());
 }
 
-bool PS1Seq::ReadEvent(void) {
+bool PS1Seq::ReadEvent() {
   uint32_t beginOffset = curOffset;
   uint32_t delta = ReadVarLen(curOffset);
   if (curOffset >= rawfile->size())
@@ -72,7 +72,7 @@ bool PS1Seq::ReadEvent(void) {
   //if (status_byte == 0)				//Jump Relative
   //{
   //	short relOffset = (short)GetShortBE(curOffset);
-  //	AddGenericEvent(beginOffset, 4, L"Jump Relative", NULL, BG_CLR_PINK);
+  //	AddGenericEvent(beginOffset, 4, L"Jump Relative", nullptr, BG_CLR_PINK);
   //	curOffset += relOffset;
 
   //	curOffset += 4;		//skip the first 4 bytes (no idea)

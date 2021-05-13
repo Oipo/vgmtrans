@@ -7,10 +7,10 @@ enum CapcomSnesVersion: uint8_t; // see CapcomSnesFormat.h
 class CapcomSnesScanner:
     public VGMScanner {
  public:
-  CapcomSnesScanner(void) {
+  CapcomSnesScanner() {
     USE_EXTENSION(L"spc");
   }
-  virtual ~CapcomSnesScanner(void) {
+  virtual ~CapcomSnesScanner() {
   }
 
   virtual void Scan(RawFile *file, void *info = 0);

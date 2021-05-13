@@ -15,8 +15,8 @@ class NDSInstrSet:
   NDSInstrSet(RawFile *file,
               uint32_t offset,
               uint32_t length,
-              std::wstring name = L"NDS Instrument Bank"/*, VGMSampColl* sampColl = NULL*/);
-  virtual bool GetInstrPointers();
+              std::wstring name = L"NDS Instrument Bank"/*, VGMSampColl* sampColl = nullptr*/);
+  bool GetInstrPointers() override;
 
   std::vector<VGMSampColl *> sampCollWAList;
 };
@@ -32,7 +32,7 @@ class NDSInstr:
   NDSInstr
       (NDSInstrSet *instrSet, uint32_t offset, uint32_t length, uint32_t bank, uint32_t instrNum, uint8_t instrType);
 
-  virtual bool LoadInstr();
+  bool LoadInstr() override;
 
   void GetSampCollPtr(VGMRgn *rgn, int waNum);
   void GetArticData(VGMRgn *rgn, uint32_t offset);
@@ -100,7 +100,7 @@ class NDSWaveArch:
   NDSWaveArch(RawFile *file, uint32_t offset, uint32_t length, std::wstring name = L"NDS Wave Archive");
   virtual ~NDSWaveArch();
 
-  virtual bool GetHeaderInfo();
+  bool GetHeaderInfo() override;
   virtual bool GetSampleInfo();
 };
 

@@ -6,44 +6,45 @@
 // VGMRgn
 // ******
 
-VGMRgn::VGMRgn(VGMInstr *instr, uint32_t offset, uint32_t length, const std::wstring &name)
-    : VGMContainerItem(instr->parInstrSet, offset, length, name),
+VGMRgn::VGMRgn(VGMInstr *instr, uint32_t offset, uint32_t length, const std::wstring &_name)
+    : VGMContainerItem(instr->parInstrSet, offset, length, _name),
       parInstr(instr),
       keyLow(0),
       keyHigh(0x7F),
       velLow(0),
       velHigh(0x7F),
-      sampNum(0),
-      sampOffset(-1),
-      sampCollPtr(NULL),
       unityKey(-1),
       fineTune(0),
-      pan(0.5),
+      sampNum(0),
+      sampOffset(-1),
+      sampCollPtr(nullptr),
       volume(-1),
+      pan(0.5),
       attack_time(0),
       attack_transform(no_transform),
       decay_time(0),
       sustain_level(-1),
+      sustain_time(0),
       release_transform(no_transform),
       release_time(0) {
   AddContainer<VGMRgnItem>(items);
 }
 
 VGMRgn::VGMRgn(VGMInstr *instr, uint32_t offset, uint32_t length, uint8_t theKeyLow, uint8_t theKeyHigh,
-               uint8_t theVelLow, uint8_t theVelHigh, int theSampNum, const std::wstring &name)
-    : VGMContainerItem(instr->parInstrSet, offset, length, name),
+               uint8_t theVelLow, uint8_t theVelHigh, int theSampNum, const std::wstring &_name)
+    : VGMContainerItem(instr->parInstrSet, offset, length, _name),
       parInstr(instr),
       keyLow(theKeyLow),
       keyHigh(theKeyHigh),
       velLow(theVelLow),
       velHigh(theVelHigh),
-      sampNum(theSampNum),
-      sampOffset(-1),
-      sampCollPtr(NULL),
       unityKey(-1),
       fineTune(0),
-      pan(0.5),
+      sampNum(theSampNum),
+      sampOffset(-1),
+      sampCollPtr(nullptr),
       volume(-1),
+      pan(0.5),
       attack_time(0),
       attack_transform(no_transform),
       decay_time(0),
@@ -83,7 +84,7 @@ void VGMRgn::SetPan(uint8_t p) {
   else if (pan == 64)
     pan = 0.5;
   else
-    pan = (double) pan / (double) 127;
+    pan = pan / 127.;
 }
 
 void VGMRgn::SetLoopInfo(int theLoopStatus, uint32_t theLoopStart, uint32_t theLoopLength) {
@@ -93,8 +94,8 @@ void VGMRgn::SetLoopInfo(int theLoopStatus, uint32_t theLoopStart, uint32_t theL
 }
 
 
-void VGMRgn::SetADSR(long attackTime, uint16_t atkTransform, long decayTime, long sustainLev,
-                     uint16_t rlsTransform, long releaseTime) {
+void VGMRgn::SetADSR(long attackTime, Transform atkTransform, long decayTime, long sustainLev,
+                     Transform rlsTransform, long releaseTime) {
   attack_time = attackTime;
   attack_transform = atkTransform;
   decay_time = decayTime;
@@ -103,8 +104,8 @@ void VGMRgn::SetADSR(long attackTime, uint16_t atkTransform, long decayTime, lon
   release_time = releaseTime;
 }
 
-void VGMRgn::AddGeneralItem(uint32_t offset, uint32_t length, const std::wstring &name) {
-  items.push_back(new VGMRgnItem(this, VGMRgnItem::RIT_GENERIC, offset, length, name));
+void VGMRgn::AddGeneralItem(uint32_t offset, uint32_t length, const std::wstring &_name) {
+  items.push_back(new VGMRgnItem(this, VGMRgnItem::RIT_GENERIC, offset, length, _name));
 }
 
 void VGMRgn::AddUnknown(uint32_t offset, uint32_t length) {
@@ -166,8 +167,8 @@ void VGMRgn::AddSampNum(int sn, uint32_t offset, uint32_t length) {
 // VGMRgnItem
 // **********
 
-VGMRgnItem::VGMRgnItem(VGMRgn *rgn, RgnItemType theType, uint32_t offset, uint32_t length, const std::wstring &name)
-    : VGMItem(rgn->vgmfile, offset, length, name), type(theType) {
+VGMRgnItem::VGMRgnItem(VGMRgn *rgn, RgnItemType theType, uint32_t offset, uint32_t length, const std::wstring &_name)
+    : VGMItem(rgn->vgmfile, offset, length, _name), type(theType) {
 }
 
 VGMItem::Icon VGMRgnItem::GetIcon() {

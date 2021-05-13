@@ -1,5 +1,7 @@
 #pragma once
 
+#include <utility>
+
 #include "common.h"
 #include "RiffFile.h"
 
@@ -78,7 +80,7 @@ class DLSWave;
 class DLSFile: public RiffFile {
  public:
   DLSFile(std::string dls_name = "Instrument Set");
-  ~DLSFile(void);
+  ~DLSFile() override;
 
   DLSInstr *AddInstr(unsigned long bank, unsigned long instrNum);
   DLSInstr *AddInstr(unsigned long bank, unsigned long instrNum, std::string Name);
@@ -86,9 +88,9 @@ class DLSFile: public RiffFile {
   DLSWave *AddWave(uint16_t formatTag, uint16_t channels, int samplesPerSec, int aveBytesPerSec,
                    uint16_t blockAlign, uint16_t bitsPerSample, uint32_t waveDataSize, uint8_t *waveData,
                    std::string name = "Unnamed Wave");
-  void SetName(std::string dls_name);
+//  void SetName(std::string dls_name);
 
-  uint32_t GetSize(void);
+  uint32_t GetSize() override;
 
   int WriteDLSToBuffer(std::vector<uint8_t> &buf);
   bool SaveDLSFile(const std::wstring &filepath);
@@ -100,17 +102,17 @@ class DLSFile: public RiffFile {
 
 class DLSInstr {
  public:
-  DLSInstr(void);
+  DLSInstr() = default;
   DLSInstr(uint32_t bank, uint32_t instrument);
   DLSInstr(uint32_t bank, uint32_t instrument, std::string instrName);
   DLSInstr(uint32_t bank, uint32_t instrument, std::string instrName, std::vector<DLSRgn *> listRgns);
-  ~DLSInstr(void);
+  ~DLSInstr();
 
-  void AddRgnList(std::vector<DLSRgn> &RgnList);
-  DLSRgn *AddRgn(void);
+//  void AddRgnList(std::vector<DLSRgn> &RgnList);
+  DLSRgn *AddRgn();
   DLSRgn *AddRgn(DLSRgn rgn);
 
-  uint32_t GetSize(void);
+  uint32_t GetSize();
   void Write(std::vector<uint8_t> &buf);
 
  public:
@@ -124,21 +126,21 @@ class DLSInstr {
 
 class DLSRgn {
  public:
-  DLSRgn(void) : Wsmp(NULL), Art(NULL) { }
+  DLSRgn() : Wsmp(nullptr), Art(nullptr) { }
   DLSRgn(uint16_t keyLow, uint16_t keyHigh, uint16_t velLow, uint16_t velHigh)
-      : usKeyLow(keyLow), usKeyHigh(keyHigh), usVelLow(velLow), usVelHigh(velHigh), Wsmp(NULL), Art(NULL) { }
-  DLSRgn(uint16_t keyLow, uint16_t keyHigh, uint16_t velLow, uint16_t velHigh, DLSArt &art);
-  ~DLSRgn(void);
+      : usKeyLow(keyLow), usKeyHigh(keyHigh), usVelLow(velLow), usVelHigh(velHigh), Wsmp(nullptr), Art(nullptr) { }
+//  DLSRgn(uint16_t keyLow, uint16_t keyHigh, uint16_t velLow, uint16_t velHigh, DLSArt &art);
+  ~DLSRgn();
 
-  DLSArt *AddArt(void);
-  DLSArt *AddArt(std::vector<connectionBlock *> connBlocks);
-  DLSWsmp *AddWsmp(void);
-  DLSWsmp *AddWsmp(DLSWsmp wsmp);
+  DLSArt *AddArt();
+//  DLSArt *AddArt(std::vector<connectionBlock *> connBlocks);
+  DLSWsmp *AddWsmp();
+//  DLSWsmp *AddWsmp(DLSWsmp wsmp);
   void SetRanges(uint16_t keyLow = 0, uint16_t keyHigh = 0x7F, uint16_t velLow = 0, uint16_t velHigh = 0x7F);
   void SetWaveLinkInfo(uint16_t options, uint16_t phaseGroup, uint32_t theChannel, uint32_t theTableIndex);
 
-  uint32_t GetSize(void);
-  void Write(std::vector<uint8_t> &buf);
+  uint32_t GetSize() const;
+  void Write(std::vector<uint8_t> &buf) const;
 
  public:
   uint16_t usKeyLow;
@@ -157,13 +159,13 @@ class DLSRgn {
 
 class ConnectionBlock {
  public:
-  ConnectionBlock(void);
+  ConnectionBlock() = default;
   ConnectionBlock(uint16_t source, uint16_t control, uint16_t destination, uint16_t transform, int32_t scale)
       : usSource(source), usControl(control), usDestination(destination), usTransform(transform), lScale(scale) { }
-  ~ConnectionBlock(void) { }
+  ~ConnectionBlock() = default;
 
-  uint32_t GetSize(void) { return 12; }
-  void Write(std::vector<uint8_t> &buf);
+  uint32_t GetSize() { return 12; }
+  void Write(std::vector<uint8_t> &buf) const;
 
  private:
   uint16_t usSource;
@@ -175,9 +177,9 @@ class ConnectionBlock {
 
 class DLSArt {
  public:
-  DLSArt(void) { }
-  DLSArt(std::vector<ConnectionBlock> &connectionBlocks);
-  ~DLSArt(void);
+  DLSArt() = default;
+//  DLSArt(std::vector<ConnectionBlock> &connectionBlocks);
+  ~DLSArt();
 
   void AddADSR(long attack_time,
                uint16_t atk_transform,
@@ -187,7 +189,7 @@ class DLSArt {
                uint16_t rls_transform);
   void AddPan(long pan);
 
-  uint32_t GetSize(void);
+  uint32_t GetSize();
   void Write(std::vector<uint8_t> &buf);
 
  private:
@@ -196,7 +198,7 @@ class DLSArt {
 
 class DLSWsmp {
  public:
-  DLSWsmp(void) { }
+  DLSWsmp() = default;
   DLSWsmp(uint16_t unityNote,
           int16_t fineTune,
           int32_t attenuation,
@@ -207,13 +209,13 @@ class DLSWsmp {
       : usUnityNote(unityNote), sFineTune(fineTune), lAttenuation(attenuation), cSampleLoops(sampleLoops),
         ulLoopType(loopType),
         ulLoopStart(loopStart), ulLoopLength(loopLength) { }
-  ~DLSWsmp(void) { }
+  ~DLSWsmp() = default;
 
   void SetLoopInfo(Loop &loop, VGMSamp *samp);
   void SetPitchInfo(uint16_t unityNote, short fineTune, long attenuation);
 
-  uint32_t GetSize(void);
-  void Write(std::vector<uint8_t> &buf);
+  uint32_t GetSize() const;
+  void Write(std::vector<uint8_t> &buf) const;
 
  private:
   unsigned short usUnityNote;
@@ -228,9 +230,9 @@ class DLSWsmp {
 
 class DLSWave {
  public:
-  DLSWave(void)
-      : Wsmp(NULL),
-        data(NULL),
+  DLSWave()
+      : Wsmp(nullptr),
+        data(nullptr),
         name("Untitled Wave") {
     RiffFile::AlignName(name);
   }
@@ -243,7 +245,9 @@ class DLSWave {
           uint32_t waveDataSize,
           unsigned char *waveData,
           std::string waveName = "Untitled Wave")
-      : wFormatTag(formatTag),
+      :
+        Wsmp(nullptr),
+        wFormatTag(formatTag),
         wChannels(channels),
         dwSamplesPerSec(samplesPerSec),
         dwAveBytesPerSec(aveBytesPerSec),
@@ -251,21 +255,20 @@ class DLSWave {
         wBitsPerSample(bitsPerSample),
         dataSize(waveDataSize),
         data(waveData),
-        Wsmp(NULL),
-        name(waveName) {
+        name(std::move(waveName)) {
     RiffFile::AlignName(name);
   }
-  ~DLSWave(void);
+  ~DLSWave();
 
   //	This function will always return an even value, to maintain the alignment
   // necessary for the RIFF format.
-  unsigned long GetSampleSize(void) {
+  [[nodiscard]] unsigned long GetSampleSize() const {
     if (dataSize % 2)
       return dataSize + 1;
     else
       return dataSize;
   }
-  uint32_t GetSize(void);
+  uint32_t GetSize();
   void Write(std::vector<uint8_t> &buf);
 
  private:

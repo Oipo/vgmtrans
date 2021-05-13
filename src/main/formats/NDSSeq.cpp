@@ -9,7 +9,7 @@ NDSSeq::NDSSeq(RawFile *file, uint32_t offset, uint32_t length, wstring name)
     : VGMSeq(NDSFormat::name, file, offset, length, name) {
 }
 
-bool NDSSeq::GetHeaderInfo(void) {
+bool NDSSeq::GetHeaderInfo() {
   VGMHeader *SSEQHdr = AddHeader(dwOffset, 0x10, L"SSEQ Chunk Header");
   SSEQHdr->AddSig(dwOffset, 8);
   SSEQHdr->AddSimpleItem(dwOffset + 8, 4, L"Size");
@@ -21,7 +21,7 @@ bool NDSSeq::GetHeaderInfo(void) {
   return true;        //successful
 }
 
-bool NDSSeq::GetTrackPointers(void) {
+bool NDSSeq::GetTrackPointers() {
   VGMHeader *DATAHdr = AddHeader(dwOffset + 0x10, 0xC, L"DATA Chunk Header");
   DATAHdr->AddSig(dwOffset + 0x10, 4);
   DATAHdr->AddSimpleItem(dwOffset + 0x10 + 4, 4, L"Size");
@@ -93,7 +93,7 @@ void NDSTrack::ResetVars() {
   SeqTrack::ResetVars();
 }
 
-bool NDSTrack::ReadEvent(void) {
+bool NDSTrack::ReadEvent() {
   uint32_t beginOffset = curOffset;
   uint8_t status_byte = GetByte(curOffset++);
 
@@ -240,7 +240,7 @@ bool NDSTrack::ReadEvent(void) {
       case 0xC3: {
         int8_t transpose = (signed) GetByte(curOffset++);
         AddTranspose(beginOffset, curOffset - beginOffset, transpose);
-//			AddGenericEvent(beginOffset, curOffset-beginOffset, L"Transpose", NULL, BG_CLR_GREEN);
+//			AddGenericEvent(beginOffset, curOffset-beginOffset, L"Transpose", nullptr, BG_CLR_GREEN);
         break;
       }
 

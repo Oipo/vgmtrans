@@ -17,10 +17,10 @@ SonyPS2Seq::SonyPS2Seq(RawFile *file, uint32_t offset)
   UseReverb();
 }
 
-SonyPS2Seq::~SonyPS2Seq(void) {
+SonyPS2Seq::~SonyPS2Seq() {
 }
 
-bool SonyPS2Seq::GetHeaderInfo(void) {
+bool SonyPS2Seq::GetHeaderInfo() {
   name() = L"Sony PS2 Seq";
   uint32_t curOffset = offset();
   //read the version chunk
@@ -59,7 +59,7 @@ bool SonyPS2Seq::GetHeaderInfo(void) {
 }
 
 
-bool SonyPS2Seq::ReadEvent(void) {
+bool SonyPS2Seq::ReadEvent() {
   uint32_t beginOffset = curOffset;
   uint32_t deltaTime;
   if (bSkipDeltaTime)
@@ -123,7 +123,7 @@ bool SonyPS2Seq::ReadEvent(void) {
           break;
 
         case 6 :
-          //AddGenericEvent(beginOffset, curOffset-beginOffset, L"NRPN Data Entry", NULL, BG_CLR_PINK);
+          //AddGenericEvent(beginOffset, curOffset-beginOffset, L"NRPN Data Entry", nullptr, BG_CLR_PINK);
           AddGenericEvent(beginOffset, curOffset - beginOffset, L"Loop start number", L"", CLR_LOOP);
           break;
 

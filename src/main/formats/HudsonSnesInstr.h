@@ -15,13 +15,13 @@ class HudsonSnesInstrSet:
                      HudsonSnesVersion ver,
                      uint32_t offset,
                      uint32_t length,
-                     uint32_t spcDirAddr,
-                     uint32_t addrSampTuningTable,
-                     const std::wstring &name = L"HudsonSnesInstrSet");
-  virtual ~HudsonSnesInstrSet(void);
+                     uint32_t _spcDirAddr,
+                     uint32_t _addrSampTuningTable,
+                     const std::wstring &_name = L"HudsonSnesInstrSet");
+  ~HudsonSnesInstrSet() override;
 
-  virtual bool GetHeaderInfo();
-  virtual bool GetInstrPointers();
+  bool GetHeaderInfo() override;
+  bool GetInstrPointers() override;
 
   HudsonSnesVersion version;
 
@@ -42,12 +42,12 @@ class HudsonSnesInstr
                   HudsonSnesVersion ver,
                   uint32_t offset,
                   uint8_t instrNum,
-                  uint32_t spcDirAddr,
-                  uint32_t addrSampTuningTable,
-                  const std::wstring &name = L"HudsonSnesInstr");
-  virtual ~HudsonSnesInstr(void);
+                  uint32_t _spcDirAddr,
+                  uint32_t _addrSampTuningTable,
+                  const std::wstring &_name = L"HudsonSnesInstr");
+  ~HudsonSnesInstr() override;
 
-  virtual bool LoadInstr();
+  bool LoadInstr() override;
 
   HudsonSnesVersion version;
 
@@ -65,9 +65,9 @@ class HudsonSnesRgn
  public:
   HudsonSnesRgn
       (HudsonSnesInstr *instr, HudsonSnesVersion ver, uint32_t offset, uint32_t spcDirAddr, uint32_t addrTuningEntry);
-  virtual ~HudsonSnesRgn(void);
+  ~HudsonSnesRgn() override;
 
-  virtual bool LoadRgn();
+  bool LoadRgn() override;
 
   HudsonSnesVersion version;
 };

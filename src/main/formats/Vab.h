@@ -105,10 +105,10 @@ class Vab:
     public VGMInstrSet {
  public:
   Vab(RawFile *file, uint32_t offset);
-  virtual ~Vab(void);
+  virtual ~Vab();
 
-  virtual bool GetHeaderInfo();
-  virtual bool GetInstrPointers();
+  bool GetHeaderInfo() override;
+  bool GetInstrPointers() override;
 
  public:
   VabHdr hdr;
@@ -128,9 +128,9 @@ class VabInstr
            uint32_t theBank,
            uint32_t theInstrNum,
            const std::wstring &name = L"Instrument");
-  virtual ~VabInstr(void);
+  virtual ~VabInstr();
 
-  virtual bool LoadInstr();
+  bool LoadInstr() override;
 
  public:
   ProgAtr attr;
@@ -147,7 +147,7 @@ class VabRgn
  public:
   VabRgn(VabInstr *instr, uint32_t offset);
 
-  virtual bool LoadRgn();
+  bool LoadRgn() override;
 
  public:
   uint16_t ADSR1;                //raw ps2 ADSR1 value (articulation data)

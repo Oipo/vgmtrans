@@ -19,10 +19,10 @@ class VGMSampColl:
               std::wstring theName = L"VGMSampColl");
   VGMSampColl(const std::string &format, RawFile *rawfile, VGMInstrSet *instrset,
               uint32_t offset, uint32_t length = 0, std::wstring theName = L"VGMSampColl");
-  virtual ~VGMSampColl(void);
+  ~VGMSampColl() override;
   void UseInstrSet(VGMInstrSet *instrset) { parInstrSet = instrset; }
 
-  virtual bool Load();
+  bool Load() override;
   virtual bool GetHeaderInfo();        //retrieve any header data
   virtual bool GetSampleInfo();        //retrieve sample info, including pointers to data, # channels, rate, etc.
 

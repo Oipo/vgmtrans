@@ -10,8 +10,8 @@ using namespace std;
 #define PSF_TAG_SIG_LEN         5
 #define PSF_STRIP_BUF_SIZE      4096
 
-PSFFile::PSFFile(void) :
-    stripBuf(NULL),
+PSFFile::PSFFile() :
+    stripBuf(nullptr),
     stripBufSize(PSF_STRIP_BUF_SIZE) {
   stripBuf = new uint8_t[PSF_STRIP_BUF_SIZE];
 
@@ -23,7 +23,7 @@ PSFFile::PSFFile(void) :
 }
 
 PSFFile::PSFFile(RawFile *file) :
-    stripBuf(NULL),
+    stripBuf(nullptr),
     stripBufSize(PSF_STRIP_BUF_SIZE) {
   stripBuf = new uint8_t[PSF_STRIP_BUF_SIZE];
   stripBufSize = PSF_STRIP_BUF_SIZE;
@@ -35,7 +35,7 @@ PSFFile::PSFFile(RawFile *file) :
   Load(file);
 }
 
-PSFFile::~PSFFile(void) {
+PSFFile::~PSFFile() {
   delete exeData;
   delete exeCompData;
   delete reservedData;
@@ -78,7 +78,7 @@ bool PSFFile::Load(RawFile *file) {
 
   // Read compressed program section.
   uint8_t *zexebuf = new uint8_t[exeSize > 0 ? exeSize : 1];
-  if (zexebuf == NULL) {
+  if (zexebuf == nullptr) {
     errorstr = L"Out of memory reading the file";
     return false;
   }
@@ -86,7 +86,7 @@ bool PSFFile::Load(RawFile *file) {
   exeCompData->load(zexebuf, 0, exeSize);
 
   // Check program section CRC.
-  if (exeCRC != crc32(crc32(0L, Z_NULL, 0), zexebuf, exeSize)) {
+  if (exeCRC != crc32(crc32(0L, nullptr, 0), zexebuf, exeSize)) {
     errorstr = L"CRC failure - executable data is corrupt";
     exeCompData->clear();
     return false;
@@ -94,7 +94,7 @@ bool PSFFile::Load(RawFile *file) {
 
   // Read reserved section.
   uint8_t *reservebuf = new uint8_t[reservedSize ? reservedSize : 1];
-  if (reservebuf == NULL) {
+  if (reservebuf == nullptr) {
     errorstr = L"Out of memory reading the file";
     exeCompData->clear();
     return false;
@@ -105,18 +105,18 @@ bool PSFFile::Load(RawFile *file) {
   // Check existence of tag section.
   uint32_t tagSectionOffset = 16 + reservedSize + exeSize;
   uint32_t tagSectionSize = fileSize - tagSectionOffset;
-  bool hasTagSection = false;
+/*  bool hasTagSection = false;
   if (tagSectionSize >= PSF_TAG_SIG_LEN) {
     uint8_t tagSig[5];
     file->GetBytes(tagSectionOffset, PSF_TAG_SIG_LEN, tagSig);
     if (memcmp(tagSig, PSF_TAG_SIG, PSF_TAG_SIG_LEN) == 0) {
       hasTagSection = true;
     }
-  }
+  }*/
 
   // Check if tag field exists.
   char *tagSect = new char[tagSectionSize + 1];
-  if (tagSect == NULL) {
+  if (tagSect == nullptr) {
     errorstr = L"Out of memory reading the file";
     exeCompData->clear();
     reservedData->clear();
@@ -131,7 +131,7 @@ bool PSFFile::Load(RawFile *file) {
   while (tagCurPos < tagSectionSize) {
     // Search the end position of the current line.
     char *pNewLine = strchr(&tagSect[tagCurPos], 0x0a);
-    if (pNewLine == NULL) {
+    if (pNewLine == nullptr) {
       // Tag section must end with a newline.
       // Read the all remaining bytes if a newline lacks though.
       pNewLine = tagSect + tagSectionSize;
@@ -143,7 +143,7 @@ bool PSFFile::Load(RawFile *file) {
 
     // Search the variable=value separator.
     char *pSeparator = strchr(&tagSect[tagCurPos], '=');
-    if (pSeparator == NULL) {
+    if (pSeparator == nullptr) {
       // Blank lines, or lines not of the form "variable=value", are ignored.
       tagCurPos = pNewLine + 1 - tagSect;
       continue;
@@ -159,13 +159,13 @@ bool PSFFile::Load(RawFile *file) {
     // All characters 0x01-0x20 are considered whitespace.
     // (There must be no null (0x00) characters.)
     // Trim them.
-    while (pVarNameEnd > pVarName && *(unsigned char *) (pVarNameEnd - 1) <= 0x20)
+    while (pVarNameEnd > pVarName && *reinterpret_cast<unsigned char *>(pVarNameEnd - 1) <= 0x20)
       pVarNameEnd--;
-    while (pVarValEnd > pVarVal && *(unsigned char *) (pVarValEnd - 1) <= 0x20)
+    while (pVarValEnd > pVarVal && *reinterpret_cast<unsigned char *>(pVarValEnd - 1) <= 0x20)
       pVarValEnd--;
-    while (pVarName < pVarNameEnd && *(unsigned char *) pVarName <= 0x20)
+    while (pVarName < pVarNameEnd && *reinterpret_cast<unsigned char *>(pVarName) <= 0x20)
       pVarName++;
-    while (pVarVal < pVarValEnd && *(unsigned char *) pVarVal <= 0x20)
+    while (pVarVal < pVarValEnd && *reinterpret_cast<unsigned char *>(pVarVal) <= 0x20)
       pVarVal++;
 
     // Read variable=value as string.
@@ -178,7 +178,7 @@ bool PSFFile::Load(RawFile *file) {
     //   comment=multiple-line
     //   comment=comment.
     // Therefore, check if the variable had already appeared.
-    map<string, string>::iterator it = tags.lower_bound(varName);
+    auto it = tags.lower_bound(varName);
     if (it != tags.end() && it->first == varName) {
       it->second += "\n";
       it->second += varVal;
@@ -199,8 +199,8 @@ bool PSFFile::ReadExe(uint8_t *buf, size_t len, size_t stripLen) const {
     return true;
   }
 
-  uLong destlen = (uLong) len;
-  int zRet = myuncompress(buf, &destlen, exeCompData->data, (uLong) exeCompData->size, (uLong) stripLen);
+  uLong destlen = static_cast<uLong>(len);
+  int zRet = myuncompress(buf, &destlen, exeCompData->data, static_cast<uLong>(exeCompData->size), static_cast<uLong>(stripLen));
   if (zRet != Z_OK) {
     //errorstr = L"Decompression failed";
     return false;
@@ -216,18 +216,18 @@ bool PSFFile::ReadExeDataSeg(DataSeg *&seg, size_t len, size_t stripLen) const {
   }
 
   uint8_t *buf = new uint8_t[len];
-  uLong destlen = (uLong) len;
-  int zRet = myuncompress(buf, &destlen, exeCompData->data, (uLong) exeCompData->size, (uLong) stripLen);
+  uLong destlen = static_cast<uLong>(len);
+  int zRet = myuncompress(buf, &destlen, exeCompData->data, static_cast<uLong>(exeCompData->size), static_cast<uLong>(stripLen));
   if (zRet != Z_OK) {
     //errorstr = L"Decompression failed";
-    seg = NULL;
+    seg = nullptr;
     delete newSeg;
     delete[] buf;
     return false;
   }
 
   size_t actualSize = destlen;
-  newSeg->load(buf, 0, (uint32_t) actualSize);
+  newSeg->load(buf, 0, actualSize);
   seg = newSeg;
   return true;
 }
@@ -245,13 +245,9 @@ bool PSFFile::Decompress(size_t decompressed_size) {
   }
 
   uint8_t *buf = new uint8_t[decompressed_size];
-  if (buf == NULL) {
-    errorstr = L"Out of memory reading the file";
-    return false;
-  }
 
-  uLong destlen = (uLong) decompressed_size;
-  int zRet = uncompress(buf, &destlen, exeCompData->data, (uLong) exeCompData->size);
+  uLong destlen = static_cast<uLong>(decompressed_size);
+  int zRet = uncompress(buf, &destlen, exeCompData->data, static_cast<uLong>(exeCompData->size));
   if (zRet != Z_STREAM_END) {
     errorstr = L"Decompression failed";
     delete[] buf;
@@ -259,7 +255,7 @@ bool PSFFile::Decompress(size_t decompressed_size) {
   }
   size_t actualSize = destlen;
 
-  exeData->load(buf, 0, (uint32_t) actualSize);
+  exeData->load(buf, 0, actualSize);
   decompressed = true;
   return true;
 }
@@ -268,19 +264,19 @@ bool PSFFile::IsDecompressed() const {
   return decompressed;
 }
 
-uint8_t PSFFile::GetVersion(void) const {
+uint8_t PSFFile::GetVersion() const {
   return version;
 }
 
-size_t PSFFile::GetExeSize(void) const {
+size_t PSFFile::GetExeSize() const {
   return exeData->size;
 }
 
-size_t PSFFile::GetCompressedExeSize(void) const {
+size_t PSFFile::GetCompressedExeSize() const {
   return exeCompData->size;
 }
 
-size_t PSFFile::GetReservedSize(void) const {
+size_t PSFFile::GetReservedSize() const {
   return reservedData->size;
 }
 
@@ -291,11 +287,11 @@ void PSFFile::Clear() {
   tags.clear();
   version = 0;
   decompressed = false;
-  errorstr = NULL;
-  parent = NULL;
+  errorstr = nullptr;
+  parent = nullptr;
 }
 
-const wchar_t *PSFFile::GetError(void) const {
+const wchar_t *PSFFile::GetError() const {
   return errorstr;
 }
 
@@ -303,7 +299,7 @@ const wchar_t *PSFFile::GetError(void) const {
 int PSFFile::myuncompress(
     Bytef *dest,
     uLongf *destLen,
-    const Bytef *source,
+    z_const Bytef *source,
     uLong sourceLen,
     uLong stripLen) const {
   z_stream stream;
@@ -312,25 +308,25 @@ int PSFFile::myuncompress(
   uLong stripAvailLen = 0;
   uLong strippedLen = 0;
 
-  stream.next_in = (z_const Bytef *) source;
-  stream.avail_in = (uInt) sourceLen;
+  stream.next_in = static_cast<z_const Bytef *>(source);
+  stream.avail_in = static_cast<uInt>(sourceLen);
   /* Check for source > 64K on 16-bit machine: */
-  if ((uLong) stream.avail_in != sourceLen) return Z_BUF_ERROR;
+  if (static_cast<uLong>(stream.avail_in) != sourceLen) return Z_BUF_ERROR;
 
   stream.next_out = dest;
-  stream.avail_out = (uInt) *destLen;
-  if ((uLong) stream.avail_out != *destLen) return Z_BUF_ERROR;
+  stream.avail_out = static_cast<uInt>(*destLen);
+  if (static_cast<uLong>(stream.avail_out) != *destLen) return Z_BUF_ERROR;
 
   if (stripLen != 0) {
-    stripAvailLen = min(stripLen, (uLong) stripBufSize);
-    stream.next_out = (z_const Bytef *) stripBuf;
-    stream.avail_out = (uInt) stripAvailLen;
+    stripAvailLen = min(stripLen, static_cast<uLong>(stripBufSize));
+    stream.next_out = static_cast<z_const Bytef *>(stripBuf);
+    stream.avail_out = static_cast<uInt>(stripAvailLen);
   }
 
-  stream.zalloc = (alloc_func) 0;
-  stream.zfree = (free_func) 0;
+  stream.zalloc = nullptr;
+  stream.zfree = nullptr;
 
-  err = inflateInit(&stream);
+  err = inflateInit_((&stream), ZLIB_VERSION, sizeof(z_stream));
   if (err != Z_OK) return err;
 
   while (true) {
@@ -338,16 +334,16 @@ int PSFFile::myuncompress(
     if (err == Z_OK && strippedLen + stripAvailLen < stripLen) {
       // try stripping more bytes
       strippedLen += stripAvailLen;
-      stripAvailLen = min(stripLen - strippedLen, (uLong) stripBufSize);
-      stream.next_out = (z_const Bytef *) stripBuf;
-      stream.avail_out = (uInt) stripAvailLen;
+      stripAvailLen = min(stripLen - strippedLen, static_cast<uLong>(stripBufSize));
+      stream.next_out = static_cast<z_const Bytef *>(stripBuf);
+      stream.avail_out = static_cast<uInt>(stripAvailLen);
     }
     else if (err == Z_OK && stripAvailLen != 0) {
       // finish stripping
       strippedLen += stripAvailLen;
       stripAvailLen = 0;
       stream.next_out = dest;
-      stream.avail_out = (uInt) *destLen;
+      stream.avail_out = static_cast<uInt>(*destLen);
     }
     else {
       if (err == Z_OK) {

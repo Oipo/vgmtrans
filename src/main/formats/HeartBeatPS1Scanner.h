@@ -6,9 +6,9 @@
 class HeartBeatPS1Scanner:
     public VGMScanner {
  public:
-  HeartBeatPS1Scanner(void);
-  virtual ~HeartBeatPS1Scanner(void);
+  HeartBeatPS1Scanner();
+  ~HeartBeatPS1Scanner() override;
 
-  virtual void Scan(RawFile *file, void *info = 0);
+  void Scan(RawFile *file, void *info = 0) override;
   std::vector<VGMFile *> SearchForHeartBeatPS1VGMFile(RawFile *file);
 };

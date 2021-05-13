@@ -16,7 +16,7 @@ QSoundArticTable::QSoundArticTable(RawFile *file, std::wstring &name, uint32_t o
     : VGMMiscFile(QSoundFormat::name, file, offset, length, name) {
 }
 
-QSoundArticTable::~QSoundArticTable(void) {
+QSoundArticTable::~QSoundArticTable() {
   if (artics)
     delete[] artics;
 }
@@ -61,7 +61,7 @@ QSoundSampleInfoTable::QSoundSampleInfoTable(RawFile *file, wstring &name, uint3
     : VGMMiscFile(QSoundFormat::name, file, offset, length, name) {
 }
 
-QSoundSampleInfoTable::~QSoundSampleInfoTable(void) {
+QSoundSampleInfoTable::~QSoundSampleInfoTable() {
   if (infos)
     delete[] infos;
 }
@@ -112,7 +112,7 @@ QSoundInstrSet::QSoundInstrSet(RawFile *file,
       articTable(theArticTable) {
 }
 
-QSoundInstrSet::~QSoundInstrSet(void) {
+QSoundInstrSet::~QSoundInstrSet() {
 }
 
 
@@ -189,7 +189,7 @@ QSoundInstr::QSoundInstr(VGMInstrSet *instrSet,
     : VGMInstr(instrSet, offset, length, theBank, theInstrNum, name) {
 }
 
-QSoundInstr::~QSoundInstr(void) {
+QSoundInstr::~QSoundInstr() {
 }
 
 
@@ -286,8 +286,8 @@ bool QSoundInstr::LoadInstr() {
 
   if (this->sustain_level >= 0x7E && this->sustain_rate > 0 && this->decay_rate > 1) {
     //for a better approximation, we count the ticks to get from original Dr to original Sl
-    ticks = (long) ceil((0xFFFF - Sl) / (double) Dr);
-    ticks += (long) ceil(Sl / (double) Sr);
+    ticks = (long) ceil((0xFFFF - Sl) / static_cast<double>( Dr);
+    ticks += (long) ceil(Sl / static_cast<double>( Sr);
     rgn->decay_time = ticks * QSOUND_TICK_FREQ;
     Sl = 0;
   }
@@ -304,7 +304,7 @@ bool QSoundInstr::LoadInstr() {
   if (Dr <= 1)
     rgn->sustain_level = 1.0;
   else
-    rgn->sustain_level = Sl / (double) 0xFFFF;
+    rgn->sustain_level = Sl / static_cast<double>( 0xFFFF;
 
   // Sustain rate 138D in sfa2
   ticks = Sr ? 0xFFFF / Sr : 0;

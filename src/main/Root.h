@@ -13,18 +13,18 @@ class VGMInstrSet;
 class VGMSampColl;
 class VGMMiscFile;
 class LogItem;
-FORWARD_DECLARE_TYPEDEF_STRUCT(ItemSet);
+struct ItemSet;
 
 
 class VGMRoot {
  public:
-  VGMRoot(void);
+  VGMRoot();
  public:
-  virtual ~VGMRoot(void);
+  virtual ~VGMRoot();
 
-  bool Init(void);
-  void Reset(void);
-  void Exit(void);
+  bool Init();
+  void Reset();
+  void Exit();
   bool OpenRawFile(const std::wstring &filename);
   bool CreateVirtFile(uint8_t *databuf,
                       uint32_t fileSize,

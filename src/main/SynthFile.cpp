@@ -1,5 +1,7 @@
 #include "pch.h"
 #include "SynthFile.h"
+
+#include <utility>
 #include "VGMInstrSet.h"
 #include "VGMSamp.h"
 
@@ -11,11 +13,11 @@ using namespace std;
 //  **********************************************************************************
 
 SynthFile::SynthFile(string synth_name)
-    : name(synth_name) {
+    : name(std::move(synth_name)) {
 
 }
 
-SynthFile::~SynthFile(void) {
+SynthFile::~SynthFile() {
   DeleteVect(vInstrs);
   DeleteVect(vWaves);
 }
@@ -27,8 +29,8 @@ SynthInstr *SynthFile::AddInstr(uint32_t bank, uint32_t instrNum) {
   return vInstrs.back();
 }
 
-SynthInstr *SynthFile::AddInstr(uint32_t bank, uint32_t instrNum, string name) {
-  vInstrs.insert(vInstrs.end(), new SynthInstr(bank, instrNum, name));
+SynthInstr *SynthFile::AddInstr(uint32_t bank, uint32_t instrNum, string _name) {
+  vInstrs.insert(vInstrs.end(), new SynthInstr(bank, instrNum, std::move(_name)));
   return vInstrs.back();
 }
 
@@ -44,7 +46,7 @@ SynthWave *SynthFile::AddWave(uint16_t formatTag,
                               uint16_t bitsPerSample,
                               uint32_t waveDataSize,
                               unsigned char *waveData,
-                              string name) {
+                              string _name) {
   vWaves.insert(vWaves.end(),
                 new SynthWave(formatTag,
                               channels,
@@ -54,7 +56,7 @@ SynthWave *SynthFile::AddWave(uint16_t formatTag,
                               bitsPerSample,
                               waveDataSize,
                               waveData,
-                              name));
+                              std::move(_name)));
   return vWaves.back();
 }
 
@@ -72,21 +74,21 @@ SynthInstr::SynthInstr(uint32_t bank, uint32_t instrument)
 }
 
 SynthInstr::SynthInstr(uint32_t bank, uint32_t instrument, string instrName)
-    : ulBank(bank), ulInstrument(instrument), name(instrName) {
+    : ulBank(bank), ulInstrument(instrument), name(std::move(instrName)) {
   //RiffFile::AlignName(name);
 }
 
 SynthInstr::SynthInstr(uint32_t bank, uint32_t instrument, string instrName, vector<SynthRgn *> listRgns)
-    : ulBank(bank), ulInstrument(instrument), name(instrName) {
+    : ulBank(bank), ulInstrument(instrument), name(std::move(instrName)) {
   //RiffFile::AlignName(name);
-  vRgns = listRgns;
+  vRgns = std::move(listRgns);
 }
 
 SynthInstr::~SynthInstr() {
   DeleteVect(vRgns);
 }
 
-SynthRgn *SynthInstr::AddRgn(void) {
+SynthRgn *SynthInstr::AddRgn() {
   vRgns.insert(vRgns.end(), new SynthRgn());
   return vRgns.back();
 }
@@ -102,19 +104,17 @@ SynthRgn *SynthInstr::AddRgn(SynthRgn rgn) {
 //  SynthRgn
 //  ********
 
-SynthRgn::~SynthRgn(void) {
-  if (sampinfo)
+SynthRgn::~SynthRgn() {
     delete sampinfo;
-  if (art)
     delete art;
 }
 
-SynthArt *SynthRgn::AddArt(void) {
+SynthArt *SynthRgn::AddArt() {
   art = new SynthArt();
   return art;
 }
 
-SynthSampInfo *SynthRgn::AddSampInfo(void) {
+SynthSampInfo *SynthRgn::AddSampInfo() {
   sampinfo = new SynthSampInfo();
   return sampinfo;
 }
@@ -173,10 +173,10 @@ void SynthSampInfo::SetLoopInfo(Loop &loop, VGMSamp *samp) {
   cSampleLoops = loop.loopStatus;
   ulLoopType = loop.loopType;
   ulLoopStart = (loop.loopStartMeasure == LM_BYTES) ?
-                (uint32_t) ((loop.loopStart * compressionRatio) / origFormatBytesPerSamp) :
+                static_cast<uint32_t>((loop.loopStart * compressionRatio) / origFormatBytesPerSamp) :
                 loop.loopStart;
   ulLoopLength = (loop.loopLengthMeasure == LM_BYTES) ?
-                 (uint32_t) ((loop.loopLength * compressionRatio) / origFormatBytesPerSamp) :
+                 static_cast<uint32_t>((loop.loopLength * compressionRatio) / origFormatBytesPerSamp) :
                  loop.loopLength;
 }
 
@@ -199,21 +199,19 @@ void SynthWave::ConvertTo16bitSigned() {
 
     int16_t *newData = new int16_t[this->dataSize];
     for (unsigned int i = 0; i < this->dataSize; i++)
-      newData[i] = ((int16_t) this->data[i] - 128) << 8;
+      newData[i] = (this->data[i] - 128) << 8;
     delete[] this->data;
-    this->data = (uint8_t *) newData;
+    this->data = reinterpret_cast<uint8_t*>(newData);
     this->dataSize *= 2;
   }
 }
 
 SynthWave::~SynthWave() {
-  if (sampinfo)
     delete sampinfo;
-  if (data)
     delete data;
 }
 
-SynthSampInfo *SynthWave::AddSampInfo(void) {
+SynthSampInfo *SynthWave::AddSampInfo() {
   sampinfo = new SynthSampInfo();
   return sampinfo;
 }

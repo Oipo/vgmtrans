@@ -10,10 +10,10 @@ using namespace std;
 
 wchar_t *GetFileWithBase(const wchar_t *f, const wchar_t *newfile);
 
-NDS2SFLoader::NDS2SFLoader(void) {
+NDS2SFLoader::NDS2SFLoader() {
 }
 
-NDS2SFLoader::~NDS2SFLoader(void) {
+NDS2SFLoader::~NDS2SFLoader() {
 }
 
 PostLoadCommand NDS2SFLoader::Apply(RawFile *file) {
@@ -24,7 +24,7 @@ PostLoadCommand NDS2SFLoader::Apply(RawFile *file) {
     if (version == NDS2SF_VERSION) {
       const wchar_t *complaint;
       size_t exebufsize = NDS2SF_MAX_ROM_SIZE;
-      uint8_t *exebuf = NULL;
+      uint8_t *exebuf = nullptr;
       //memset(exebuf, 0, exebufsize);
 
       complaint = psf_read_exe(file, exebuf, exebufsize);
@@ -55,7 +55,7 @@ PostLoadCommand NDS2SFLoader::Apply(RawFile *file) {
 /*
 ** Read the EXE from a PSF file
 **
-** Returns the error message, or NULL on success
+** Returns the error message, or nullptr on success
 */
 const wchar_t *NDS2SFLoader::psf_read_exe(
     RawFile *file,
@@ -68,7 +68,7 @@ const wchar_t *NDS2SFLoader::psf_read_exe(
 
   // search exclusively for _lib tag, and if found, perform a recursive load
   const wchar_t *psflibError = load_psf_libs(psf, file, exebuffer, exebuffersize);
-  if (psflibError != NULL)
+  if (psflibError != nullptr)
     return psflibError;
 
   DataSeg *nds2sfExeHeadSeg;
@@ -78,13 +78,13 @@ const wchar_t *NDS2SFLoader::psf_read_exe(
   uint32_t nds2sfRomStart = nds2sfExeHeadSeg->GetWord(0x00);
   uint32_t nds2sfRomSize = nds2sfExeHeadSeg->GetWord(0x04);
   delete nds2sfExeHeadSeg;
-  if (nds2sfRomStart + nds2sfRomSize > exebuffersize || (exebuffer == NULL && exebuffersize == 0))
+  if (nds2sfRomStart + nds2sfRomSize > exebuffersize || (exebuffer == nullptr && exebuffersize == 0))
     return L"2SF ROM section start and/or size values are likely corrupt.";
 
-  if (exebuffer == NULL) {
+  if (exebuffer == nullptr) {
     exebuffersize = nds2sfRomStart + nds2sfRomSize;
     exebuffer = new uint8_t[exebuffersize];
-    if (exebuffer == NULL) {
+    if (exebuffer == nullptr) {
       return L"2SF ROM memory allocation error.";
     }
     memset(exebuffer, 0, exebuffersize);
@@ -107,7 +107,7 @@ const wchar_t *NDS2SFLoader::psf_read_exe(
     file->tag.comment = string2wstring(psf.tags["comment"]);
   }
 
-  return NULL;
+  return nullptr;
 }
 
 const wchar_t *NDS2SFLoader::load_psf_libs(PSFFile &psf,
@@ -134,7 +134,7 @@ const wchar_t *NDS2SFLoader::load_psf_libs(PSFFile &psf,
 
     // TODO: Make sure to limit recursion to avoid crashing.
     RawFile *newRawFile = new RawFile(fullPath);
-    const wchar_t *psflibError = NULL;
+    const wchar_t *psflibError = nullptr;
     if (newRawFile->open(fullPath))
       psflibError = psf_read_exe(newRawFile, exebuffer, exebuffersize);
     else
@@ -142,10 +142,10 @@ const wchar_t *NDS2SFLoader::load_psf_libs(PSFFile &psf,
     delete fullPath;
     delete newRawFile;
 
-    if (psflibError != NULL)
+    if (psflibError != nullptr)
       return psflibError;
 
     libIndex++;
   }
-  return NULL;
+  return nullptr;
 }

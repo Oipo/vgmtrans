@@ -5,10 +5,10 @@
 class FalcomSnesScanner:
     public VGMScanner {
  public:
-  FalcomSnesScanner(void) {
+  FalcomSnesScanner() {
     USE_EXTENSION(L"spc");
   }
-  virtual ~FalcomSnesScanner(void) {
+  virtual ~FalcomSnesScanner() {
   }
 
   virtual void Scan(RawFile *file, void *info = 0);

@@ -1,5 +1,7 @@
 #pragma once
 #include "Format.h"
+
+#include <utility>
 #include "AkaoScanner.h"
 #include "VGMColl.h"
 #include "Matcher.h"
@@ -13,7 +15,7 @@ class AkaoInstrSet;
 class AkaoColl final :
     public VGMColl {
  public:
-  explicit AkaoColl(std::wstring name = L"Unnamed Collection") : VGMColl(name), origInstrSet(nullptr), numAddedInstrs(0) {}
+  explicit AkaoColl(std::wstring _name = L"Unnamed Collection") : VGMColl(std::move(_name)), origInstrSet(nullptr), numAddedInstrs(0) {}
 
   bool LoadMain() override;
   void PreSynthFileCreation() override;

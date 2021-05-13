@@ -1,5 +1,7 @@
 #pragma once
 
+#include <utility>
+
 #include "common.h"
 #include "RiffFile.h"
 
@@ -257,8 +259,8 @@ struct sfSample {
 class SF2StringChunk: public Chunk {
  public:
   SF2StringChunk(std::string ckSig, std::string info)
-      : Chunk(ckSig) {
-    SetData(info.c_str(), (uint32_t) info.length());
+      : Chunk(std::move(ckSig)) {
+    SetData(info.c_str(), info.length());
   }
 };
 
@@ -282,9 +284,9 @@ class SynthFile;
 class SF2File: public RiffFile {
  public:
   SF2File(SynthFile *synthfile);
-  ~SF2File(void);
+  ~SF2File() override = default;
 
-  const void *SaveToMem();
+  uint8_t *SaveToMem();
   bool SaveSF2File(const std::wstring &filepath);
 
 };

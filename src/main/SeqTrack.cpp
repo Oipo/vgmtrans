@@ -13,13 +13,13 @@ using namespace std;
 //  ********
 
 
-SeqTrack::SeqTrack(VGMSeq *parentFile, uint32_t offset, uint32_t length, wstring name)
-    : VGMContainerItem(parentFile, offset, length, name),
+SeqTrack::SeqTrack(VGMSeq *parentFile, uint32_t offset, uint32_t length, wstring _name)
+    : VGMContainerItem(parentFile, offset, length, std::move(_name)),
       parentSeq(parentFile),
       panVolumeCorrectionRate(1.0) {
   dwStartOffset = offset;
   bMonophonic = parentSeq->bMonophonicTracks;
-  pMidiTrack = NULL;
+  pMidiTrack = nullptr;
   ResetVars();
   bDetermineTrackLengthEventByEvent = false;
   bWriteGenericEventAsTextEvent = false;
@@ -37,7 +37,7 @@ void SeqTrack::ResetVars() {
   foreverLoops = 0;
   deltaLength = -1;
   deltaTime = 0;
-  vel = 100;
+//  vel = 100;
   vol = 100;
   expression = 127;
   mastVol = 127;
@@ -51,7 +51,7 @@ void SeqTrack::ResetVars() {
 }
 
 
-bool SeqTrack::ReadEvent(void) {
+bool SeqTrack::ReadEvent() {
   return false;        //by default, don't add any events, just stop immediately.
 }
 
@@ -62,7 +62,7 @@ bool SeqTrack::LoadTrackInit(int trackNum, MidiTrack *preparedMidiTrack) {
 
   ResetVars();
   if (readMode == READMODE_CONVERT_TO_MIDI) {
-    if (preparedMidiTrack != NULL) {
+    if (preparedMidiTrack != nullptr) {
       pMidiTrack = preparedMidiTrack;
     }
     else {
@@ -74,7 +74,7 @@ bool SeqTrack::LoadTrackInit(int trackNum, MidiTrack *preparedMidiTrack) {
   curOffset = dwStartOffset;    //start at beginning of track
 
   if (readMode == READMODE_CONVERT_TO_MIDI) {
-    if (preparedMidiTrack == NULL) {
+    if (preparedMidiTrack == nullptr) {
       AddInitialMidiEvents(trackNum);
     }
   }
@@ -90,7 +90,7 @@ void SeqTrack::LoadTrackMainLoop(uint32_t stopOffset, int32_t stopTime) {
     stopTime = 0x7FFFFFFF;
   }
 
-  if (GetTime() >= (unsigned) stopTime) {
+  if (GetTime() >= static_cast<unsigned>(stopTime)) {
     active = false;
     return;
   }
@@ -121,7 +121,7 @@ void SeqTrack::LoadTrackMainLoop(uint32_t stopOffset, int32_t stopTime) {
     OnTickEnd();
   }
   else {
-    while (curOffset < stopOffset && GetTime() < (unsigned) stopTime) {
+    while (curOffset < stopOffset && GetTime() < static_cast<unsigned>(stopTime)) {
       if (!ReadEvent()) {
         active = false;
         break;
@@ -132,8 +132,6 @@ void SeqTrack::LoadTrackMainLoop(uint32_t stopOffset, int32_t stopTime) {
       deltaLength = GetTime();
     }
   }
-
-  return;
 }
 
 void SeqTrack::SetChannelAndGroupFromTrkNum(int theTrackNum) {
@@ -151,11 +149,11 @@ void SeqTrack::SetChannelAndGroupFromTrkNum(int theTrackNum) {
 
 void SeqTrack::AddInitialMidiEvents(int trackNum) {
   if (trackNum == 0)
-    pMidiTrack->AddSeqName(parentSeq->GetName()->c_str());
+    pMidiTrack->AddSeqName(*parentSeq->GetName());
   wostringstream ssTrackName;
   ssTrackName << L"Track: 0x" << std::hex << std::setfill(L'0') << std::setw(2) << std::uppercase << dwStartOffset
       << std::endl;
-  pMidiTrack->AddTrackName(ssTrackName.str().c_str());
+  pMidiTrack->AddTrackName(ssTrackName.str());
 
   if (trackNum == 0) {
     pMidiTrack->AddGMReset();
@@ -175,7 +173,7 @@ void SeqTrack::AddInitialMidiEvents(int trackNum) {
     AddMonoNoItem();
 }
 
-uint32_t SeqTrack::GetTime() {
+uint32_t SeqTrack::GetTime() const {
   return parentSeq->time;
 }
 
@@ -218,11 +216,11 @@ void SeqTrack::AddControllerSlide(uint32_t offset,
                                   uint8_t &prevVal,
                                   uint8_t targVal,
                                   uint8_t(*scalerFunc)(uint8_t),
-                                  void (MidiTrack::*insertFunc)(uint8_t, uint8_t, uint32_t)) {
+                                  void (MidiTrack::*insertFunc)(uint8_t, uint8_t, uint32_t)) const {
   if (readMode != READMODE_CONVERT_TO_MIDI)
     return;
 
-  double valInc = (double) ((double) (targVal - prevVal) / (double) dur);
+  double valInc = static_cast<double>(targVal) - static_cast<double>(prevVal) / static_cast<double>(dur);
   int8_t newVal = -1;
   for (unsigned int i = 0; i < dur; i++) {
     int8_t prevValInSlide = newVal;
@@ -231,10 +229,7 @@ void SeqTrack::AddControllerSlide(uint32_t offset,
     if (newVal < 0) {
       newVal = 0;
     }
-    if (newVal > 127) {
-      newVal = 127;
-    }
-    if (scalerFunc != NULL) {
+    if (scalerFunc != nullptr) {
       newVal = scalerFunc(newVal);
     }
 
@@ -292,12 +287,12 @@ void SeqTrack::AddGenericEvent(uint32_t offset,
                                uint32_t length,
                                const std::wstring &sEventName,
                                const std::wstring &sEventDesc,
-                               uint8_t color,
+                               uint8_t _color,
                                Icon icon) {
   OnEvent(offset, length);
 
   if (readMode == READMODE_ADD_TO_UI && !IsItemAtOffset(offset, false, true)) {
-    AddEvent(new SeqEvent(this, offset, length, sEventName, color, icon, sEventDesc));
+    AddEvent(new SeqEvent(this, offset, length, sEventName, _color, icon, sEventDesc));
   }
   else if (readMode == READMODE_CONVERT_TO_MIDI) {
     if (bWriteGenericEventAsTextEvent) {
@@ -306,7 +301,7 @@ void SeqTrack::AddGenericEvent(uint32_t offset,
         miditext += L" - ";
         miditext += sEventDesc;
       }
-      pMidiTrack->AddText(miditext.c_str());
+      pMidiTrack->AddText(miditext);
     }
   }
 }
@@ -328,7 +323,7 @@ void SeqTrack::AddUnknown(uint32_t offset,
         miditext += L" - ";
         miditext += sEventDesc;
       }
-      pMidiTrack->AddText(miditext.c_str());
+      pMidiTrack->AddText(miditext);
     }
   }
 }
@@ -398,7 +393,6 @@ void SeqTrack::AddNoteOnNoItem(int8_t key, int8_t vel) {
   }
   prevKey = key;
   prevVel = vel;
-  return;
 }
 
 
@@ -468,7 +462,6 @@ void SeqTrack::AddNoteOffNoItem(int8_t key) {
   else {
     AddPercNoteOffNoItem(cDrumNote);
   }
-  return;
 }
 
 
@@ -510,7 +503,7 @@ void SeqTrack::InsertNoteOff(uint32_t offset,
   InsertNoteOffNoItem(key, absTime);
 }
 
-void SeqTrack::InsertNoteOffNoItem(int8_t key, uint32_t absTime) {
+void SeqTrack::InsertNoteOffNoItem(int8_t key, uint32_t absTime) const {
   if (readMode == READMODE_CONVERT_TO_MIDI) {
     pMidiTrack->InsertNoteOff(channel, key + cKeyCorrection + transpose, absTime);
   }
@@ -543,7 +536,6 @@ void SeqTrack::AddNoteByDurNoItem(int8_t key, int8_t vel, uint32_t dur) {
   }
   prevKey = key;
   prevVel = vel;
-  return;
 }
 
 void SeqTrack::AddNoteByDur_Extend(uint32_t offset,
@@ -573,7 +565,6 @@ void SeqTrack::AddNoteByDurNoItem_Extend(int8_t key, int8_t vel, uint32_t dur) {
   }
   prevKey = key;
   prevVel = vel;
-  return;
 }
 
 void SeqTrack::AddPercNoteByDur(uint32_t offset,
@@ -638,27 +629,27 @@ void SeqTrack::InsertNoteByDur(uint32_t offset,
   prevVel = vel;
 }
 
-void SeqTrack::MakePrevDurNoteEnd() {
+void SeqTrack::MakePrevDurNoteEnd() const {
   MakePrevDurNoteEnd(GetTime() + (parentSeq->bLoadTickByTick ? deltaTime : 0));
 }
 
-void SeqTrack::MakePrevDurNoteEnd(uint32_t absTime) {
+void SeqTrack::MakePrevDurNoteEnd(uint32_t absTime) const {
   if (readMode == READMODE_CONVERT_TO_MIDI) {
-    for (auto it = pMidiTrack->prevDurNoteOffs.begin(); it != pMidiTrack->prevDurNoteOffs.end(); ++it) {
-      (*it)->AbsTime = absTime;
+    for (auto & prevDurNoteOff : pMidiTrack->prevDurNoteOffs) {
+      prevDurNoteOff->AbsTime = absTime;
     }
   }
 }
 
-void SeqTrack::LimitPrevDurNoteEnd() {
+void SeqTrack::LimitPrevDurNoteEnd() const {
   LimitPrevDurNoteEnd(GetTime() + (parentSeq->bLoadTickByTick ? deltaTime : 0));
 }
 
-void SeqTrack::LimitPrevDurNoteEnd(uint32_t absTime) {
+void SeqTrack::LimitPrevDurNoteEnd(uint32_t absTime) const {
   if (readMode == READMODE_CONVERT_TO_MIDI) {
-    for (auto it = pMidiTrack->prevDurNoteOffs.begin(); it != pMidiTrack->prevDurNoteOffs.end(); ++it) {
-      if ((*it)->AbsTime > absTime) {
-        (*it)->AbsTime = absTime;
+    for (auto & prevDurNoteOff : pMidiTrack->prevDurNoteOffs) {
+      if (prevDurNoteOff->AbsTime > absTime) {
+        prevDurNoteOff->AbsTime = absTime;
       }
     }
   }
@@ -701,7 +692,7 @@ void SeqTrack::AddVolSlide(uint32_t offset,
                        dur,
                        vol,
                        targVol,
-                       parentSeq->bUseLinearAmplitudeScale ? Convert7bitPercentVolValToStdMidiVal : NULL,
+                       parentSeq->bUseLinearAmplitudeScale ? Convert7bitPercentVolValToStdMidiVal : nullptr,
                        &MidiTrack::InsertVol);
 }
 
@@ -763,7 +754,7 @@ void SeqTrack::AddExpressionSlide(uint32_t offset,
                        dur,
                        expression,
                        targExpr,
-                       parentSeq->bUseLinearAmplitudeScale ? Convert7bitPercentVolValToStdMidiVal : NULL,
+                       parentSeq->bUseLinearAmplitudeScale ? Convert7bitPercentVolValToStdMidiVal : nullptr,
                        &MidiTrack::InsertExpression);
 }
 
@@ -823,7 +814,7 @@ void SeqTrack::AddMastVolSlide(uint32_t offset,
                        dur,
                        mastVol,
                        targVol,
-                       parentSeq->bUseLinearAmplitudeScale ? Convert7bitPercentVolValToStdMidiVal : NULL,
+                       parentSeq->bUseLinearAmplitudeScale ? Convert7bitPercentVolValToStdMidiVal : nullptr,
                        &MidiTrack::InsertMasterVol);
 }
 
@@ -868,7 +859,7 @@ void SeqTrack::AddPanSlide(uint32_t offset,
   if (readMode == READMODE_ADD_TO_UI && !IsItemAtOffset(offset, false, true))
     AddEvent(new PanSlideSeqEvent(this, targPan, dur, offset, length, sEventName));
   else if (readMode == READMODE_CONVERT_TO_MIDI)
-    AddControllerSlide(offset, length, dur, prevPan, targPan, NULL, &MidiTrack::InsertPan);
+    AddControllerSlide(offset, length, dur, prevPan, targPan, nullptr, &MidiTrack::InsertPan);
 }
 
 
@@ -918,7 +909,7 @@ void SeqTrack::AddReverbNoItem(uint8_t reverb) {
   prevReverb = reverb;
 }
 
-void SeqTrack::AddMonoNoItem() {
+void SeqTrack::AddMonoNoItem() const {
   if (readMode == READMODE_CONVERT_TO_MIDI) {
     pMidiTrack->AddMono(channel);
   }
@@ -967,7 +958,7 @@ void SeqTrack::AddPitchBendRange(uint32_t offset,
     pMidiTrack->AddPitchBendRange(channel, semitones, cents);
 }
 
-void SeqTrack::AddPitchBendRangeNoItem(uint8_t semitones, uint8_t cents) {
+void SeqTrack::AddPitchBendRangeNoItem(uint8_t semitones, uint8_t cents) const {
   if (readMode == READMODE_CONVERT_TO_MIDI)
     pMidiTrack->AddPitchBendRange(channel, semitones, cents);
 }
@@ -981,7 +972,7 @@ void SeqTrack::AddFineTuning(uint32_t offset, uint32_t length, double cents, con
     pMidiTrack->AddFineTuning(channel, cents);
 }
 
-void SeqTrack::AddFineTuningNoItem(double cents) {
+void SeqTrack::AddFineTuningNoItem(double cents) const {
   if (readMode == READMODE_CONVERT_TO_MIDI)
     pMidiTrack->AddFineTuning(channel, cents);
 }
@@ -998,7 +989,7 @@ void SeqTrack::AddModulationDepthRange(uint32_t offset,
     pMidiTrack->AddModulationDepthRange(channel, semitones);
 }
 
-void SeqTrack::AddModulationDepthRangeNoItem(double semitones) {
+void SeqTrack::AddModulationDepthRangeNoItem(double semitones) const {
   if (readMode == READMODE_CONVERT_TO_MIDI)
     pMidiTrack->AddModulationDepthRange(channel, semitones);
 }
@@ -1086,7 +1077,7 @@ void SeqTrack::AddPortamento(uint32_t offset, uint32_t length, bool bOn, const s
   AddPortamentoNoItem(bOn);
 }
 
-void SeqTrack::AddPortamentoNoItem(bool bOn) {
+void SeqTrack::AddPortamentoNoItem(bool bOn) const {
   if (readMode == READMODE_CONVERT_TO_MIDI)
     pMidiTrack->AddPortamento(channel, bOn);
 }
@@ -1112,7 +1103,7 @@ void SeqTrack::AddPortamentoTime(uint32_t offset, uint32_t length, uint8_t time,
   AddPortamentoTimeNoItem(time);
 }
 
-void SeqTrack::AddPortamentoTimeNoItem(uint8_t time) {
+void SeqTrack::AddPortamentoTimeNoItem(uint8_t time) const {
   if (readMode == READMODE_CONVERT_TO_MIDI)
     pMidiTrack->AddPortamentoTime(channel, time);
 }
@@ -1192,7 +1183,7 @@ void SeqTrack::AddProgramChange(uint32_t offset,
                                 bool requireBank,
                                 uint8_t chan,
                                 const std::wstring &sEventName) {
-  //if (selectMsg = NULL)
+  //if (selectMsg = nullptr)
   //	selectMsg.Forma
   uint8_t origChan = channel;
   channel = chan;
@@ -1200,7 +1191,7 @@ void SeqTrack::AddProgramChange(uint32_t offset,
   channel = origChan;
 }
 
-void SeqTrack::AddProgramChangeNoItem(uint32_t progNum, bool requireBank) {
+void SeqTrack::AddProgramChangeNoItem(uint32_t progNum, bool requireBank) const {
   if (readMode == READMODE_CONVERT_TO_MIDI) {
     if (requireBank) {
       pMidiTrack->AddBankSelect(channel, (progNum >> 14) & 0x7f);
@@ -1210,7 +1201,7 @@ void SeqTrack::AddProgramChangeNoItem(uint32_t progNum, bool requireBank) {
   }
 }
 
-void SeqTrack::AddBankSelectNoItem(uint8_t bank) {
+void SeqTrack::AddBankSelectNoItem(uint8_t bank) const {
   if (readMode == READMODE_CONVERT_TO_MIDI) {
     pMidiTrack->AddBankSelect(channel, bank / 128);
     pMidiTrack->AddBankSelectFine(channel, bank % 128);
@@ -1226,7 +1217,7 @@ void SeqTrack::AddTempo(uint32_t offset, uint32_t length, uint32_t microsPerQuar
   AddTempoNoItem(microsPerQuarter);
 }
 
-void SeqTrack::AddTempoNoItem(uint32_t microsPerQuarter) {
+void SeqTrack::AddTempoNoItem(uint32_t microsPerQuarter) const {
   parentSeq->tempoBPM = 60000000.0 / microsPerQuarter;
   if (readMode == READMODE_CONVERT_TO_MIDI) {
     // Some MIDI tool can recognise tempo event only in the first track.
@@ -1240,7 +1231,7 @@ void SeqTrack::AddTempoSlide(uint32_t offset,
                              uint32_t dur,
                              uint32_t targMicrosPerQuarter,
                              const std::wstring &sEventName) {
-  AddTempoBPMSlide(offset, length, dur, ((double) 60000000 / targMicrosPerQuarter), sEventName);
+  AddTempoBPMSlide(offset, length, dur, (60000000. / static_cast<double>(targMicrosPerQuarter)), sEventName);
 }
 
 void SeqTrack::AddTempoBPM(uint32_t offset, uint32_t length, double bpm, const std::wstring &sEventName) {
@@ -1251,7 +1242,7 @@ void SeqTrack::AddTempoBPM(uint32_t offset, uint32_t length, double bpm, const s
   AddTempoBPMNoItem(bpm);
 }
 
-void SeqTrack::AddTempoBPMNoItem(double bpm) {
+void SeqTrack::AddTempoBPMNoItem(double bpm) const {
   parentSeq->tempoBPM = bpm;
   if (readMode == READMODE_CONVERT_TO_MIDI) {
     // Some MIDI tool can recognise tempo event only in the first track.
@@ -1270,7 +1261,7 @@ void SeqTrack::AddTempoBPMSlide(uint32_t offset,
   if (readMode == READMODE_ADD_TO_UI && !IsItemAtOffset(offset, false, true))
     AddEvent(new TempoSlideSeqEvent(this, targBPM, dur, offset, length, sEventName));
   else if (readMode == READMODE_CONVERT_TO_MIDI) {
-    double tempoInc = (targBPM - parentSeq->tempoBPM) / ((double) dur);
+    double tempoInc = (targBPM - parentSeq->tempoBPM) / static_cast<double>(dur);
     double newTempo;
     for (unsigned int i = 0; i < dur; i++) {
       // Some MIDI software only recognise tempo events in the first track.
@@ -1296,7 +1287,7 @@ void SeqTrack::AddTimeSig(uint32_t offset,
   AddTimeSigNoItem(numer, denom, ticksPerQuarter);
 }
 
-void SeqTrack::AddTimeSigNoItem(uint8_t numer, uint8_t denom, uint8_t ticksPerQuarter) {
+void SeqTrack::AddTimeSigNoItem(uint8_t numer, uint8_t denom, uint8_t ticksPerQuarter) const {
   if (readMode == READMODE_CONVERT_TO_MIDI) {
     MidiTrack *pFirstMidiTrack = parentSeq->GetFirstMidiTrack();
     pFirstMidiTrack->AddTimeSig(numer, denom, ticksPerQuarter);
@@ -1354,11 +1345,11 @@ void SeqTrack::AddMarker(uint32_t offset,
                          uint8_t databyte2,
                          const std::wstring &sEventName,
                          int8_t priority,
-                         uint8_t color) {
+                         uint8_t _color) {
   OnEvent(offset, length);
 
   if (readMode == READMODE_ADD_TO_UI && !IsItemAtOffset(offset, false, true))
-    AddEvent(new MarkerSeqEvent(this, markername, databyte1, databyte2, offset, length, sEventName, color));
+    AddEvent(new MarkerSeqEvent(this, markername, databyte1, databyte2, offset, length, sEventName, _color));
   else if (readMode == READMODE_CONVERT_TO_MIDI)
     pMidiTrack->AddMarker(channel, markername, databyte1, databyte2, priority);
 }

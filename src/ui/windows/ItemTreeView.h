@@ -78,11 +78,11 @@ public:
 	//void PopulateWithItem(VGMItem* item, VGMItem* parent);
 	void AddItemSet(VGMFile* file, std::vector<ItemSet>* itemset);
 	void RemoveItem(VGMItem* theItem);
-	void RemoveAllItems(void);
+	void RemoveAllItems();
 	BOOL SelectItem(VGMItem* item);
 	
 	static DWORD CALLBACK PopulateItemView(VOID* lpParam);
-	void WaitForPopulateEnd(void);
+	void WaitForPopulateEnd();
 
 // Helpers
 protected:

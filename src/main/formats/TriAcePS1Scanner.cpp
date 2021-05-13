@@ -9,10 +9,10 @@ using namespace std;
 #define DEFAULT_UFSIZE 0x100000
 
 
-TriAcePS1Scanner::TriAcePS1Scanner(void) {
+TriAcePS1Scanner::TriAcePS1Scanner() {
 }
 
-TriAcePS1Scanner::~TriAcePS1Scanner(void) {
+TriAcePS1Scanner::~TriAcePS1Scanner() {
 }
 
 void TriAcePS1Scanner::Scan(RawFile *file, void *info) {
@@ -229,6 +229,6 @@ TriAcePS1Seq *TriAcePS1Scanner::TriAceSLZDecompress(RawFile *file, uint32_t cfOf
     return newSeq;
   else {
     delete newSeq;
-    return NULL;
+    return nullptr;
   }
 }

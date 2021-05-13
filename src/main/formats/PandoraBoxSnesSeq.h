@@ -48,11 +48,11 @@ class PandoraBoxSnesSeq
                     PandoraBoxSnesVersion ver,
                     uint32_t seqdata_offset,
                     std::wstring newName = L"PandoraBox SNES Seq");
-  virtual ~PandoraBoxSnesSeq(void);
+  virtual ~PandoraBoxSnesSeq();
 
-  virtual bool GetHeaderInfo(void);
-  virtual bool GetTrackPointers(void);
-  virtual void ResetVars(void);
+  bool GetHeaderInfo() override;
+  virtual bool GetTrackPointers();
+  virtual void ResetVars();
 
   static const uint8_t VOLUME_TABLE[16];
 
@@ -62,7 +62,7 @@ class PandoraBoxSnesSeq
   std::map<uint8_t, uint16_t> instrADSRHints;
 
  private:
-  void LoadEventMap(void);
+  void LoadEventMap();
 };
 
 
@@ -70,8 +70,8 @@ class PandoraBoxSnesTrack
     : public SeqTrack {
  public:
   PandoraBoxSnesTrack(PandoraBoxSnesSeq *parentFile, long offset = 0, long length = 0);
-  virtual void ResetVars(void);
-  virtual bool ReadEvent(void);
+  virtual void ResetVars();
+  virtual bool ReadEvent();
 
  private:
   uint8_t GetVolume(uint8_t volumeIndex);

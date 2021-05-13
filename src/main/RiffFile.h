@@ -1,5 +1,7 @@
 #pragma once
 
+#include <utility>
+
 #include "common.h"
 
 
@@ -14,15 +16,15 @@ class Chunk {
 
  public:
   Chunk(std::string theId)
-      : data(NULL),
-        size(0) {
+      : size(0) ,
+        data(nullptr) {
     assert(theId.length() == 4);
     memcpy(id, theId.c_str(), 4);
   }
   virtual ~Chunk() {
-    if (data != NULL) {
+    if (data != nullptr) {
       delete[] data;
-      data = NULL;
+      data = nullptr;
     }
   }
   void SetData(const void *src, uint32_t datasize);
@@ -47,17 +49,17 @@ class ListTypeChunk: public Chunk {
 
  public:
   ListTypeChunk(std::string theId, std::string theType)
-      : Chunk(theId) {
+      : Chunk(std::move(theId)) {
     assert(theType.length() == 4);
     memcpy(type, theType.c_str(), 4);
   }
-  virtual ~ListTypeChunk() {
+  ~ListTypeChunk() override {
     DeleteList(childChunks);
   }
 
   Chunk *AddChildChunk(Chunk *ck);
-  virtual uint32_t GetSize();    //  Returns the size of the chunk in bytes, including any pad byte.
-  virtual void Write(uint8_t *buffer);
+  uint32_t GetSize() override;    //  Returns the size of the chunk in bytes, including any pad byte.
+  void Write(uint8_t *buffer) override;
 };
 
 ////////////////////////////////////////////////////////////////////////////
@@ -65,7 +67,7 @@ class ListTypeChunk: public Chunk {
 ////////////////////////////////////////////////////////////////////////////
 class RIFFChunk: public ListTypeChunk {
  public:
-  RIFFChunk(std::string form) : ListTypeChunk("RIFF", form) { }
+  RIFFChunk(std::string form) : ListTypeChunk("RIFF", std::move(form)) { }
 };
 
 ////////////////////////////////////////////////////////////////////////////
@@ -73,7 +75,7 @@ class RIFFChunk: public ListTypeChunk {
 ////////////////////////////////////////////////////////////////////////////
 class LISTChunk: public ListTypeChunk {
  public:
-  LISTChunk(std::string type) : ListTypeChunk("LIST", type) { }
+  LISTChunk(std::string _type) : ListTypeChunk("LIST", std::move(_type)) { }
 };
 
 
@@ -90,11 +92,11 @@ class RiffFile: public RIFFChunk {
     PushTypeOnVectBE<uint32_t>(buf, listName);
   }
 
-  //Adds a null byte and ensures 16 bit alignment of a text string
+  //Adds a nullptr byte and ensures 16 bit alignment of a text string
   static void AlignName(std::string &name) {
-    name += (char) 0x00;
+    name += static_cast<char>(0x00);
     if (name.size() % 2)                        //if the size of the name string is odd
-      name += (char) 0x00;                      //add another null byte
+      name += static_cast<char>(0x00);                      //add another nullptr byte
   }
 
 

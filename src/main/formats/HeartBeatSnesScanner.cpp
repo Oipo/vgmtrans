@@ -101,10 +101,9 @@ void HeartBeatSnesScanner::Scan(RawFile *file, void *info) {
   else {
     SearchForHeartBeatSnesFromROM(file);
   }
-  return;
 }
 
-void HeartBeatSnesScanner::SearchForHeartBeatSnesFromARAM(RawFile *file) {
+void HeartBeatSnesScanner::SearchForHeartBeatSnesFromARAM(RawFile *file) const {
   HeartBeatSnesVersion version = HEARTBEATSNES_NONE;
   std::wstring name = file->tag.HasTitle() ? file->tag.title : RawFile::removeExtFromPath(file->GetFileName());
 
@@ -198,7 +197,7 @@ void HeartBeatSnesScanner::SearchForHeartBeatSnesFromARAM(RawFile *file) {
   // we sometimes need to shorten the expected table size
   // example: Dragon Quest 6 - Through the Fields
   for (uint16_t newTableSize = 0; newTableSize < instrTableSize; newTableSize++) {
-    if (newSeq->IsItemAtOffset(addrInstrTable + newTableSize, false)) {
+    if (newSeq->IsItemAtOffset(addrInstrTable + newTableSize, false, {})) {
       instrTableSize = newTableSize;
       break;
     }
@@ -212,5 +211,5 @@ void HeartBeatSnesScanner::SearchForHeartBeatSnesFromARAM(RawFile *file) {
   }
 }
 
-void HeartBeatSnesScanner::SearchForHeartBeatSnesFromROM(RawFile *file) {
+void HeartBeatSnesScanner::SearchForHeartBeatSnesFromROM(RawFile *file) const {
 }

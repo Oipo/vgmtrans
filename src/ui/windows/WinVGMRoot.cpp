@@ -43,7 +43,7 @@ void WinVGMRoot::SelectColl(VGMColl* coll) {
   pMainFrame->SelectColl(coll);
 }
 
-void WinVGMRoot::Play(void) {
+void WinVGMRoot::Play() {
   /* If the play button is disabled, return */
   if (pMainFrame->UIGetState(ID_PLAY) == CMainFrame::UPDUI_DISABLED) {
     return;
@@ -90,11 +90,11 @@ void WinVGMRoot::Play(void) {
   pMainFrame->UIEnable(ID_PAUSE, 1);
 }
 
-void WinVGMRoot::Pause(void) {
+void WinVGMRoot::Pause() {
   musicplayer.toggle();
 }
 
-void WinVGMRoot::Stop(void) {
+void WinVGMRoot::Stop() {
   /* if the stop button is disabled, return */
   if (pMainFrame->UIGetState(ID_STOP) == CMainFrame::UPDUI_DISABLED) {
     return;

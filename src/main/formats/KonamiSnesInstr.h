@@ -14,15 +14,15 @@ class KonamiSnesInstrSet:
   KonamiSnesInstrSet(RawFile *file,
                      KonamiSnesVersion ver,
                      uint32_t offset,
-                     uint32_t bankedInstrOffset,
-                     uint8_t firstBankedInstr,
-                     uint32_t percInstrOffset,
-                     uint32_t spcDirAddr,
-                     const std::wstring &name = L"KonamiSnesInstrSet");
-  virtual ~KonamiSnesInstrSet(void);
+                     uint32_t _bankedInstrOffset,
+                     uint8_t _firstBankedInstr,
+                     uint32_t _percInstrOffset,
+                     uint32_t _spcDirAddr,
+                     const std::wstring &_name = L"KonamiSnesInstrSet");
+  ~KonamiSnesInstrSet() override;
 
-  virtual bool GetHeaderInfo();
-  virtual bool GetInstrPointers();
+  bool GetHeaderInfo() override;
+  bool GetInstrPointers() override;
 
   KonamiSnesVersion version;
 
@@ -46,12 +46,12 @@ class KonamiSnesInstr
                   uint32_t offset,
                   uint32_t theBank,
                   uint32_t theInstrNum,
-                  uint32_t spcDirAddr,
-                  bool percussion,
-                  const std::wstring &name = L"KonamiSnesInstr");
-  virtual ~KonamiSnesInstr(void);
+                  uint32_t _spcDirAddr,
+                  bool _percussion,
+                  const std::wstring &_name = L"KonamiSnesInstr");
+  ~KonamiSnesInstr() override;
 
-  virtual bool LoadInstr();
+  bool LoadInstr() override;
 
   static bool IsValidHeader
       (RawFile *file, KonamiSnesVersion version, uint32_t addrInstrHeader, uint32_t spcDirAddr, bool validateSample);
@@ -72,9 +72,9 @@ class KonamiSnesRgn
     : public VGMRgn {
  public:
   KonamiSnesRgn(KonamiSnesInstr *instr, KonamiSnesVersion ver, uint32_t offset, bool percussion);
-  virtual ~KonamiSnesRgn(void);
+  ~KonamiSnesRgn() override;
 
-  virtual bool LoadRgn();
+  bool LoadRgn() override;
 
   KonamiSnesVersion version;
 };

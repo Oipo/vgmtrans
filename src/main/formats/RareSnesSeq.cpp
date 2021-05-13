@@ -45,10 +45,10 @@ RareSnesSeq::RareSnesSeq(RawFile *file, RareSnesVersion ver, uint32_t seqdataOff
   LoadEventMap();
 }
 
-RareSnesSeq::~RareSnesSeq(void) {
+RareSnesSeq::~RareSnesSeq() {
 }
 
-void RareSnesSeq::ResetVars(void) {
+void RareSnesSeq::ResetVars() {
   VGMSeq::ResetVars();
 
   midiReverb = 40;
@@ -65,7 +65,7 @@ void RareSnesSeq::ResetVars(void) {
   AlwaysWriteInitialTempo(tempoBPM);
 }
 
-bool RareSnesSeq::GetHeaderInfo(void) {
+bool RareSnesSeq::GetHeaderInfo() {
   SetPPQN(SEQ_PPQN);
 
   VGMHeader *seqHeader = AddHeader(dwOffset, MAX_TRACKS * 2 + 2, L"Sequence Header");
@@ -83,7 +83,7 @@ bool RareSnesSeq::GetHeaderInfo(void) {
 }
 
 
-bool RareSnesSeq::GetTrackPointers(void) {
+bool RareSnesSeq::GetTrackPointers() {
   for (int i = 0; i < MAX_TRACKS; i++) {
     uint16_t trkOff = GetShort(dwOffset + i * 2);
     if (trkOff != 0)
@@ -231,7 +231,7 @@ void RareSnesSeq::LoadEventMap() {
 
 double RareSnesSeq::GetTempoInBPM(uint8_t tempo, uint8_t timerFreq) {
   if (timerFreq != 0 && tempo != 0) {
-    return (double) 60000000 / (SEQ_PPQN * (125 * timerFreq)) * ((double) tempo / 256);
+    return static_cast<double>( 60000000 / (SEQ_PPQN * (125 * timerFreq)) * (static_cast<double>( tempo / 256);
   }
   else {
     return 1.0; // since tempo 0 cannot be expressed, this function returns a very small value.
@@ -250,7 +250,7 @@ RareSnesTrack::RareSnesTrack(RareSnesSeq *parentFile, long offset, long length)
   bWriteGenericEventAsTextEvent = false;
 }
 
-void RareSnesTrack::ResetVars(void) {
+void RareSnesTrack::ResetVars() {
   SeqTrack::ResetVars();
 
   cKeyCorrection = SEQ_KEYOFS;
@@ -286,7 +286,7 @@ void RareSnesTrack::CalcVolPanFromVolLR(int8_t volL, int8_t volR, uint8_t &midiV
   }
 }
 
-bool RareSnesTrack::ReadEvent(void) {
+bool RareSnesTrack::ReadEvent() {
   RareSnesSeq *parentSeq = (RareSnesSeq *) this->parentSeq;
   uint32_t beginOffset = curOffset;
   if (curOffset >= 0x10000) {
@@ -1242,10 +1242,10 @@ bool RareSnesTrack::ReadEvent(void) {
   return bContinue;
 }
 
-void RareSnesTrack::OnTickBegin(void) {
+void RareSnesTrack::OnTickBegin() {
 }
 
-void RareSnesTrack::OnTickEnd(void) {
+void RareSnesTrack::OnTickEnd() {
 }
 
 void RareSnesTrack::AddVolLR(uint32_t offset,

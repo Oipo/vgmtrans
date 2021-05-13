@@ -4,10 +4,10 @@
 
 #define SRCH_BUF_SIZE 0x20000
 
-SegSatScanner::SegSatScanner(void) {
+SegSatScanner::SegSatScanner() {
 }
 
-SegSatScanner::~SegSatScanner(void) {
+SegSatScanner::~SegSatScanner() {
 }
 
 

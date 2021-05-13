@@ -1,5 +1,7 @@
 #include "pch.h"
 #include "VGMColl.h"
+
+#include <utility>
 #include "VGMSeq.h"
 #include "VGMInstrSet.h"
 #include "VGMSampColl.h"
@@ -14,25 +16,24 @@ DECLARE_MENU(VGMColl)
 
 VGMColl::VGMColl(wstring theName)
     : VGMItem(),
-      name(theName),
-      seq(NULL) {
+      seq(nullptr),
+      name(std::move(theName)) {
 }
 
-VGMColl::~VGMColl(void) {
-}
+VGMColl::~VGMColl() = default;
 
 void VGMColl::RemoveFileAssocs() {
   if (seq)
     seq->RemoveCollAssoc(this);
-  for (uint32_t i = 0; i < instrsets.size(); i++)
-    instrsets[i]->RemoveCollAssoc(this);
-  for (uint32_t i = 0; i < sampcolls.size(); i++)
-    sampcolls[i]->RemoveCollAssoc(this);
-  for (uint32_t i = 0; i < miscfiles.size(); i++)
-    miscfiles[i]->RemoveCollAssoc(this);
+  for (auto & instrset : instrsets)
+    instrset->RemoveCollAssoc(this);
+  for (auto & sampcoll : sampcolls)
+    sampcoll->RemoveCollAssoc(this);
+  for (auto & miscfile : miscfiles)
+    miscfile->RemoveCollAssoc(this);
 }
 
-const wstring *VGMColl::GetName(void) const {
+const wstring *VGMColl::GetName() const {
   return &name;
 }
 
@@ -40,12 +41,12 @@ void VGMColl::SetName(const wstring *newName) {
   name = *newName;
 }
 
-VGMSeq *VGMColl::GetSeq(void) {
+VGMSeq *VGMColl::GetSeq() const {
   return seq;
 }
 
 void VGMColl::UseSeq(VGMSeq *theSeq) {
-  if (theSeq != NULL)
+  if (theSeq != nullptr)
     theSeq->AddCollAssoc(this);
   if (seq && (theSeq != seq))    //if we associated with a previous sequence
     seq->RemoveCollAssoc(this);
@@ -53,21 +54,21 @@ void VGMColl::UseSeq(VGMSeq *theSeq) {
 }
 
 void VGMColl::AddInstrSet(VGMInstrSet *theInstrSet) {
-  if (theInstrSet != NULL) {
+  if (theInstrSet != nullptr) {
     theInstrSet->AddCollAssoc(this);
     instrsets.push_back(theInstrSet);
   }
 }
 
 void VGMColl::AddSampColl(VGMSampColl *theSampColl) {
-  if (theSampColl != NULL) {
+  if (theSampColl != nullptr) {
     theSampColl->AddCollAssoc(this);
     sampcolls.push_back(theSampColl);
   }
 }
 
 void VGMColl::AddMiscFile(VGMFile *theMiscFile) {
-  if (theMiscFile != NULL) {
+  if (theMiscFile != nullptr) {
     theMiscFile->AddCollAssoc(this);
     miscfiles.push_back(theMiscFile);
   }
@@ -82,7 +83,7 @@ bool VGMColl::Load() {
 }
 
 void VGMColl::UnpackSampColl(DLSFile &dls, VGMSampColl *sampColl, vector<VGMSamp *> &finalSamps) {
-  assert(sampColl != NULL);
+  assert(sampColl != nullptr);
 
   size_t nSamples = sampColl->samples.size();
   for (size_t i = 0; i < nSamples; i++) {
@@ -92,7 +93,7 @@ void VGMColl::UnpackSampColl(DLSFile &dls, VGMSampColl *sampColl, vector<VGMSamp
     if (samp->ulUncompressedSize)
       bufSize = samp->ulUncompressedSize;
     else
-      bufSize = (uint32_t) ceil((double) samp->dataLength * samp->GetCompressionRatio());
+      bufSize = ceil(static_cast<double>(samp->dataLength) * samp->GetCompressionRatio());
     uint8_t *uncompSampBuf = new uint8_t[bufSize];    //create a new memory space for the uncompressed wave
     samp->ConvertToStdWave(uncompSampBuf);            //and uncompress into that space
 
@@ -104,7 +105,7 @@ void VGMColl::UnpackSampColl(DLSFile &dls, VGMSampColl *sampColl, vector<VGMSamp
 }
 
 void VGMColl::UnpackSampColl(SynthFile &synthfile, VGMSampColl *sampColl, vector<VGMSamp *> &finalSamps) {
-  assert(sampColl != NULL);
+  assert(sampColl != nullptr);
 
   size_t nSamples = sampColl->samples.size();
   for (size_t i = 0; i < nSamples; i++) {
@@ -114,7 +115,7 @@ void VGMColl::UnpackSampColl(SynthFile &synthfile, VGMSampColl *sampColl, vector
     if (samp->ulUncompressedSize)
       bufSize = samp->ulUncompressedSize;
     else
-      bufSize = (uint32_t) ceil((double) samp->dataLength * samp->GetCompressionRatio());
+      bufSize = ceil(static_cast<double>(samp->dataLength) * samp->GetCompressionRatio());
 
     uint8_t *uncompSampBuf = new uint8_t[bufSize];    //create a new memory space for the uncompressed wave
     samp->ConvertToStdWave(uncompSampBuf);            //and uncompress into that space
@@ -137,7 +138,7 @@ void VGMColl::UnpackSampColl(SynthFile &synthfile, VGMSampColl *sampColl, vector
       sampInfo->SetLoopInfo(samp->loop, samp);
 
     double attenuation = (samp->volume != -1) ? ConvertLogScaleValToAtten(samp->volume) : 0;
-    uint8_t unityKey = (samp->unityKey != -1) ? samp->unityKey : 0x3C;
+    uint8_t unityKey = (samp->unityKey != std::numeric_limits<decltype(samp->unityKey)>::max()) ? samp->unityKey : 0x3C;
     short fineTune = samp->fineTune;
     sampInfo->SetPitchInfo(unityKey, fineTune, attenuation);
   }
@@ -154,8 +155,8 @@ bool VGMColl::CreateDLSFile(DLSFile &dls) {
 
 SF2File *VGMColl::CreateSF2File() {
   SynthFile *synthfile = CreateSynthFile();
-  if (synthfile == NULL)
-    return NULL;
+  if (synthfile == nullptr)
+    return nullptr;
   SF2File *sf2file = new SF2File(synthfile);
   delete synthfile;
   return sf2file;
@@ -167,38 +168,33 @@ bool VGMColl::MainDLSCreation(DLSFile &dls) {
   //embedded sampcolls
   vector<VGMSampColl *> finalSampColls;
 
-  if (!instrsets.size() /*|| !sampcolls.size()*/)
+  if (instrsets.empty() /*|| !sampcolls.size()*/)
     return false;
 
   // if there are independent SampColl(s) in the collection
-  if (sampcolls.size()) {
-    for (uint32_t sam = 0; sam < sampcolls.size(); sam++) {
-      finalSampColls.push_back(sampcolls[sam]);
-      UnpackSampColl(dls, sampcolls[sam], finalSamps);
+  if (!sampcolls.empty()) {
+    for (auto & sampcoll : sampcolls) {
+      finalSampColls.push_back(sampcoll);
+      UnpackSampColl(dls, sampcoll, finalSamps);
     }
   }
     // otherwise, the SampColl(s) are children of the InstrSet(s)
   else {
-    for (uint32_t i = 0; i < instrsets.size(); i++) {
-      finalSampColls.push_back(instrsets[i]->sampColl);
-      UnpackSampColl(dls, instrsets[i]->sampColl, finalSamps);
+    for (auto & instrset : instrsets) {
+      finalSampColls.push_back(instrset->sampColl);
+      UnpackSampColl(dls, instrset->sampColl, finalSamps);
     }
   }
 
-  if (finalSamps.size() == 0)
+  if (finalSamps.empty())
     return false;
 
 
-  for (size_t inst = 0; inst < instrsets.size(); inst++) {
-    VGMInstrSet *set = instrsets[inst];
-    size_t nInstrs = set->aInstrs.size();
-    for (size_t i = 0; i < nInstrs; i++) {
-      VGMInstr *vgminstr = set->aInstrs[i];
-      size_t nRgns = vgminstr->aRgns.size();
-      std::string name = wstring2string(vgminstr->name);
-      DLSInstr *newInstr = dls.AddInstr(vgminstr->bank, vgminstr->instrNum, name);
-      for (uint32_t j = 0; j < nRgns; j++) {
-        VGMRgn *rgn = vgminstr->aRgns[j];
+  for (auto set : instrsets) {
+    for(auto vgminstr : set->aInstrs) {
+      std::string _name = wstring2string(vgminstr->name);
+      DLSInstr *newInstr = dls.AddInstr(vgminstr->bank, vgminstr->instrNum, _name);
+      for(auto rgn : vgminstr->aRgns) {
         //				if (rgn->sampNum+1 > sampColl->samples.size())	//does thereferenced sample exist?
         //					continue;
 
@@ -206,8 +202,8 @@ bool VGMColl::MainDLSCreation(DLSFile &dls) {
         VGMSampColl *sampColl = rgn->sampCollPtr;
         if (!sampColl) {
           // If rgn is of an InstrSet with an embedded SampColl, use that SampColl.
-          if (((VGMInstrSet *) rgn->vgmfile)->sampColl)
-            sampColl = ((VGMInstrSet *) rgn->vgmfile)->sampColl;
+          if (dynamic_cast<VGMInstrSet*>(rgn->vgmfile)->sampColl)
+            sampColl = dynamic_cast<VGMInstrSet*>(rgn->vgmfile)->sampColl;
 
             // If that does not exist, assume the first SampColl
           else
@@ -218,7 +214,7 @@ bool VGMColl::MainDLSCreation(DLSFile &dls) {
         size_t realSampNum;
         // If a sample offset is provided, then find the sample number based on this offset.
         // see sampOffset declaration in header file for more info.
-        if (rgn->sampOffset != -1) {
+        if (rgn->sampOffset != std::numeric_limits<decltype(rgn->sampOffset)>::max()) {
           bool bFoundIt = false;
           for (uint32_t s = 0; s < sampColl->samples.size(); s++) {                            //for every sample
             if (rgn->sampOffset == sampColl->samples[s]->dwOffset - sampColl->dwOffset - sampColl->sampDataOffset) {
@@ -231,8 +227,8 @@ bool VGMColl::MainDLSCreation(DLSFile &dls) {
             }
           }
           if (!bFoundIt) {
-            std::wstring message = FormatString<wstring>(L"Could not match rgn with sampOffset %X to a sample with that offset.\n  (InstrSet %d, Instr %d, Rgn %d)", rgn->sampOffset, inst, i, j);
-            pRoot->AddLogItem(new LogItem(std::wstring(message.c_str()), LOG_LEVEL_ERR, L"VGMColl"));
+            auto message = FormatString<wstring>(L"Could not match rgn with sampOffset %X to a sample with that offset.\n  (InstrSet, Instr, Rgn)", rgn->sampOffset); //TODO
+            pRoot->AddLogItem(new LogItem(message, LOG_LEVEL_ERR, L"VGMColl"));
             realSampNum = 0;
           }
         }
@@ -275,7 +271,7 @@ bool VGMColl::MainDLSCreation(DLSFile &dls) {
         DLSRgn *newRgn = newInstr->AddRgn();
         newRgn->SetRanges(rgn->keyLow, rgn->keyHigh,
                           rgn->velLow, rgn->velHigh);
-        newRgn->SetWaveLinkInfo(0, 0, 1, (uint32_t) realSampNum);
+        newRgn->SetWaveLinkInfo(0, 0, 1, realSampNum);
 
         if (realSampNum >= finalSamps.size()) {
           wchar_t log[256];
@@ -314,11 +310,11 @@ bool VGMColl::MainDLSCreation(DLSFile &dls) {
           newWsmp->SetLoopInfo(rgn->loop, samp);
 
         uint8_t realUnityKey;
-        if (rgn->unityKey == -1)
+        if (rgn->unityKey == std::numeric_limits<decltype(rgn->unityKey)>::max())
           realUnityKey = samp->unityKey;
         else
           realUnityKey = rgn->unityKey;
-        if (realUnityKey == -1)
+        if (realUnityKey == std::numeric_limits<decltype(realUnityKey)>::max())
           realUnityKey = 0x3C;
 
         short realFineTune;
@@ -331,22 +327,22 @@ bool VGMColl::MainDLSCreation(DLSFile &dls) {
         if (rgn->volume == -1 && samp->volume == -1)
           realAttenuation = 0;
         else if (rgn->volume == -1)
-          realAttenuation = (long) (-(ConvertLogScaleValToAtten(samp->volume) * DLS_DECIBEL_UNIT * 10));
+          realAttenuation = static_cast<long>(-(ConvertLogScaleValToAtten(samp->volume) * DLS_DECIBEL_UNIT * 10));
         else
-          realAttenuation = (long) (-(ConvertLogScaleValToAtten(rgn->volume) * DLS_DECIBEL_UNIT * 10));
+          realAttenuation = static_cast<long>(-(ConvertLogScaleValToAtten(rgn->volume) * DLS_DECIBEL_UNIT * 10));
 
-        long convAttack = (long) roundi(SecondsToTimecents(rgn->attack_time) * 65536);
-        long convDecay = (long) roundi(SecondsToTimecents(rgn->decay_time) * 65536);
+        long convAttack = roundi(SecondsToTimecents(rgn->attack_time) * 65536);
+        long convDecay = roundi(SecondsToTimecents(rgn->decay_time) * 65536);
         long convSustainLev;
         if (rgn->sustain_level == -1)
           convSustainLev = 0x03e80000;        //sustain at full if no sustain level provided
         else {
           //the DLS envelope is a range from 0 to -96db.
           double attenInDB = ConvertLogScaleValToAtten(rgn->sustain_level);
-          convSustainLev = (long) (((96.0 - attenInDB) / 96.0) * 0x03e80000);
+          convSustainLev = static_cast<long>(((96.0 - attenInDB) / 96.0) * 0x03e80000);
         }
 
-        long convRelease = (long) roundi(SecondsToTimecents(rgn->release_time) * 65536);
+        long convRelease = roundi(SecondsToTimecents(rgn->release_time) * 65536);
 
         DLSArt *newArt = newRgn->AddArt();
         newArt->AddPan(ConvertPercentPanTo10thPercentUnits(rgn->pan) * 65536);
@@ -371,45 +367,41 @@ SynthFile *VGMColl::CreateSynthFile() {
   //embedded sampcolls
   vector<VGMSampColl *> finalSampColls;
 
-  if (!instrsets.size() /*|| !sampcolls.size()*/) {
+  if (instrsets.empty() /*|| !sampcolls.size()*/) {
     delete synthfile;
     PostSynthFileCreation();
-    return NULL;
+    return nullptr;
   }
 
   // if there are independent SampColl(s) in the collection
-  if (sampcolls.size()) {
-    for (uint32_t sam = 0; sam < sampcolls.size(); sam++) {
-      finalSampColls.push_back(sampcolls[sam]);
-      UnpackSampColl(*synthfile, sampcolls[sam], finalSamps);
+  if (!sampcolls.empty()) {
+    for (auto & sampcoll : sampcolls) {
+      finalSampColls.push_back(sampcoll);
+      UnpackSampColl(*synthfile, sampcoll, finalSamps);
     }
   }
     // otherwise, the SampColl(s) are children of the InstrSet(s)
   else {
-    for (uint32_t i = 0; i < instrsets.size(); i++) {
-      finalSampColls.push_back(instrsets[i]->sampColl);
-      UnpackSampColl(*synthfile, instrsets[i]->sampColl, finalSamps);
+    for (auto & instrset : instrsets) {
+      finalSampColls.push_back(instrset->sampColl);
+      UnpackSampColl(*synthfile, instrset->sampColl, finalSamps);
     }
   }
 
-  if (finalSamps.size() == 0) {
+  if (finalSamps.empty()) {
     delete synthfile;
     PostSynthFileCreation();
-    return NULL;
+    return nullptr;
   }
 
 
-  for (size_t inst = 0; inst < instrsets.size(); inst++) {
-    VGMInstrSet *set = instrsets[inst];
-    size_t nInstrs = set->aInstrs.size();
-    for (size_t i = 0; i < nInstrs; i++) {
-      VGMInstr *vgminstr = set->aInstrs[i];
+  for(auto set : instrsets) {
+    for(auto vgminstr : set->aInstrs) {
       size_t nRgns = vgminstr->aRgns.size();
       if (nRgns == 0)                                //do not write an instrument if it has no regions
         continue;
       SynthInstr *newInstr = synthfile->AddInstr(vgminstr->bank, vgminstr->instrNum);
-      for (uint32_t j = 0; j < nRgns; j++) {
-        VGMRgn *rgn = vgminstr->aRgns[j];
+      for(auto rgn : vgminstr->aRgns) {
         //				if (rgn->sampNum+1 > sampColl->samples.size())	//does thereferenced sample exist?
         //					continue;
 
@@ -417,8 +409,8 @@ SynthFile *VGMColl::CreateSynthFile() {
         VGMSampColl *sampColl = rgn->sampCollPtr;
         if (!sampColl) {
           // If rgn is of an InstrSet with an embedded SampColl, use that SampColl.
-          if (((VGMInstrSet *) rgn->vgmfile)->sampColl)
-            sampColl = ((VGMInstrSet *) rgn->vgmfile)->sampColl;
+          if (dynamic_cast<VGMInstrSet*>(rgn->vgmfile)->sampColl)
+            sampColl = dynamic_cast<VGMInstrSet*>(rgn->vgmfile)->sampColl;
 
             // If that does not exist, assume the first SampColl
           else
@@ -429,7 +421,7 @@ SynthFile *VGMColl::CreateSynthFile() {
         size_t realSampNum;
         // If a sample offset is provided, then find the sample number based on this offset.
         // see sampOffset declaration in header file for more info.
-        if (rgn->sampOffset != -1) {
+        if (rgn->sampOffset != std::numeric_limits<decltype(rgn->sampOffset)>::max()) {
           bool bFoundIt = false;
           for (uint32_t s = 0; s < sampColl->samples.size(); s++) {                            //for every sample
             if (rgn->sampOffset == sampColl->samples[s]->dwOffset - sampColl->dwOffset - sampColl->sampDataOffset) {
@@ -442,8 +434,8 @@ SynthFile *VGMColl::CreateSynthFile() {
             }
           }
           if (!bFoundIt) {
-            std::wstring message = FormatString<wstring>(L"Could not match rgn with sampOffset %X to a sample with that offset.\n  (InstrSet %d, Instr %d, Rgn %d)", rgn->sampOffset, inst, i, j);
-            pRoot->AddLogItem(new LogItem(std::wstring(message.c_str()), LOG_LEVEL_ERR, L"VGMColl"));
+            auto message = FormatString<wstring>(L"Could not match rgn with sampOffset %X to a sample with that offset.\n  (InstrSet, Instr, Rgn)", rgn->sampOffset); //TODO instrset, VGMRgn and instr ids
+            pRoot->AddLogItem(new LogItem(message, LOG_LEVEL_ERR, L"VGMColl"));
             realSampNum = 0;
           }
         }
@@ -454,15 +446,15 @@ SynthFile *VGMColl::CreateSynthFile() {
 
         // Determine the sampCollNum (index into our finalSampColls vector)
         unsigned int sampCollNum = finalSampColls.size();
-        for (uint32_t i = 0; i < finalSampColls.size(); i++) {
-          if (finalSampColls[i] == sampColl)
-            sampCollNum = i;
+        for (uint32_t l = 0; l < finalSampColls.size(); l++) {
+          if (finalSampColls[l] == sampColl)
+            sampCollNum = l;
         }
         if (sampCollNum == finalSampColls.size()) {
           pRoot->AddLogItem(new LogItem(L"SampColl does not exist.", LOG_LEVEL_ERR, L"VGMColl"));
           delete synthfile;
           PostSynthFileCreation();
-          return NULL;
+          return nullptr;
         }
         //   now we add the number of samples from the preceding SampColls to the value to get the real sampNum
         //   in the final DLS file.
@@ -472,7 +464,7 @@ SynthFile *VGMColl::CreateSynthFile() {
         SynthRgn *newRgn = newInstr->AddRgn();
         newRgn->SetRanges(rgn->keyLow, rgn->keyHigh,
                           rgn->velLow, rgn->velHigh);
-        newRgn->SetWaveLinkInfo(0, 0, 1, (uint32_t) realSampNum);
+        newRgn->SetWaveLinkInfo(0, 0, 1, realSampNum);
 
         if (realSampNum >= finalSamps.size()) {
           wchar_t log[256];
@@ -517,11 +509,11 @@ SynthFile *VGMColl::CreateSynthFile() {
           sampInfo->SetLoopInfo(rgn->loop, samp);
 
         uint8_t realUnityKey;
-        if (rgn->unityKey == -1)
+        if (rgn->unityKey == std::numeric_limits<decltype(rgn->unityKey)>::max())
           realUnityKey = samp->unityKey;
         else
           realUnityKey = rgn->unityKey;
-        if (realUnityKey == -1)
+        if (realUnityKey == std::numeric_limits<decltype(realUnityKey)>::max())
           realUnityKey = 0x3C;
 
         short realFineTune;
@@ -546,8 +538,8 @@ SynthFile *VGMColl::CreateSynthFile() {
 
         SynthArt *newArt = newRgn->AddArt();
         newArt->AddPan(rgn->pan);
-        newArt->AddADSR(rgn->attack_time, (Transform) rgn->attack_transform, rgn->decay_time,
-                        sustainLevAttenDb, rgn->sustain_time, rgn->release_time, (Transform) rgn->release_transform);
+        newArt->AddADSR(rgn->attack_time, rgn->attack_transform, rgn->decay_time,
+                        sustainLevAttenDb, rgn->sustain_time, rgn->release_time, rgn->release_transform);
 
         sampInfo->SetPitchInfo(realUnityKey, realFineTune, attenuation);
       }
@@ -584,7 +576,7 @@ bool VGMColl::OnSaveAllSF2() {
   if (dirpath.length() != 0) {
     wstring filepath = dirpath + L"\\" + ConvertToSafeFileName(this->name) + L".sf2";
     SF2File *sf2file = CreateSF2File();
-    if (sf2file != NULL) {
+    if (sf2file != nullptr) {
       if (!sf2file->SaveSF2File(filepath))
         pRoot->AddLogItem(new LogItem(std::wstring(L"Failed to save SF2 file"), LOG_LEVEL_ERR, L"VGMColl"));
       delete sf2file;

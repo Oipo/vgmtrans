@@ -6,8 +6,8 @@ class VGMScanner;
 
 class ExtensionDiscriminator {
  public:
-  ExtensionDiscriminator(void);
-  ~ExtensionDiscriminator(void);
+  ExtensionDiscriminator();
+  ~ExtensionDiscriminator();
 
   int AddExtensionScannerAssoc(std::wstring extension, VGMScanner *);
   std::list<VGMScanner *> *GetScannerList(std::wstring extension);

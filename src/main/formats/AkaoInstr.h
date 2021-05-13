@@ -13,8 +13,8 @@ struct AkaoInstrDatLocation {
 
   AkaoInstrDatLocation() noexcept : instrAllOffset(0), instrDatOffset(0), startingArticulationId(0), numArticulations(0) {}
 
-  AkaoInstrDatLocation(uint32_t instrAllOffset, uint32_t instrDatOffset, uint32_t startingArticulationId, uint32_t numArticulations) noexcept
-    : instrAllOffset(instrAllOffset), instrDatOffset(instrDatOffset), startingArticulationId(startingArticulationId), numArticulations(numArticulations) {}
+  AkaoInstrDatLocation(uint32_t _instrAllOffset, uint32_t _instrDatOffset, uint32_t _startingArticulationId, uint32_t _numArticulations) noexcept
+    : instrAllOffset(_instrAllOffset), instrDatOffset(_instrDatOffset), startingArticulationId(_startingArticulationId), numArticulations(_numArticulations) {}
 };
 
 // ************

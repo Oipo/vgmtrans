@@ -89,7 +89,7 @@ class NinSnesTrackSharedData {
  public:
   NinSnesTrackSharedData();
 
-  virtual void ResetVars(void);
+  virtual void ResetVars();
 
   uint8_t spcNoteDuration;
   uint8_t spcNoteDurRate;
@@ -116,7 +116,7 @@ class NinSnesSeq:
              std::wstring theName = L"NinSnes Seq");
   virtual ~NinSnesSeq();
 
-  virtual bool GetHeaderInfo();
+  bool GetHeaderInfo() override;
   virtual void ResetVars();
   virtual bool ReadEvent(long stopTime);
 
@@ -164,7 +164,7 @@ protected:
   VGMHeader *header;
 
  private:
-  void LoadEventMap(void);
+  void LoadEventMap();
   void LoadStandardVcmdMap(uint8_t statusByte);
 
   uint8_t spcPercussionBaseInit;
@@ -187,8 +187,8 @@ class NinSnesTrack
   NinSnesTrack
       (NinSnesSection *parentSection, long offset = 0, long length = 0, const std::wstring &theName = L"NinSnes Track");
 
-  virtual void ResetVars(void);
-  virtual bool ReadEvent(void);
+  virtual void ResetVars();
+  virtual bool ReadEvent();
 
   uint16_t ConvertToAPUAddress(uint16_t offset);
   uint16_t GetShortAddress(uint32_t offset);

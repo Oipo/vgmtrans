@@ -4,9 +4,9 @@
 class SPCLoader:
     public VGMLoader {
  public:
-  SPCLoader(void);
+  SPCLoader();
  public:
-  virtual ~SPCLoader(void);
+  virtual ~SPCLoader();
 
   virtual PostLoadCommand Apply(RawFile *theFile);
 };

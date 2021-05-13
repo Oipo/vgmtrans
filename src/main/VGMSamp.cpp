@@ -1,5 +1,7 @@
 #include "pch.h"
 #include "VGMSamp.h"
+
+#include <utility>
 #include "VGMSampColl.h"
 #include "Root.h"
 
@@ -14,28 +16,27 @@ DECLARE_MENU(VGMSamp)
 VGMSamp::VGMSamp(VGMSampColl *sampColl, uint32_t offset, uint32_t length, uint32_t dataOffset,
                  uint32_t dataLen, uint8_t nChannels, uint16_t theBPS,
                  uint32_t theRate, wstring theName)
-    : parSampColl(sampColl),
-      sampName(theName),
+    :
       VGMItem(sampColl->vgmfile, offset, length),
+      waveType(WT_UNDEFINED),
       dataOff(dataOffset),
       dataLength(dataLen),
       bps(theBPS),
       rate(theRate),
-      ulUncompressedSize(0),
       channels(nChannels),
-      pan(0),
+      ulUncompressedSize(0),
+      bPSXLoopInfoPrioritizing(false),
       unityKey(-1),
       fineTune(0),
       volume(-1),
-      waveType(WT_UNDEFINED),
-      bPSXLoopInfoPrioritizing(false) {
-  name =
-      sampName.data();        //I would do this in the initialization list, but VGMItem() constructor is called before sampName is initialized,
-  //so data() ends up returning a bad pointer
+      pan(0),
+      parSampColl(sampColl),
+      sampName(std::move(theName)) {
+  name = sampName;        //I would do this in the initialization list, but VGMItem() constructor is called before sampName is initialized,
+                          //so data() ends up returning a bad pointer
 }
 
-VGMSamp::~VGMSamp() {
-}
+VGMSamp::~VGMSamp() = default;
 
 double VGMSamp::GetCompressionRatio() {
   return 1.0;
@@ -71,7 +72,7 @@ bool VGMSamp::SaveAsWav(const std::wstring &filepath) {
   if (this->ulUncompressedSize)
     bufSize = this->ulUncompressedSize;
   else
-    bufSize = (uint32_t) ceil((double) dataLength * GetCompressionRatio());
+    bufSize = ceil(static_cast<double>(dataLength) * GetCompressionRatio());
 
   std::vector<uint8_t> uncompSampBuf(bufSize);  //create a new memory space for the uncompressed wave
   //waveBuf.resize(bufSize );
@@ -114,11 +115,11 @@ bool VGMSamp::SaveAsWav(const std::wstring &filepath) {
 
     uint32_t loopStart =
         (loop.loopStartMeasure == LM_BYTES) ?
-        (uint32_t) ((loop.loopStart * compressionRatio) / origFormatBytesPerSamp) :
+        static_cast<uint32_t>((loop.loopStart * compressionRatio) / origFormatBytesPerSamp) :
         loop.loopStart;
     uint32_t loopLenInSamp =
         (loop.loopLengthMeasure == LM_BYTES) ?
-        (uint32_t) ((loopLength * compressionRatio) / origFormatBytesPerSamp) :
+        static_cast<uint32_t>((loopLength * compressionRatio) / origFormatBytesPerSamp) :
         loopLength;
     uint32_t loopEnd = loopStart + loopLenInSamp;
 
@@ -141,5 +142,5 @@ bool VGMSamp::SaveAsWav(const std::wstring &filepath) {
     PushTypeOnVect<uint32_t>(waveBuf, 0);                    //playcount
   }
 
-  return pRoot->UI_WriteBufferToFile(filepath, &waveBuf[0], (uint32_t) waveBuf.size());
+  return pRoot->UI_WriteBufferToFile(filepath, &waveBuf[0], waveBuf.size());
 }

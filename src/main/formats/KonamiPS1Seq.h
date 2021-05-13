@@ -12,14 +12,13 @@ public:
     static constexpr uint32_t kOffsetToTrackCount = 0x0c;
     static constexpr uint32_t kOffsetToTrackSizes = 0x10;
 
-    KonamiPS1Seq(RawFile *file, uint32_t offset, const std::wstring &name = L"KonamiPS1Seq");
+    KonamiPS1Seq(RawFile *file, uint32_t offset, const std::wstring &_name = L"KonamiPS1Seq");
 
-    virtual ~KonamiPS1Seq() {
-    }
+    ~KonamiPS1Seq() override = default;
 
-    virtual bool GetHeaderInfo(void);
-    virtual bool GetTrackPointers(void);
-    virtual void ResetVars(void);
+    bool GetHeaderInfo() override;
+    bool GetTrackPointers() override;
+    void ResetVars() override;
 
     static bool IsKDT1Seq(RawFile *file, uint32_t offset);
 
@@ -32,8 +31,8 @@ class KonamiPS1Track : public SeqTrack {
 public:
     KonamiPS1Track(KonamiPS1Seq *parentSeq, uint32_t offset, uint32_t length);
 
-    virtual void ResetVars(void);
-    virtual bool ReadEvent(void);
+    void ResetVars() override;
+    bool ReadEvent() override;
 
 private:
     bool skipDeltaTime;

@@ -21,12 +21,12 @@ class VGMColl
   END_MENU()
 
   VGMColl(std::wstring name = L"Unnamed Collection");
-  virtual ~VGMColl(void);
+  virtual ~VGMColl();
 
   void RemoveFileAssocs();
-  const std::wstring *GetName(void) const;
+  const std::wstring *GetName() const;
   void SetName(const std::wstring *newName);
-  VGMSeq *GetSeq();
+  VGMSeq *GetSeq() const;
   void UseSeq(VGMSeq *theSeq);
   void AddInstrSet(VGMInstrSet *theInstrSet);
   void AddSampColl(VGMSampColl *theSampColl);

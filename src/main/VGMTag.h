@@ -2,16 +2,16 @@
 
 class VGMTag {
  public:
-  VGMTag(void);
+  VGMTag();
   VGMTag(const std::wstring &_title, const std::wstring &_artist = L"", const std::wstring &_album = L"");
-  virtual ~VGMTag(void);
+  virtual ~VGMTag();
 
-  bool HasTitle(void);
-  bool HasArtist(void);
-  bool HasAlbum(void);
-  bool HasComment(void);
-  bool HasTrackNumber(void);
-  bool HasLength(void);
+  bool HasTitle() const;
+  bool HasArtist() const;
+  bool HasAlbum() const;
+  bool HasComment() const;
+  bool HasTrackNumber() const;
+  bool HasLength() const;
 
  public:
   std::wstring title;

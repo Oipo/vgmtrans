@@ -65,13 +65,13 @@ class ChunSnesSeq
               ChunSnesMinorVersion minorVer,
               uint32_t seqdataOffset,
               std::wstring newName = L"Chun SNES Seq");
-  virtual ~ChunSnesSeq(void);
+  ~ChunSnesSeq() override;
 
-  virtual bool GetHeaderInfo(void);
-  virtual bool GetTrackPointers(void);
-  virtual void ResetVars(void);
+  [[nodiscard]] bool GetHeaderInfo() override;
+  [[nodiscard]] bool GetTrackPointers() override;
+  void ResetVars() override;
 
-  double GetTempoInBPM(uint8_t tempo);
+  [[nodiscard]] double GetTempoInBPM(uint8_t tempo) const;
 
   ChunSnesVersion version;
   ChunSnesMinorVersion minorVersion;
@@ -82,7 +82,7 @@ class ChunSnesSeq
   uint8_t conditionVar;
 
  private:
-  void LoadEventMap(void);
+  void LoadEventMap();
 };
 
 
@@ -90,14 +90,14 @@ class ChunSnesTrack
     : public SeqTrack {
  public:
   ChunSnesTrack(ChunSnesSeq *parentFile, long offset = 0, long length = 0);
-  virtual void ResetVars(void);
-  virtual bool ReadEvent(void);
+  void ResetVars() override;
+  [[nodiscard]] bool ReadEvent() override;
 
-  void SyncNoteLengthWithPriorTrack(void);
-  uint8_t Multiply8bit(uint8_t multiplicand, uint8_t multiplier);
-  void GetVolumeBalance(int8_t pan, double &volumeLeft, double &volumeRight);
-  int8_t CalcPanValue(int8_t pan, double &volumeScale);
-  double CalcTuningValue(int8_t tuning);
+  void SyncNoteLengthWithPriorTrack();
+  [[nodiscard]] uint8_t Multiply8bit(uint8_t multiplicand, uint8_t multiplier) const;
+  void GetVolumeBalance(int8_t pan, double &volumeLeft, double &volumeRight) const;
+  [[nodiscard]] int8_t CalcPanValue(int8_t pan, double &volumeScale) const;
+  [[nodiscard]] double CalcTuningValue(int8_t tuning) const;
 
   uint8_t index;
   int8_t prevNoteKey;

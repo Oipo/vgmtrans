@@ -5,9 +5,9 @@
 class NDS2SFLoader:
     public VGMLoader {
  public:
-  NDS2SFLoader(void);
+  NDS2SFLoader();
  public:
-  virtual ~NDS2SFLoader(void);
+  virtual ~NDS2SFLoader();
 
   virtual PostLoadCommand Apply(RawFile *theFile);
   const wchar_t *psf_read_exe(RawFile *file, unsigned char *&exebuffer, size_t &exebuffersize);

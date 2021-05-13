@@ -5,10 +5,10 @@
 class NeverlandSnesScanner:
     public VGMScanner {
  public:
-  NeverlandSnesScanner(void) {
+  NeverlandSnesScanner() {
     USE_EXTENSION(L"spc");
   }
-  virtual ~NeverlandSnesScanner(void) {
+  virtual ~NeverlandSnesScanner() {
   }
 
   virtual void Scan(RawFile *file, void *info = 0);

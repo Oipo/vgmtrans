@@ -31,19 +31,19 @@ class VGMSeq: public VGMFile {
          uint32_t offset,
          uint32_t length = 0,
          std::wstring name = L"VGM Sequence");
-  virtual ~VGMSeq(void);
+  ~VGMSeq() override;
 
-  virtual Icon GetIcon() { return ICON_SEQ; }
+  Icon GetIcon() override { return ICON_SEQ; }
 
-  virtual bool Load();                //Function to load all the information about the sequence
+  bool Load() override;                //Function to load all the information about the sequence
   virtual bool LoadMain();
-  virtual bool GetHeaderInfo(void);
-  virtual bool GetTrackPointers(void);    //Function to find all of the track pointers.   Returns number of total tracks.
-  virtual void ResetVars(void);
+  virtual bool GetHeaderInfo();
+  virtual bool GetTrackPointers();    //Function to find all of the track pointers.   Returns number of total tracks.
+  virtual void ResetVars();
   virtual MidiFile *ConvertToMidi();
   virtual MidiTrack *GetFirstMidiTrack();
   void SetPPQN(uint16_t ppqn);
-  uint16_t GetPPQN(void);
+  [[nodiscard]] uint16_t GetPPQN() const;
   //void SetTimeSignature(uint8_t numer, denom);
   void AddInstrumentRef(uint32_t progNum);
 
@@ -71,12 +71,12 @@ class VGMSeq: public VGMFile {
     initialPitchBendRangeSemiTones = semitones;
     initialPitchBendRangeCents = cents;
   }
-  void AlwaysWriteInitialTempo(double tempoBPM) {
+  void AlwaysWriteInitialTempo(double _tempoBPM) {
     bAlwaysWriteInitialTempo = true;
-    initialTempoBPM = tempoBPM;
+    initialTempoBPM = _tempoBPM;
   }
 
-  bool OnSaveAsMidi(void);
+  bool OnSaveAsMidi();
   virtual bool SaveAsMidi(const std::wstring &filepath);
 
   virtual bool HasActiveTracks();

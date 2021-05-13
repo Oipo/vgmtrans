@@ -39,7 +39,7 @@ public:
 
     // You can use this function to initialize variables needed for one drop's batch.
 	// Returning FALSE will avoid handling the drop, with no messages to the user whatsoever.
-	BOOL IsReadyForDrop(void)
+	BOOL IsReadyForDrop()
 	{
 		// If you're editing some document and the dirty bit is on, ask the user what to do...
 		// else
@@ -54,7 +54,7 @@ public:
 		DoSomethingWith(szBuff);
 		return TRUE;
 	}
-	void EndDropFiles(void)
+	void EndDropFiles()
 	{
 		// Sometimes,  if your file handling is not trivial,  you might want to add all
 		// file names to some container (std::list<WTL::CString>, perhaps),  and do the 
@@ -183,7 +183,7 @@ template <class T> class CDropFilesHandler
 				return ::PtInRect(&rc, p);
 			}
 			// This function returns the number of files dropped on the window by the current operation.
-			UINT GetNumFiles(void)
+			UINT GetNumFiles()
 			{
 				return ::DragQueryFile(m_hd, 0xffffFFFF, NULL, 0);
 			}

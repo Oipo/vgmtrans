@@ -9,23 +9,19 @@ FormatMap &Format::registry() {
   return registry;
 }
 
-Format::Format(const string &formatName) :
-    scanner(NULL),
-    matcher(NULL) {
+Format::Format(const string &formatName) {
   registry().insert(make_pair(formatName, this));
 }
 
-Format::~Format(void) {
-  if (scanner != NULL)
+Format::~Format() {
     delete scanner;
-  if (matcher != NULL)
     delete matcher;
 }
 
 Format *Format::GetFormatFromName(const string &name) {
   FormatMap::iterator findIt = registry().find(name);
   if (findIt == registry().end())
-    return NULL;
+    return nullptr;
   return (*findIt).second;
 }
 
@@ -54,7 +50,7 @@ bool Format::OnCloseFile(VGMFile *file) {
   return matcher->OnCloseFile(file);
 }
 
-bool Format::Init(void) {
+bool Format::Init() {
   scanner = NewScanner();
   matcher = NewMatcher();
   return true;

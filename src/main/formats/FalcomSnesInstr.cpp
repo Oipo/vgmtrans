@@ -9,18 +9,17 @@
 FalcomSnesInstrSet::FalcomSnesInstrSet(RawFile *file,
                                        FalcomSnesVersion ver,
                                        uint32_t offset,
-                                       uint32_t addrSampToInstrTable,
-                                       uint32_t spcDirAddr,
-                                       const std::map<uint8_t, uint16_t> &instrADSRHints,
-                                       const std::wstring &name) :
-    VGMInstrSet(FalcomSnesFormat::name, file, offset, 0, name), version(ver),
-    spcDirAddr(spcDirAddr),
-    addrSampToInstrTable(addrSampToInstrTable),
-    instrADSRHints(instrADSRHints) {
+                                       uint32_t _addrSampToInstrTable,
+                                       uint32_t _spcDirAddr,
+                                       const std::map<uint8_t, uint16_t> &_instrADSRHints,
+                                       const std::wstring &_name) :
+    VGMInstrSet(FalcomSnesFormat::name, file, offset, 0, _name), version(ver),
+    spcDirAddr(_spcDirAddr),
+    addrSampToInstrTable(_addrSampToInstrTable),
+    instrADSRHints(_instrADSRHints) {
 }
 
-FalcomSnesInstrSet::~FalcomSnesInstrSet() {
-}
+FalcomSnesInstrSet::~FalcomSnesInstrSet() = default;
 
 bool FalcomSnesInstrSet::GetHeaderInfo() {
   return true;
@@ -69,7 +68,7 @@ bool FalcomSnesInstrSet::GetInstrPointers() {
       continue;
     }
 
-    std::vector<uint8_t>::iterator itrSRCN = find(usedSRCNs.begin(), usedSRCNs.end(), srcn);
+    auto itrSRCN = find(usedSRCNs.begin(), usedSRCNs.end(), srcn);
     if (itrSRCN == usedSRCNs.end()) {
       usedSRCNs.push_back(srcn);
     }
@@ -80,7 +79,7 @@ bool FalcomSnesInstrSet::GetInstrPointers() {
         new FalcomSnesInstr(this, version, addrInstrHeader, instr >> 7, instr & 0x7f, srcn, spcDirAddr, instrName.str());
     aInstrs.push_back(newInstr);
   }
-  if (aInstrs.size() == 0) {
+  if (aInstrs.empty()) {
     return false;
   }
 
@@ -103,16 +102,15 @@ FalcomSnesInstr::FalcomSnesInstr(VGMInstrSet *instrSet,
                                  uint32_t offset,
                                  uint32_t theBank,
                                  uint32_t theInstrNum,
-                                 uint8_t srcn,
-                                 uint32_t spcDirAddr,
-                                 const std::wstring &name) :
-    VGMInstr(instrSet, offset, 5, theBank, theInstrNum, name), version(ver),
-    srcn(srcn),
-    spcDirAddr(spcDirAddr) {
+                                 uint8_t _srcn,
+                                 uint32_t _spcDirAddr,
+                                 const std::wstring &_name) :
+    VGMInstr(instrSet, offset, 5, theBank, theInstrNum, _name), version(ver),
+    srcn(_srcn),
+    spcDirAddr(_spcDirAddr) {
 }
 
-FalcomSnesInstr::~FalcomSnesInstr() {
-}
+FalcomSnesInstr::~FalcomSnesInstr() = default;
 
 bool FalcomSnesInstr::LoadInstr() {
   uint32_t offDirEnt = spcDirAddr + (srcn * 4);
@@ -138,8 +136,6 @@ FalcomSnesRgn::FalcomSnesRgn(FalcomSnesInstr *instr,
                              uint32_t offset,
                              uint8_t srcn) :
     VGMRgn(instr, offset, 5), version(ver) {
-  FalcomSnesInstrSet *parInstrSet = (FalcomSnesInstrSet *)instr->parInstrSet;
-
   uint8_t adsr1 = GetByte(offset);
   uint8_t adsr2 = GetByte(offset + 1);
   int16_t pitch_scale = GetShortBE(offset + 3);
@@ -171,13 +167,12 @@ FalcomSnesRgn::FalcomSnesRgn(FalcomSnesInstr *instr,
   sampNum = srcn;
   AddSimpleItem(offset, 1, L"ADSR1");
   AddSimpleItem(offset + 1, 1, L"ADSR2");
-  AddUnityKey(96 - (int) (coarse_tuning), offset + 3, 1);
-  AddFineTune((int16_t) (fine_tuning * 100.0), offset + 4, 1);
+  AddUnityKey(96 - static_cast<int>(coarse_tuning), offset + 3, 1);
+  AddFineTune(static_cast<int16_t> (fine_tuning * 100.0), offset + 4, 1);
   SNESConvADSR<VGMRgn>(this, adsr1, adsr2, 0);
 }
 
-FalcomSnesRgn::~FalcomSnesRgn() {
-}
+FalcomSnesRgn::~FalcomSnesRgn() = default;
 
 bool FalcomSnesRgn::LoadRgn() {
   return true;

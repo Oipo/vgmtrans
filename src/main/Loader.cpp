@@ -2,10 +2,10 @@
 
 #include "Loader.h"
 
-VGMLoader::VGMLoader(void) {
+VGMLoader::VGMLoader() {
 }
 
-VGMLoader::~VGMLoader(void) {
+VGMLoader::~VGMLoader() {
 }
 
 PostLoadCommand VGMLoader::Apply(RawFile *theFile) {

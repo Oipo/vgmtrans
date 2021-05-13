@@ -53,7 +53,7 @@ public:
    }
 
    // Overrides from CCustomTabCtrl
-   void Initialize(void)
+   void Initialize()
    {
       ATLASSERT(::IsWindow(this->m_hWnd));
       ATLASSERT(this->GetStyle() & WS_CHILD);
@@ -142,7 +142,7 @@ public:
    }
 
    // Overrides from CCustomTabCtrl
-   void Initialize(void)
+   void Initialize()
    {
       ATLASSERT(::IsWindow(this->m_hWnd));
       ATLASSERT(this->GetStyle() & WS_CHILD);
@@ -294,7 +294,7 @@ public:
    }
 
    // Overrides from CCustomTabCtrl
-   void Initialize(void)
+   void Initialize()
    {
       ATLASSERT(::IsWindow(this->m_hWnd));
       ATLASSERT(this->GetStyle() & WS_CHILD);

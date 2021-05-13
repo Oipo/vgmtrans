@@ -30,16 +30,16 @@ PandoraBoxSnesSeq::PandoraBoxSnesSeq(RawFile *file,
   LoadEventMap();
 }
 
-PandoraBoxSnesSeq::~PandoraBoxSnesSeq(void) {
+PandoraBoxSnesSeq::~PandoraBoxSnesSeq() {
 }
 
-void PandoraBoxSnesSeq::ResetVars(void) {
+void PandoraBoxSnesSeq::ResetVars() {
   VGMSeq::ResetVars();
 
   AlwaysWriteInitialTempo(GetByte(dwOffset + 6));
 }
 
-bool PandoraBoxSnesSeq::GetHeaderInfo(void) {
+bool PandoraBoxSnesSeq::GetHeaderInfo() {
   uint32_t curOffset;
 
   VGMHeader *header = AddHeader(dwOffset, 0);
@@ -63,7 +63,7 @@ bool PandoraBoxSnesSeq::GetHeaderInfo(void) {
       header->AddSimpleItem(curOffset, 2, trackName.str());
     }
     else {
-      header->AddSimpleItem(curOffset, 2, L"NULL");
+      header->AddSimpleItem(curOffset, 2, L"nullptr");
     }
     curOffset += 2;
   }
@@ -71,7 +71,7 @@ bool PandoraBoxSnesSeq::GetHeaderInfo(void) {
   return true;
 }
 
-bool PandoraBoxSnesSeq::GetTrackPointers(void) {
+bool PandoraBoxSnesSeq::GetTrackPointers() {
   uint32_t curOffset = dwOffset + 0x10;
   for (uint8_t trackIndex = 0; trackIndex < MAX_TRACKS; trackIndex++) {
     uint16_t ofsTrackStart = GetShort(curOffset);
@@ -145,7 +145,7 @@ PandoraBoxSnesTrack::PandoraBoxSnesTrack(PandoraBoxSnesSeq *parentFile, long off
   bWriteGenericEventAsTextEvent = false;
 }
 
-void PandoraBoxSnesTrack::ResetVars(void) {
+void PandoraBoxSnesTrack::ResetVars() {
   SeqTrack::ResetVars();
 
   cKeyCorrection = SEQ_KEYOFS;
@@ -162,7 +162,7 @@ void PandoraBoxSnesTrack::ResetVars(void) {
   spcCallStackPtr = 0;
 }
 
-bool PandoraBoxSnesTrack::ReadEvent(void) {
+bool PandoraBoxSnesTrack::ReadEvent() {
   PandoraBoxSnesSeq *parentSeq = (PandoraBoxSnesSeq *) this->parentSeq;
 
   uint32_t beginOffset = curOffset;

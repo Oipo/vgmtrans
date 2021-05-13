@@ -9,12 +9,11 @@ class FFTSeq
     : public VGMSeq {
  public:
   FFTSeq(RawFile *file, uint32_t offset);
-  virtual ~FFTSeq(void);
+  ~FFTSeq() override;
 
-  virtual bool GetHeaderInfo(void);
-  virtual bool
-      GetTrackPointers(void);    //Function to find all of the track pointers.   Returns number of total tracks.
-  virtual uint32_t GetID() { return assocWdsID; }
+  bool GetHeaderInfo() override;
+  bool GetTrackPointers() override;    //Function to find all of the track pointers.   Returns number of total tracks.
+  optional<uint32_t> GetID() override { return assocWdsID; }
 
  protected:
   uint16_t seqID;
@@ -25,9 +24,9 @@ class FFTSeq
 class FFTTrack
     : public SeqTrack {
  public:
-  FFTTrack(FFTSeq *parentFile, long offset = 0, long length = 0);
-  virtual void ResetVars();
-  virtual bool ReadEvent(void);
+  explicit FFTTrack(FFTSeq *parentFile, long offset = 0, long length = 0);
+  void ResetVars() override;
+  bool ReadEvent() override;
 
  public:
   bool bNoteOn;

@@ -10,10 +10,10 @@ using namespace std;
 
 wchar_t *GetFileWithBase(const wchar_t *f, const wchar_t *newfile);
 
-GSFLoader::GSFLoader(void) {
+GSFLoader::GSFLoader() {
 }
 
-GSFLoader::~GSFLoader(void) {
+GSFLoader::~GSFLoader() {
 }
 
 PostLoadCommand GSFLoader::Apply(RawFile *file) {
@@ -24,7 +24,7 @@ PostLoadCommand GSFLoader::Apply(RawFile *file) {
     if (version == GSF_VERSION) {
       const wchar_t *complaint;
       size_t exebufsize = GSF_MAX_ROM_SIZE;
-      uint8_t *exebuf = NULL;
+      uint8_t *exebuf = nullptr;
       //memset(exebuf, 0, exebufsize);
 
       complaint = psf_read_exe(file, exebuf, exebufsize);
@@ -55,7 +55,7 @@ PostLoadCommand GSFLoader::Apply(RawFile *file) {
 /*
 ** Read the EXE from a PSF file
 **
-** Returns the error message, or NULL on success
+** Returns the error message, or nullptr on success
 */
 const wchar_t *GSFLoader::psf_read_exe(
     RawFile *file,
@@ -68,7 +68,7 @@ const wchar_t *GSFLoader::psf_read_exe(
 
   // search exclusively for _lib tag, and if found, perform a recursive load
   const wchar_t *psflibError = load_psf_libs(psf, file, exebuffer, exebuffersize);
-  if (psflibError != NULL)
+  if (psflibError != nullptr)
     return psflibError;
 
   DataSeg *gsfExeHeadSeg;
@@ -82,13 +82,13 @@ const wchar_t *GSFLoader::psf_read_exe(
   delete gsfExeHeadSeg;
   if (gsfRomRegion != 0x08000000)
     return L"GSF ROM offset points to unsupported region. (multi-boot GSF is not supported yet)";
-  if (gsfRomStart + gsfRomSize > exebuffersize || (exebuffer == NULL && exebuffersize == 0))
+  if (gsfRomStart + gsfRomSize > exebuffersize || (exebuffer == nullptr && exebuffersize == 0))
     return L"GSF ROM section start and/or size values are corrupt.";
 
-  if (exebuffer == NULL) {
+  if (exebuffer == nullptr) {
     exebuffersize = gsfRomStart + gsfRomSize;
     exebuffer = new uint8_t[exebuffersize];
-    if (exebuffer == NULL) {
+    if (exebuffer == nullptr) {
       return L"GSF ROM memory allocation error.";
     }
     memset(exebuffer, 0, exebuffersize);
@@ -111,7 +111,7 @@ const wchar_t *GSFLoader::psf_read_exe(
     file->tag.comment = string2wstring(psf.tags["comment"]);
   }
 
-  return NULL;
+  return nullptr;
 }
 
 const wchar_t *GSFLoader::load_psf_libs(PSFFile &psf, RawFile *file, unsigned char *&exebuffer, size_t &exebuffersize) {
@@ -135,7 +135,7 @@ const wchar_t *GSFLoader::load_psf_libs(PSFFile &psf, RawFile *file, unsigned ch
 
     // TODO: Make sure to limit recursion to avoid crashing.
     RawFile *newRawFile = new RawFile(fullPath);
-    const wchar_t *psflibError = NULL;
+    const wchar_t *psflibError = nullptr;
     if (newRawFile->open(fullPath))
       psflibError = psf_read_exe(newRawFile, exebuffer, exebuffersize);
     else
@@ -143,10 +143,10 @@ const wchar_t *GSFLoader::load_psf_libs(PSFFile &psf, RawFile *file, unsigned ch
     delete fullPath;
     delete newRawFile;
 
-    if (psflibError != NULL)
+    if (psflibError != nullptr)
       return psflibError;
 
     libIndex++;
   }
-  return NULL;
+  return nullptr;
 }

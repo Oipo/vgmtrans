@@ -8,18 +8,18 @@ DECLARE_FORMAT(KonamiPS1);
 //  KonamiPS1Seq
 //  ************
 
-KonamiPS1Seq::KonamiPS1Seq(RawFile *file, uint32_t offset, const std::wstring &name)
-    : VGMSeq(KonamiPS1Format::name, file, offset, kHeaderSize + file->GetWord(offset + 4), name) {
+KonamiPS1Seq::KonamiPS1Seq(RawFile *file, uint32_t offset, const std::wstring &_name)
+    : VGMSeq(KonamiPS1Format::name, file, offset, kHeaderSize + file->GetWord(offset + 4), _name) {
     bLoadTickByTick = true;
 
     UseReverb();
 }
 
-void KonamiPS1Seq::ResetVars(void) {
+void KonamiPS1Seq::ResetVars() {
     VGMSeq::ResetVars();
 }
 
-bool KonamiPS1Seq::GetHeaderInfo(void) {
+bool KonamiPS1Seq::GetHeaderInfo() {
     if (!IsKDT1Seq(rawfile, dwOffset)) {
         return false;
     }
@@ -42,7 +42,7 @@ bool KonamiPS1Seq::GetHeaderInfo(void) {
     return true;
 }
 
-bool KonamiPS1Seq::GetTrackPointers(void) {
+bool KonamiPS1Seq::GetTrackPointers() {
     uint32_t numTracks = GetWord(dwOffset + kOffsetToTrackCount);
     uint32_t trackStart = dwOffset + kHeaderSize + (numTracks * 2);
     for (size_t trackIndex = 0; trackIndex < numTracks; trackIndex++) {
@@ -102,16 +102,14 @@ KonamiPS1Track::KonamiPS1Track(KonamiPS1Seq *parentFile, uint32_t offset, uint32
     //bWriteGenericEventAsTextEvent = true;
 }
 
-void KonamiPS1Track::ResetVars(void) {
+void KonamiPS1Track::ResetVars() {
     SeqTrack::ResetVars();
 
-    vel = 100;
+//    vel = 100;
     skipDeltaTime = false;
 }
 
-bool KonamiPS1Track::ReadEvent(void) {
-    KonamiPS1Seq *parentSeq = (KonamiPS1Seq *) this->parentSeq;
-
+bool KonamiPS1Track::ReadEvent() {
     uint32_t beginOffset = curOffset;
     if (curOffset >= vgmfile->GetEndOffset()) {
         return false;

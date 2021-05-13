@@ -5,9 +5,9 @@
 class NCSFLoader:
     public VGMLoader {
  public:
-  NCSFLoader(void);
+  NCSFLoader();
  public:
-  virtual ~NCSFLoader(void);
+  virtual ~NCSFLoader();
 
   virtual PostLoadCommand Apply(RawFile *theFile);
   const wchar_t *psf_read_exe(RawFile *file, unsigned char *&exebuffer, size_t &exebuffersize);

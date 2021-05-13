@@ -721,7 +721,7 @@ public:
 		m_nTabStyles = nTabStyles;
 	}
 
-	DWORD GetTabStyles(void) const
+	DWORD GetTabStyles() const
 	{
 		return m_nTabStyles;
 	}
@@ -806,7 +806,7 @@ public:
 		}
 	}
 
-	void ShowTabControlIfChildMaximized(void)
+	void ShowTabControlIfChildMaximized()
 	{
 		if(m_bHideMDITabsWhenMDIChildNotMaximized)
 		{
@@ -819,7 +819,7 @@ public:
 		}
 	}
 
-	void HideTabControlIfChildNotMaximized(void)
+	void HideTabControlIfChildNotMaximized()
 	{
 		if(m_bHideMDITabsWhenMDIChildNotMaximized)
 		{
@@ -1286,12 +1286,12 @@ public:
 		m_hWndTabOwnerParent = hWndTabOwnerParent;
 	}
 
-	HWND GetTabOwnerParent(void) const
+	HWND GetTabOwnerParent() const
 	{
 		return m_hWndTabOwnerParent;
 	}
 
-	TTabOwner& GetTabOwner(void)
+	TTabOwner& GetTabOwner()
 	{
 		return m_MdiTabOwner;
 	}
@@ -1323,7 +1323,7 @@ public:
 		}
 	}
 
-	bool GetDrawFlat(void) const
+	bool GetDrawFlat() const
 	{
 		return m_bDrawFlat;
 	}

@@ -111,7 +111,7 @@ public:
 
 // static public Methods:
 public:
-	static CTabbedAutoHideDockingWindow* CreateInstance(void)
+	static CTabbedAutoHideDockingWindow* CreateInstance()
 	{
 		return new CTabbedAutoHideDockingWindow;
 	}
@@ -209,7 +209,7 @@ public:
 		}
 	}
 
-	HWND GetClient(void)
+	HWND GetClient()
 	{
 		return m_hWndClient;
 	}
@@ -219,7 +219,7 @@ public:
 		m_bReflectNotifications = bReflectNotifications;
 	}
 
-	bool GetReflectNotifications(void) const
+	bool GetReflectNotifications() const
 	{
 		return m_bReflectNotifications;
 	}
@@ -233,7 +233,7 @@ public:
 		}
 	}
 
-	bool GetClientFlatOutline(void) const
+	bool GetClientFlatOutline() const
 	{
 		return m_bClientFlatOutline;
 	}
@@ -243,7 +243,7 @@ public:
 		m_nMenuID = nMenuID;
 	}
 
-	int GetMenuID(void) const
+	int GetMenuID() const
 	{
 		return m_nMenuID;
 	}

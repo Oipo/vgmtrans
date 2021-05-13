@@ -9,8 +9,12 @@ using namespace std;
 static const uint16_t DELTA_TIME_TABLE[] = { 192, 96, 48, 24, 12, 6, 3, 32, 16, 8, 4 };
 
 AkaoSeq::AkaoSeq(RawFile *file, uint32_t offset, AkaoPs1Version version)
-    : VGMSeq(AkaoFormat::name, file, offset), instrument_set_offset_(0), drum_set_offset_(0),
-      seq_id(0), version_(version), condition(0) {
+    : VGMSeq(AkaoFormat::name, file, offset),
+      seq_id(0),
+      version_(version),
+      instrument_set_offset_(0),
+      drum_set_offset_(0),
+      condition(0) {
   UseLinearAmplitudeScale();        //I think this applies, but not certain, see FF9 320, track 3 for example of problem
   //UseLinearPanAmplitudeScale(PanVolumeCorrectionMode::kAdjustVolumeController); // disabled, it only changes the volume and the pan slightly, and also its output becomes undefined if pan and volume slides are used at the same time
   bUsesIndividualArts = false;
@@ -136,9 +140,9 @@ bool AkaoSeq::GetHeaderInfo() {
 
   VGMHeader *track_pointer_header = AddHeader(dwOffset + track_header_offset, nNumTracks * 2);
   for (unsigned int i = 0; i < nNumTracks; i++) {
-    std::wstringstream name;
-    name << L"Offset: Track " << (i + 1);
-    track_pointer_header->AddSimpleItem(dwOffset + track_header_offset + (i * 2), 2, name.str());
+    std::wstringstream _name;
+    _name << L"Offset: Track " << (i + 1);
+    track_pointer_header->AddSimpleItem(dwOffset + track_header_offset + (i * 2), 2, _name.str());
   }
 
   return true;
@@ -218,7 +222,7 @@ AkaoInstrSet* AkaoSeq::NewInstrSet() const {
       length = unLength - (drum_set_offset() - dwOffset);
 
     return length != 0
-      ? new AkaoInstrSet(rawfile, length, version(), instrument_set_offset(), drum_set_offset(), id, L"Akao Instr Set")
+      ? new AkaoInstrSet(rawfile, length, version(), instrument_set_offset(), drum_set_offset(), id.value(), L"Akao Instr Set")
       : new AkaoInstrSet(rawfile, dwOffset, dwOffset + unLength, version());
   } else {
     return new AkaoInstrSet(rawfile, dwOffset + unLength, version(), custom_instrument_addresses, drum_instrument_addresses);
@@ -541,8 +545,8 @@ void AkaoTrack::ResetVars() {
 }
 
 bool AkaoTrack::ReadEvent() {
-  AkaoSeq *parentSeq = seq();
-  const AkaoPs1Version version = parentSeq->version();
+  AkaoSeq *_parentSeq = seq();
+  const AkaoPs1Version version = _parentSeq->version();
   const uint32_t beginOffset = curOffset;
   const uint8_t status_byte = GetByte(curOffset++);
 
@@ -595,7 +599,7 @@ bool AkaoTrack::ReadEvent() {
         key = drum ? (drum_octave * 12) + relative_key : real_key;
       }
 
-      AddNoteByDur(beginOffset, curOffset - beginOffset, key, vel, dur);
+      AddNoteByDur(beginOffset, curOffset - beginOffset, key, DEFAULT_VEL, dur);
       AddTime(delta_time);
     }
     else if (op_tie)
@@ -620,8 +624,8 @@ bool AkaoTrack::ReadEvent() {
     if (version >= AkaoPs1Version::VERSION_3_0 && status_byte == 0xFE)
     {
       const uint8_t op = GetByte(curOffset++);
-      const auto event_iterator = parentSeq->sub_event_map.find(op);
-      if (event_iterator != parentSeq->sub_event_map.end())
+      const auto event_iterator = _parentSeq->sub_event_map.find(op);
+      if (event_iterator != _parentSeq->sub_event_map.end())
         event = event_iterator->second;
 
       opcode_strm << L" 0x" << std::hex << std::setfill(L'0') << std::setw(2) << std::uppercase << op;
@@ -629,16 +633,16 @@ bool AkaoTrack::ReadEvent() {
     else if ((version == AkaoPs1Version::VERSION_1_2 || version == AkaoPs1Version::VERSION_2) && status_byte == 0xFC)
     {
       const uint8_t op = GetByte(curOffset++);
-      const auto event_iterator = parentSeq->sub_event_map.find(op);
-      if (event_iterator != parentSeq->sub_event_map.end())
+      const auto event_iterator = _parentSeq->sub_event_map.find(op);
+      if (event_iterator != _parentSeq->sub_event_map.end())
         event = event_iterator->second;
 
       opcode_strm << L" 0x" << std::hex << std::setfill(L'0') << std::setw(2) << std::uppercase << op;
     }
     else
     {
-      const auto event_iterator = parentSeq->event_map.find(status_byte);
-      if (event_iterator != parentSeq->event_map.end())
+      const auto event_iterator = _parentSeq->event_map.find(status_byte);
+      if (event_iterator != _parentSeq->event_map.end())
         event = event_iterator->second;
     }
 
@@ -651,7 +655,7 @@ bool AkaoTrack::ReadEvent() {
 
     case EVENT_PROGCHANGE: {
       // change program to articulation number
-      parentSeq->bUsesIndividualArts = true;
+      _parentSeq->bUsesIndividualArts = true;
       const uint8_t artNum = GetByte(curOffset++);
       AddBankSelectNoItem(0);
       AddProgramChange(beginOffset, curOffset - beginOffset, artNum);
@@ -668,16 +672,16 @@ bool AkaoTrack::ReadEvent() {
     }
 
     case EVENT_VOLUME: {
-      const uint8_t vol = GetByte(curOffset++);
-      AddVol(beginOffset, curOffset - beginOffset, vol);
+      const uint8_t _vol = GetByte(curOffset++);
+      AddVol(beginOffset, curOffset - beginOffset, _vol);
       break;
     }
 
     case EVENT_VOLUME_FADE: {
       const uint8_t raw_length = GetByte(curOffset++);
       const uint16_t length = raw_length == 0 ? 256 : raw_length;
-      const uint8_t vol = GetByte(curOffset++);
-      AddVolSlide(beginOffset, curOffset - beginOffset, length, vol);
+      const uint8_t _vol = GetByte(curOffset++);
+      AddVolSlide(beginOffset, curOffset - beginOffset, length, _vol);
       break;
     }
 
@@ -709,24 +713,24 @@ bool AkaoTrack::ReadEvent() {
       break;
 
     case EVENT_EXPRESSION: {
-      const uint8_t expression = GetByte(curOffset++);
-      AddExpression(beginOffset, curOffset - beginOffset, expression);
+      const uint8_t _expression = GetByte(curOffset++);
+      AddExpression(beginOffset, curOffset - beginOffset, _expression);
       break;
     }
 
     case EVENT_EXPRESSION_FADE: {
       const uint8_t raw_length = GetByte(curOffset++);
       const uint16_t length = raw_length == 0 ? 256 : raw_length;
-      const uint8_t expression = GetByte(curOffset++);
-      AddExpressionSlide(beginOffset, curOffset - beginOffset, length, expression);
+      const uint8_t _expression = GetByte(curOffset++);
+      AddExpressionSlide(beginOffset, curOffset - beginOffset, length, _expression);
       break;
     }
 
     case EVENT_EXPRESSION_FADE_PER_NOTE: {
       const uint8_t raw_length = GetByte(curOffset++);
       const uint16_t length = raw_length == 0 ? 256 : raw_length;
-      const uint8_t expression = GetByte(curOffset++);
-      desc << L"Target Expression: " << expression << L"  Duration: " << length;
+      const uint8_t _expression = GetByte(curOffset++);
+      desc << L"Target Expression: " << _expression << L"  Duration: " << length;
       AddGenericEvent(beginOffset, curOffset - beginOffset, L"Expression Slide Per Note", desc.str(), CLR_VOLUME, ICON_CONTROL);
       break;
     }
@@ -1165,7 +1169,7 @@ bool AkaoTrack::ReadEvent() {
     }
 
     case EVENT_E0: {
-      desc << L"Filename: " << parentSeq->rawfile->GetFileName() << L" Event: " << opcode_str
+      desc << L"Filename: " << _parentSeq->rawfile->GetFileName() << L" Event: " << opcode_str
         << " Address: 0x" << std::hex << std::setfill(L'0') << std::uppercase << beginOffset;
       AddUnknown(beginOffset, curOffset - beginOffset);
       pRoot->AddLogItem(new LogItem((std::wstring(L"Unknown Event - ") + desc.str()), LOG_LEVEL_ERR, L"AkaoSeq"));
@@ -1174,7 +1178,7 @@ bool AkaoTrack::ReadEvent() {
 
     case EVENT_E1: {
       curOffset++;
-      desc << L"Filename: " << parentSeq->rawfile->GetFileName() << L" Event: " << opcode_str
+      desc << L"Filename: " << _parentSeq->rawfile->GetFileName() << L" Event: " << opcode_str
         << " Address: 0x" << std::hex << std::setfill(L'0') << std::uppercase << beginOffset;
       AddUnknown(beginOffset, curOffset - beginOffset);
       pRoot->AddLogItem(new LogItem((std::wstring(L"Unknown Event - ") + desc.str()), LOG_LEVEL_ERR, L"AkaoSeq"));
@@ -1182,7 +1186,7 @@ bool AkaoTrack::ReadEvent() {
     }
 
     case EVENT_E2: {
-      desc << L"Filename: " << parentSeq->rawfile->GetFileName() << L" Event: " << opcode_str
+      desc << L"Filename: " << _parentSeq->rawfile->GetFileName() << L" Event: " << opcode_str
         << " Address: 0x" << std::hex << std::setfill(L'0') << std::uppercase << beginOffset;
       AddUnknown(beginOffset, curOffset - beginOffset);
       pRoot->AddLogItem(new LogItem((std::wstring(L"Unknown Event - ") + desc.str()), LOG_LEVEL_ERR, L"AkaoSeq"));
@@ -1193,7 +1197,7 @@ bool AkaoTrack::ReadEvent() {
       const uint16_t raw_tempo = GetShort(curOffset);
       curOffset += 2;
 
-      const double bpm = parentSeq->GetTempoInBPM(raw_tempo);
+      const double bpm = _parentSeq->GetTempoInBPM(raw_tempo);
       AddTempoBPM(beginOffset, curOffset - beginOffset, bpm);
       break;
     }
@@ -1204,7 +1208,7 @@ bool AkaoTrack::ReadEvent() {
       const uint16_t raw_tempo = GetShort(curOffset);
       curOffset += 2;
 
-      const double bpm = parentSeq->GetTempoInBPM(raw_tempo);
+      const double bpm = _parentSeq->GetTempoInBPM(raw_tempo);
       AddTempoBPMSlide(beginOffset, curOffset - beginOffset, length, bpm);
       break;
     }
@@ -1238,11 +1242,11 @@ bool AkaoTrack::ReadEvent() {
       AddGenericEvent(beginOffset, curOffset - beginOffset, L"Drum Kit On", desc.str(), CLR_PROGCHANGE, ICON_PROGCHANGE);
 
       if (readMode == READMODE_ADD_TO_UI) {
-        parentSeq->drum_instrument_addresses.insert(drum_instrset_offset);
+        _parentSeq->drum_instrument_addresses.insert(drum_instrset_offset);
       }
       else {
-        const int instrument_index = std::distance(parentSeq->drum_instrument_addresses.begin(),
-          parentSeq->drum_instrument_addresses.find(drum_instrset_offset));
+        const int instrument_index = std::distance(_parentSeq->drum_instrument_addresses.begin(),
+          _parentSeq->drum_instrument_addresses.find(drum_instrset_offset));
 
         AddBankSelectNoItem(127 - static_cast<uint8_t>(instrument_index));
         AddProgramChangeNoItem(127, false);
@@ -1310,7 +1314,7 @@ bool AkaoTrack::ReadEvent() {
           curOffset = dest;
         }
       } else {
-        if (parentSeq->condition == target_value)
+        if (_parentSeq->condition == target_value)
           curOffset = dest;
       }
 
@@ -1354,7 +1358,7 @@ bool AkaoTrack::ReadEvent() {
     }
 
     case EVENT_PROGCHANGE_NO_ATTACK: {
-      parentSeq->bUsesIndividualArts = true;
+      _parentSeq->bUsesIndividualArts = true;
       const uint8_t artNum = GetByte(curOffset++);
       AddBankSelectNoItem(0);
       AddProgramChange(beginOffset, curOffset - beginOffset, artNum, false, L"Program Change w/o Attack Sample");
@@ -1362,7 +1366,7 @@ bool AkaoTrack::ReadEvent() {
     }
 
     case EVENT_F3_FF7: {
-      desc << L"Filename: " << parentSeq->rawfile->GetFileName() << L" Event: " << opcode_str
+      desc << L"Filename: " << _parentSeq->rawfile->GetFileName() << L" Event: " << opcode_str
         << " Address: 0x" << std::hex << std::setfill(L'0') << std::uppercase << beginOffset;
       AddUnknown(beginOffset, curOffset - beginOffset);
       pRoot->AddLogItem(new LogItem((std::wstring(L"Unknown Event - ") + desc.str()), LOG_LEVEL_ERR, L"AkaoSeq"));
@@ -1370,7 +1374,7 @@ bool AkaoTrack::ReadEvent() {
     }
 
     case EVENT_F3_SAGAFRO: {
-      desc << L"Filename: " << parentSeq->rawfile->GetFileName() << L" Event: " << opcode_str
+      desc << L"Filename: " << _parentSeq->rawfile->GetFileName() << L" Event: " << opcode_str
         << " Address: 0x" << std::hex << std::setfill(L'0') << std::uppercase << beginOffset;
       AddUnknown(beginOffset, curOffset - beginOffset);
       pRoot->AddLogItem(new LogItem((std::wstring(L"Unknown Event - ") + desc.str()), LOG_LEVEL_ERR, L"AkaoSeq"));
@@ -1378,7 +1382,7 @@ bool AkaoTrack::ReadEvent() {
     }
 
     case EVENT_OVERLAY_VOICE_ON: {
-      parentSeq->bUsesIndividualArts = true;
+      _parentSeq->bUsesIndividualArts = true;
       const uint8_t artNum = GetByte(curOffset++);
       const uint8_t artNum2 = GetByte(curOffset++);
 
@@ -1428,7 +1432,7 @@ bool AkaoTrack::ReadEvent() {
 
     case EVENT_FC_0C: {
       curOffset += 2;
-      desc << L"Filename: " << parentSeq->rawfile->GetFileName() << L" Event: " << opcode_str
+      desc << L"Filename: " << _parentSeq->rawfile->GetFileName() << L" Event: " << opcode_str
         << " Address: 0x" << std::hex << std::setfill(L'0') << std::uppercase << beginOffset;
       AddUnknown(beginOffset, curOffset - beginOffset);
       pRoot->AddLogItem(new LogItem((std::wstring(L"Unknown Event - ") + desc.str()), LOG_LEVEL_ERR, L"AkaoSeq"));
@@ -1436,7 +1440,7 @@ bool AkaoTrack::ReadEvent() {
     }
 
     case EVENT_FC_0D: {
-      desc << L"Filename: " << parentSeq->rawfile->GetFileName() << L" Event: " << opcode_str
+      desc << L"Filename: " << _parentSeq->rawfile->GetFileName() << L" Event: " << opcode_str
         << " Address: 0x" << std::hex << std::setfill(L'0') << std::uppercase << beginOffset;
       AddUnknown(beginOffset, curOffset - beginOffset);
       pRoot->AddLogItem(new LogItem((std::wstring(L"Unknown Event - ") + desc.str()), LOG_LEVEL_ERR, L"AkaoSeq"));
@@ -1445,7 +1449,7 @@ bool AkaoTrack::ReadEvent() {
 
     case EVENT_FC_0E: {
       curOffset++;
-      desc << L"Filename: " << parentSeq->rawfile->GetFileName() << L" Event: " << opcode_str
+      desc << L"Filename: " << _parentSeq->rawfile->GetFileName() << L" Event: " << opcode_str
         << " Address: 0x" << std::hex << std::setfill(L'0') << std::uppercase << beginOffset;
       AddUnknown(beginOffset, curOffset - beginOffset);
       pRoot->AddLogItem(new LogItem((std::wstring(L"Unknown Event - ") + desc.str()), LOG_LEVEL_ERR, L"AkaoSeq"));
@@ -1454,7 +1458,7 @@ bool AkaoTrack::ReadEvent() {
 
     case EVENT_FC_0F: {
       curOffset += 2;
-      desc << L"Filename: " << parentSeq->rawfile->GetFileName() << L" Event: " << opcode_str
+      desc << L"Filename: " << _parentSeq->rawfile->GetFileName() << L" Event: " << opcode_str
         << " Address: 0x" << std::hex << std::setfill(L'0') << std::uppercase << beginOffset;
       AddUnknown(beginOffset, curOffset - beginOffset);
       pRoot->AddLogItem(new LogItem((std::wstring(L"Unknown Event - ") + desc.str()), LOG_LEVEL_ERR, L"AkaoSeq"));
@@ -1463,7 +1467,7 @@ bool AkaoTrack::ReadEvent() {
 
     case EVENT_FC_10: {
       curOffset++;
-      desc << L"Filename: " << parentSeq->rawfile->GetFileName() << L" Event: " << opcode_str
+      desc << L"Filename: " << _parentSeq->rawfile->GetFileName() << L" Event: " << opcode_str
         << " Address: 0x" << std::hex << std::setfill(L'0') << std::uppercase << beginOffset;
       AddUnknown(beginOffset, curOffset - beginOffset);
       pRoot->AddLogItem(new LogItem((std::wstring(L"Unknown Event - ") + desc.str()), LOG_LEVEL_ERR, L"AkaoSeq"));
@@ -1471,7 +1475,7 @@ bool AkaoTrack::ReadEvent() {
     }
 
     case EVENT_FC_11: {
-      desc << L"Filename: " << parentSeq->rawfile->GetFileName() << L" Event: " << opcode_str
+      desc << L"Filename: " << _parentSeq->rawfile->GetFileName() << L" Event: " << opcode_str
         << " Address: 0x" << std::hex << std::setfill(L'0') << std::uppercase << beginOffset;
       AddUnknown(beginOffset, curOffset - beginOffset);
       pRoot->AddLogItem(new LogItem((std::wstring(L"Unknown Event - ") + desc.str()), LOG_LEVEL_ERR, L"AkaoSeq"));
@@ -1517,7 +1521,7 @@ bool AkaoTrack::ReadEvent() {
       const uint8_t ticksPerBeat = GetByte(curOffset++);
       const uint8_t beatsPerMeasure = GetByte(curOffset++);
       if (ticksPerBeat != 0 && beatsPerMeasure != 0) {
-        const uint8_t denom = static_cast<uint8_t>((parentSeq->ppqn * 4) / ticksPerBeat); // or should it always be 4? no idea
+        const uint8_t denom = static_cast<uint8_t>((_parentSeq->ppqn * 4) / ticksPerBeat); // or should it always be 4? no idea
         AddTimeSig(beginOffset, curOffset - beginOffset, beatsPerMeasure, denom, ticksPerBeat);
       } else {
         AddGenericEvent(beginOffset, curOffset - beginOffset, L"Time Signature", L"", CLR_TIMESIG, ICON_TIMESIG);
@@ -1538,7 +1542,7 @@ bool AkaoTrack::ReadEvent() {
       // Chrono Cross - 114 Shadow Forest
       // Chrono Cross - 119 Hydra Marshes
       // Chrono Cross - 302 Chronopolis
-      desc << L"Filename: " << parentSeq->rawfile->GetFileName() << L" Event: " << opcode_str
+      desc << L"Filename: " << _parentSeq->rawfile->GetFileName() << L" Event: " << opcode_str
         << " Address: 0x" << std::hex << std::setfill(L'0') << std::uppercase << beginOffset;
       AddUnknown(beginOffset, curOffset - beginOffset);
       pRoot->AddLogItem(new LogItem((std::wstring(L"Unknown Event - ") + desc.str()), LOG_LEVEL_WARN, L"AkaoSeq"));
@@ -1554,11 +1558,11 @@ bool AkaoTrack::ReadEvent() {
       AddGenericEvent(beginOffset, curOffset - beginOffset, L"Program Change (Key-Split Instrument)", desc.str(), CLR_PROGCHANGE, ICON_PROGCHANGE);
 
       if (readMode == READMODE_ADD_TO_UI) {
-        parentSeq->custom_instrument_addresses.insert(key_split_regions_offset);
+        _parentSeq->custom_instrument_addresses.insert(key_split_regions_offset);
       }
       else {
-        const int instrument_index = std::distance(parentSeq->custom_instrument_addresses.begin(),
-          parentSeq->custom_instrument_addresses.find(key_split_regions_offset));
+        const int instrument_index = std::distance(_parentSeq->custom_instrument_addresses.begin(),
+          _parentSeq->custom_instrument_addresses.find(key_split_regions_offset));
 
         AddBankSelectNoItem(1);
         AddProgramChangeNoItem(instrument_index, false);
@@ -1575,7 +1579,7 @@ bool AkaoTrack::ReadEvent() {
 
     case EVENT_FE_1C: {
       curOffset++;
-      desc << L"Filename: " << parentSeq->rawfile->GetFileName() << L" Event: " << opcode_str
+      desc << L"Filename: " << _parentSeq->rawfile->GetFileName() << L" Event: " << opcode_str
         << " Address: 0x" << std::hex << std::setfill(L'0') << std::uppercase << beginOffset;
       AddUnknown(beginOffset, curOffset - beginOffset);
       pRoot->AddLogItem(new LogItem((std::wstring(L"Unknown Event - ") + desc.str()), LOG_LEVEL_WARN, L"AkaoSeq"));
@@ -1591,7 +1595,7 @@ bool AkaoTrack::ReadEvent() {
       break;
 
     default:
-      desc << L"Filename: " << parentSeq->rawfile->GetFileName() << L" Event: " << opcode_str
+      desc << L"Filename: " << _parentSeq->rawfile->GetFileName() << L" Event: " << opcode_str
         << " Address: 0x" << std::hex << std::setfill(L'0') << std::uppercase << beginOffset;
       AddUnknown(beginOffset, curOffset - beginOffset);
       pRoot->AddLogItem(new LogItem((std::wstring(L"Unknown Event - ") + desc.str()), LOG_LEVEL_ERR, L"AkaoSeq"));

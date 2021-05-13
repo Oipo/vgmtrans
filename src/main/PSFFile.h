@@ -7,26 +7,26 @@
 
 class PSFFile {
  public:
-  PSFFile(void);
+  PSFFile();
   PSFFile(RawFile *file);
-  virtual ~PSFFile(void);
+  virtual ~PSFFile();
 
   bool Load(RawFile *file);
   bool ReadExe(uint8_t *buf, size_t len, size_t stripLen) const;
   bool ReadExeDataSeg(DataSeg *&seg, size_t len, size_t stripLen) const;
   bool Decompress(size_t decompressed_size);
-  bool IsDecompressed(void) const;
-  uint8_t GetVersion(void) const;
-  size_t GetExeSize(void) const;
-  size_t GetCompressedExeSize(void) const;
-  size_t GetReservedSize(void) const;
-  void Clear(void);
-  const wchar_t *GetError(void) const;
+  bool IsDecompressed() const;
+  uint8_t GetVersion() const;
+  size_t GetExeSize() const;
+  size_t GetCompressedExeSize() const;
+  size_t GetReservedSize() const;
+  void Clear();
+  const wchar_t *GetError() const;
 
  public:
   PSFFile *parent;
-  DataSeg &exe(void) { return *exeData; }
-  DataSeg &reserved(void) { return *reservedData; }
+  DataSeg &exe() { return *exeData; }
+  DataSeg &reserved() { return *reservedData; }
   std::map<std::string, std::string> tags;
 
  private:
@@ -36,9 +36,9 @@ class PSFFile {
   DataSeg *reservedData;
   uint32_t exeCRC;
   bool decompressed;
-  wchar_t *errorstr;
+  const wchar_t *errorstr;
   uint8_t *stripBuf;
   size_t stripBufSize;
 
-  int myuncompress(Bytef *dest, uLongf *destLen, const Bytef *source, uLong sourceLen, uLong stripLen) const;
+  int myuncompress(Bytef *dest, uLongf *destLen, z_const Bytef *source, uLong sourceLen, uLong stripLen) const;
 };

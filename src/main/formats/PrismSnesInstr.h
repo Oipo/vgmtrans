@@ -19,10 +19,10 @@ class PrismSnesInstrSet:
                     uint16_t addrTuningTableHigh,
                     uint16_t addrTuningTableLow,
                     const std::wstring &name = L"PrismSnesInstrSet");
-  virtual ~PrismSnesInstrSet(void);
+  virtual ~PrismSnesInstrSet();
 
-  virtual bool GetHeaderInfo();
-  virtual bool GetInstrPointers();
+  bool GetHeaderInfo() override;
+  bool GetInstrPointers() override;
 
   PrismSnesVersion version;
 
@@ -51,9 +51,9 @@ class PrismSnesInstr
                  uint16_t addrTuningEntryHigh,
                  uint16_t addrTuningEntryLow,
                  const std::wstring &name = L"PrismSnesInstr");
-  virtual ~PrismSnesInstr(void);
+  virtual ~PrismSnesInstr();
 
-  virtual bool LoadInstr();
+  bool LoadInstr() override;
 
   PrismSnesVersion version;
 
@@ -81,9 +81,9 @@ class PrismSnesRgn
                uint16_t addrADSR2Entry,
                uint16_t addrTuningEntryHigh,
                uint16_t addrTuningEntryLow);
-  virtual ~PrismSnesRgn(void);
+  virtual ~PrismSnesRgn();
 
-  virtual bool LoadRgn();
+  bool LoadRgn() override;
 
   PrismSnesVersion version;
 };

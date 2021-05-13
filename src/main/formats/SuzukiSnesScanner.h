@@ -7,10 +7,10 @@ enum SuzukiSnesVersion: uint8_t; // see SuzukiSnesFormat.h
 class SuzukiSnesScanner:
     public VGMScanner {
  public:
-  SuzukiSnesScanner(void) {
+  SuzukiSnesScanner() {
     USE_EXTENSION(L"spc");
   }
-  virtual ~SuzukiSnesScanner(void) {
+  virtual ~SuzukiSnesScanner() {
   }
 
   virtual void Scan(RawFile *file, void *info = 0);

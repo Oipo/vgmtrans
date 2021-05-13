@@ -7,10 +7,10 @@ class BGMSeq:
     public VGMSeq {
  public:
   BGMSeq(RawFile *file, uint32_t offset);
-  virtual ~BGMSeq(void);
+  virtual ~BGMSeq();
 
-  virtual bool GetHeaderInfo(void);
-  virtual bool GetTrackPointers(void);
+  bool GetHeaderInfo() override;
+  virtual bool GetTrackPointers();
   virtual uint32_t GetID() { return assocWDID; }
 
  protected:
@@ -24,5 +24,5 @@ class BGMTrack
  public:
   BGMTrack(BGMSeq *parentSeq, long offset = 0, long length = 0);
 
-  virtual bool ReadEvent(void);
+  virtual bool ReadEvent();
 };

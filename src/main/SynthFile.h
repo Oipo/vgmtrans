@@ -1,7 +1,10 @@
 #pragma once
 
+#include <utility>
+
 #include "common.h"
 #include "RiffFile.h"
+#include "Enums.h"
 
 struct Loop;
 class VGMSamp;
@@ -13,15 +16,10 @@ class SynthConnectionBlock;
 class SynthSampInfo;
 class SynthWave;
 
-typedef enum {
-  no_transform,
-  concave_transform
-} Transform;
-
 class SynthFile {
  public:
   SynthFile(const std::string synth_name = "Instrument Set");
-  ~SynthFile(void);
+  ~SynthFile();
 
   SynthInstr *AddInstr(uint32_t bank, uint32_t instrNum);
   SynthInstr *AddInstr(uint32_t bank, uint32_t instrNum, std::string Name);
@@ -42,14 +40,14 @@ class SynthFile {
 
 class SynthInstr {
  public:
-  SynthInstr(void);
+  SynthInstr();
   SynthInstr(uint32_t bank, uint32_t instrument);
   SynthInstr(uint32_t bank, uint32_t instrument, std::string instrName);
   SynthInstr(uint32_t bank, uint32_t instrument, std::string instrName, std::vector<SynthRgn *> listRgns);
-  ~SynthInstr(void);
+  ~SynthInstr();
 
   void AddRgnList(std::vector<SynthRgn> &RgnList);
-  SynthRgn *AddRgn(void);
+  SynthRgn *AddRgn();
   SynthRgn *AddRgn(SynthRgn rgn);
 
  public:
@@ -63,15 +61,15 @@ class SynthInstr {
 
 class SynthRgn {
  public:
-  SynthRgn(void) : sampinfo(NULL), art(NULL) { }
+  SynthRgn() : sampinfo(nullptr), art(nullptr) { }
   SynthRgn(uint16_t keyLow, uint16_t keyHigh, uint16_t velLow, uint16_t velHigh)
-      : usKeyLow(keyLow), usKeyHigh(keyHigh), usVelLow(velLow), usVelHigh(velHigh), sampinfo(NULL), art(NULL) { }
+      : usKeyLow(keyLow), usKeyHigh(keyHigh), usVelLow(velLow), usVelHigh(velHigh), sampinfo(nullptr), art(nullptr) { }
   SynthRgn(uint16_t keyLow, uint16_t keyHigh, uint16_t velLow, uint16_t velHigh, SynthArt &art);
-  ~SynthRgn(void);
+  ~SynthRgn();
 
-  SynthArt *AddArt(void);
+  SynthArt *AddArt();
   SynthArt *AddArt(std::vector<SynthConnectionBlock *> connBlocks);
-  SynthSampInfo *AddSampInfo(void);
+  SynthSampInfo *AddSampInfo();
   SynthSampInfo *AddSampInfo(SynthSampInfo wsmp);
   void SetRanges(uint16_t keyLow = 0, uint16_t keyHigh = 0x7F, uint16_t velLow = 0, uint16_t velHigh = 0x7F);
   void SetWaveLinkInfo(uint16_t options, uint16_t phaseGroup, uint32_t theChannel, uint32_t theTableIndex);
@@ -93,10 +91,10 @@ class SynthRgn {
 
 class SynthArt {
  public:
-  SynthArt(void) { }
+  SynthArt() { }
   SynthArt(std::vector<SynthConnectionBlock> &connectionBlocks);
   //SynthArt(uint16_t source, uint16_t control, uint16_t destination, uint16_t transform);
-  ~SynthArt(void);
+  ~SynthArt();
 
   void AddADSR(double attack, Transform atk_transform, double decay, double sustain_lev,
                double sustain_time, double release_time, Transform rls_transform);
@@ -118,7 +116,7 @@ class SynthArt {
 
 class SynthSampInfo {
  public:
-  SynthSampInfo(void) { }
+  SynthSampInfo() = default;
   SynthSampInfo(uint16_t unityNote,
                 int16_t fineTune,
                 double atten,
@@ -129,7 +127,7 @@ class SynthSampInfo {
       : usUnityNote(unityNote), sFineTune(fineTune), attenuation(atten), cSampleLoops(sampleLoops),
         ulLoopType(loopType),
         ulLoopStart(loopStart), ulLoopLength(loopLength) { }
-  ~SynthSampInfo(void) { }
+  ~SynthSampInfo() = default;
 
   void SetLoopInfo(Loop &loop, VGMSamp *samp);
   //void SetPitchInfo(uint16_t unityNote, int16_t fineTune, double attenuation);
@@ -148,15 +146,16 @@ class SynthSampInfo {
 
 class SynthWave {
  public:
-  SynthWave(void)
-      : sampinfo(NULL),
-        data(NULL),
+  SynthWave()
+      : sampinfo(nullptr),
+        data(nullptr),
         name("Untitled Wave") {
     RiffFile::AlignName(name);
   }
   SynthWave(uint16_t formatTag, uint16_t channels, int samplesPerSec, int aveBytesPerSec, uint16_t blockAlign,
             uint16_t bitsPerSample, uint32_t waveDataSize, uint8_t *waveData, std::string waveName = "Untitled Wave")
-      : wFormatTag(formatTag),
+      : sampinfo(nullptr),
+        wFormatTag(formatTag),
         wChannels(channels),
         dwSamplesPerSec(samplesPerSec),
         dwAveBytesPerSec(aveBytesPerSec),
@@ -164,13 +163,12 @@ class SynthWave {
         wBitsPerSample(bitsPerSample),
         dataSize(waveDataSize),
         data(waveData),
-        sampinfo(NULL),
-        name(waveName) {
+        name(std::move(waveName)) {
     RiffFile::AlignName(name);
   }
-  ~SynthWave(void);
+  ~SynthWave();
 
-  SynthSampInfo *AddSampInfo(void);
+  SynthSampInfo *AddSampInfo();
 
   void ConvertTo16bitSigned();
 

@@ -10,10 +10,10 @@ using namespace std;
 
 wchar_t *GetFileWithBase(const wchar_t *f, const wchar_t *newfile);
 
-SNSFLoader::SNSFLoader(void) {
+SNSFLoader::SNSFLoader() {
 }
 
-SNSFLoader::~SNSFLoader(void) {
+SNSFLoader::~SNSFLoader() {
 }
 
 PostLoadCommand SNSFLoader::Apply(RawFile *file) {
@@ -24,7 +24,7 @@ PostLoadCommand SNSFLoader::Apply(RawFile *file) {
     if (version == SNSF_VERSION) {
       const wchar_t *complaint;
       size_t exebufsize = SNSF_MAX_ROM_SIZE;
-      uint8_t *exebuf = NULL;
+      uint8_t *exebuf = nullptr;
       //memset(exebuf, 0, exebufsize);
 
       complaint = psf_read_exe(file, exebuf, exebufsize);
@@ -55,7 +55,7 @@ PostLoadCommand SNSFLoader::Apply(RawFile *file) {
 /*
 ** Read the EXE from a PSF file
 **
-** Returns the error message, or NULL on success
+** Returns the error message, or nullptr on success
 */
 const wchar_t *SNSFLoader::psf_read_exe(
     RawFile *file,
@@ -80,7 +80,7 @@ const wchar_t *SNSFLoader::psf_read_exe_sub(
 
   // search exclusively for _lib tag, and if found, perform a recursive load
   const wchar_t *psflibError = load_psf_libs(psf, file, exebuffer, exebuffersize, base_offset, base_set);
-  if (psflibError != NULL)
+  if (psflibError != nullptr)
     return psflibError;
 
   DataSeg *snsfExeHeadSeg;
@@ -99,13 +99,13 @@ const wchar_t *SNSFLoader::psf_read_exe_sub(
     base_set = true;
   }
 
-  if (snsfRomStart + snsfRomSize > exebuffersize || (exebuffer == NULL && exebuffersize == 0))
+  if (snsfRomStart + snsfRomSize > exebuffersize || (exebuffer == nullptr && exebuffersize == 0))
     return L"SNSF ROM section start and/or size values are likely corrupt.";
 
-  if (exebuffer == NULL) {
+  if (exebuffer == nullptr) {
     exebuffersize = snsfRomStart + snsfRomSize;
     exebuffer = new uint8_t[exebuffersize];
-    if (exebuffer == NULL) {
+    if (exebuffer == nullptr) {
       return L"SNSF ROM memory allocation error.";
     }
     memset(exebuffer, 0, exebuffersize);
@@ -128,7 +128,7 @@ const wchar_t *SNSFLoader::psf_read_exe_sub(
     file->tag.comment = string2wstring(psf.tags["comment"]);
   }
 
-  return NULL;
+  return nullptr;
 }
 
 const wchar_t *SNSFLoader::load_psf_libs(PSFFile &psf,
@@ -157,7 +157,7 @@ const wchar_t *SNSFLoader::load_psf_libs(PSFFile &psf,
 
     // TODO: Make sure to limit recursion to avoid crashing.
     RawFile *newRawFile = new RawFile(fullPath);
-    const wchar_t *psflibError = NULL;
+    const wchar_t *psflibError = nullptr;
     if (newRawFile->open(fullPath))
       psflibError = psf_read_exe_sub(newRawFile, exebuffer, exebuffersize, base_offset, base_set);
     else
@@ -165,10 +165,10 @@ const wchar_t *SNSFLoader::load_psf_libs(PSFFile &psf,
     delete fullPath;
     delete newRawFile;
 
-    if (psflibError != NULL)
+    if (psflibError != nullptr)
       return psflibError;
 
     libIndex++;
   }
-  return NULL;
+  return nullptr;
 }

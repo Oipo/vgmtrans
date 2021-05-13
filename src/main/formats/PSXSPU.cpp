@@ -192,7 +192,7 @@ PSXSampColl *PSXSampColl::SearchForPSXADPCM(RawFile *file, const string &format)
     return bestSampColl;
   }
   else {
-    return NULL;
+    return nullptr;
   }
 }
 

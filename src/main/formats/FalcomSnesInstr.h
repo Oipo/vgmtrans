@@ -21,14 +21,14 @@ class FalcomSnesInstrSet:
   FalcomSnesInstrSet(RawFile *file,
                      FalcomSnesVersion ver,
                      uint32_t offset,
-                     uint32_t addrSampToInstrTable,
-                     uint32_t spcDirAddr,
-                     const std::map<uint8_t, uint16_t> &instrADSRHints,
-                     const std::wstring &name = L"FalcomSnesInstrSet");
-  virtual ~FalcomSnesInstrSet(void);
+                     uint32_t _addrSampToInstrTable,
+                     uint32_t _spcDirAddr,
+                     const std::map<uint8_t, uint16_t> &_instrADSRHints,
+                     const std::wstring &_name = L"FalcomSnesInstrSet");
+  virtual ~FalcomSnesInstrSet();
 
-  virtual bool GetHeaderInfo();
-  virtual bool GetInstrPointers();
+  bool GetHeaderInfo() override;
+  bool GetInstrPointers() override;
 
   FalcomSnesVersion version;
 
@@ -51,12 +51,12 @@ class FalcomSnesInstr
                   uint32_t offset,
                   uint32_t theBank,
                   uint32_t theInstrNum,
-                  uint8_t srcn,
-                  uint32_t spcDirAddr,
-                  const std::wstring &name = L"FalcomSnesInstr");
-  virtual ~FalcomSnesInstr(void);
+                  uint8_t _srcn,
+                  uint32_t _spcDirAddr,
+                  const std::wstring &_name = L"FalcomSnesInstr");
+  ~FalcomSnesInstr() override;
 
-  virtual bool LoadInstr();
+  bool LoadInstr() override;
 
   static bool IsValidHeader
       (RawFile *file, FalcomSnesVersion version, uint32_t addrInstrHeader, uint32_t spcDirAddr, bool validateSample);
@@ -79,9 +79,9 @@ class FalcomSnesRgn
              FalcomSnesVersion ver,
              uint32_t offset,
              uint8_t srcn);
-  virtual ~FalcomSnesRgn(void);
+  ~FalcomSnesRgn() override;
 
-  virtual bool LoadRgn();
+  bool LoadRgn() override;
 
   FalcomSnesVersion version;
 };

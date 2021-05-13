@@ -2,8 +2,8 @@
 
 template<class T>
 void DeleteVect(std::vector<T *> &theArray) {
-  int nArraySize = (int) theArray.size();
-  for (int i = 0; i < nArraySize; i++)
+  auto nArraySize = theArray.size();
+  for (decltype(nArraySize) i = 0; i < nArraySize; i++)
     delete theArray[i];
   theArray.clear();
 }
@@ -27,13 +27,13 @@ void DeleteMap(std::map<T1, T2 *> &container) {
 
 template<class T>
 inline void PushTypeOnVect(std::vector<uint8_t> &theVector, T unit) {
-  theVector.insert(theVector.end(), ((uint8_t *) &unit), ((uint8_t *) (&unit)) + sizeof(T));
+  theVector.insert(theVector.end(), reinterpret_cast<uint8_t *>(&unit), reinterpret_cast<uint8_t *>(&unit) + sizeof(T));
 }
 
 template<class T>
 inline void PushTypeOnVectBE(std::vector<uint8_t> &theVector, T unit) {
   for (uint32_t i = 0; i < sizeof(T); i++)
-    theVector.push_back(*(((uint8_t *) (&unit)) - i + sizeof(T) - 1));
+    theVector.push_back(*((reinterpret_cast<uint8_t *>(&unit)) - i + sizeof(T) - 1));
 }
 
 inline void PushBackStringOnVector(std::vector<uint8_t> &theVector, std::string &str) {

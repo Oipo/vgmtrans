@@ -6,7 +6,7 @@
 #include "VGMItem.h"
 #include "ScaleConversion.h"
 
-typedef struct _BRRBlk                //Sample Block
+struct BRRBlk               //Sample Block
 {
   struct {
     bool end:1;                       //End block
@@ -16,7 +16,7 @@ typedef struct _BRRBlk                //Sample Block
   } flag;
 
   uint8_t brr[8];                     //Compressed samples
-} BRRBlk;
+};
 
 // *************
 // SNES Envelope
@@ -58,10 +58,10 @@ void SNESConvADSR(T *rgn, uint8_t adsr1, uint8_t adsr2, uint8_t gain) {
 
   if (adsr_enabled) {
     // ADSR mode
-    uint8_t ar = adsr1 & 0x0f;
-    uint8_t dr = (adsr1 & 0x70) >> 4;
+//    uint8_t ar = adsr1 & 0x0f;
+//    uint8_t dr = (adsr1 & 0x70) >> 4;
     uint8_t sl = (adsr2 & 0xe0) >> 5;
-    uint8_t sr = adsr2 & 0x1f;
+//    uint8_t sr = adsr2 & 0x1f;
 
     ConvertSNESADSR(adsr1,
                     adsr2,
@@ -106,9 +106,9 @@ class SNESSampColl
   SNESSampColl(const std::string& format, VGMInstrSet* instrset, uint32_t offset, uint32_t maxNumSamps = 256);
   SNESSampColl(const std::string& format, RawFile* rawfile, uint32_t offset, const std::vector<uint8_t>& targetSRCNs, std::wstring name = L"SNESSampColl");
   SNESSampColl(const std::string& format, VGMInstrSet* instrset, uint32_t offset, const std::vector<uint8_t>& targetSRCNs, std::wstring name = L"SNESSampColl");
-  virtual ~SNESSampColl();
+  ~SNESSampColl() override;
 
-  virtual bool GetSampleInfo();
+  bool GetSampleInfo() override;
 
   static bool IsValidSampleDir(RawFile *file, uint32_t spcDirEntAddr, bool validateSample);
 
@@ -129,12 +129,12 @@ class SNESSamp
  public:
   SNESSamp(VGMSampColl *sampColl, uint32_t offset, uint32_t length, uint32_t dataOffset,
            uint32_t dataLen, uint32_t loopOffset, std::wstring name = L"BRR");
-  virtual ~SNESSamp(void);
+  ~SNESSamp() override;
 
   static uint32_t GetSampleLength(RawFile *file, uint32_t offset, bool &loop);
 
-  virtual double GetCompressionRatio();
-  virtual void ConvertToStdWave(uint8_t *buf);
+  double GetCompressionRatio() override;
+  void ConvertToStdWave(uint8_t *buf) override;
 
  private:
   void DecompBRRBlk(int16_t *pSmp, BRRBlk *pVBlk, int32_t *prev1, int32_t *prev2);

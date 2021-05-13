@@ -2,10 +2,10 @@
 #include "SPCLoader.h"
 #include "Root.h"
 
-SPCLoader::SPCLoader(void) {
+SPCLoader::SPCLoader() {
 }
 
-SPCLoader::~SPCLoader(void) {
+SPCLoader::~SPCLoader() {
 }
 
 PostLoadCommand SPCLoader::Apply(RawFile *file) {
@@ -64,7 +64,7 @@ PostLoadCommand SPCLoader::Apply(RawFile *file) {
 
       file->GetBytes(0xa9, 3, s);
       s[3] = '\0';
-      spcFile->tag.length = strtoul(s, NULL, 10);
+      spcFile->tag.length = strtoul(s, nullptr, 10);
     }
   }
 

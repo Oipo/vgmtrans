@@ -4,8 +4,8 @@
 class OrgScanner:
     public VGMScanner {
  public:
-  OrgScanner(void);
-  virtual ~OrgScanner(void);
+  OrgScanner();
+  virtual ~OrgScanner();
 
   virtual void Scan(RawFile *file, void *info = 0);
   void SearchForOrgSeq(RawFile *file);

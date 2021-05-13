@@ -4,10 +4,10 @@
 //static ExtensionDiscriminator theExtensionDiscriminator;
 //ExtensionDiscriminator ExtensionDiscriminator::instance;
 
-ExtensionDiscriminator::ExtensionDiscriminator(void) {
+ExtensionDiscriminator::ExtensionDiscriminator() {
 }
 
-ExtensionDiscriminator::~ExtensionDiscriminator(void) {
+ExtensionDiscriminator::~ExtensionDiscriminator() {
 }
 
 
@@ -19,7 +19,7 @@ int ExtensionDiscriminator::AddExtensionScannerAssoc(std::wstring extension, VGM
 std::list<VGMScanner *> *ExtensionDiscriminator::GetScannerList(std::wstring extension) {
   std::map<std::wstring, std::list<VGMScanner *> >::iterator iter = mScannerExt.find(StringToLower(extension));
   if (iter == mScannerExt.end())
-    return NULL;
+    return nullptr;
   else
     return &(*iter).second;
 }

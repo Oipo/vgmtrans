@@ -13,14 +13,14 @@ class CompileSnesInstrSet:
  public:
   CompileSnesInstrSet(RawFile *file,
                       CompileSnesVersion ver,
-                      uint16_t addrTuningTable,
-                      uint16_t addrPitchTablePtrs,
-                      uint32_t spcDirAddr,
-                      const std::wstring &name = L"CompileSnesInstrSet");
-  virtual ~CompileSnesInstrSet(void);
+                      uint16_t _addrTuningTable,
+                      uint16_t _addrPitchTablePtrs,
+                      uint32_t _spcDirAddr,
+                      const std::wstring &_name = L"CompileSnesInstrSet");
+  virtual ~CompileSnesInstrSet();
 
-  virtual bool GetHeaderInfo();
-  virtual bool GetInstrPointers();
+  bool GetHeaderInfo() override;
+  bool GetInstrPointers() override;
 
   CompileSnesVersion version;
 
@@ -41,13 +41,13 @@ class CompileSnesInstr
   CompileSnesInstr(VGMInstrSet *instrSet,
                    CompileSnesVersion ver,
                    uint16_t addrTuningTableItem,
-                   uint16_t addrPitchTablePtrs,
+                   uint16_t _addrPitchTablePtrs,
                    uint8_t srcn,
-                   uint32_t spcDirAddr,
-                   const std::wstring &name = L"CompileSnesInstr");
-  virtual ~CompileSnesInstr(void);
+                   uint32_t _spcDirAddr,
+                   const std::wstring &_name = L"CompileSnesInstr");
+  virtual ~CompileSnesInstr();
 
-  virtual bool LoadInstr();
+  bool LoadInstr() override;
 
   static uint32_t ExpectedSize(CompileSnesVersion version);
 
@@ -71,9 +71,9 @@ class CompileSnesRgn
                  uint16_t addrPitchTablePtrs,
                  uint8_t srcn,
                  uint32_t spcDirAddr);
-  virtual ~CompileSnesRgn(void);
+  virtual ~CompileSnesRgn();
 
-  virtual bool LoadRgn();
+  bool LoadRgn() override;
 
   CompileSnesVersion version;
 };

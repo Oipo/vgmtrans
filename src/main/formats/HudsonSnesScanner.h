@@ -7,10 +7,10 @@ enum HudsonSnesVersion: uint8_t; // see HudsonSnesFormat.h
 class HudsonSnesScanner:
     public VGMScanner {
  public:
-  HudsonSnesScanner(void) {
+  HudsonSnesScanner() {
     USE_EXTENSION(L"spc");
   }
-  virtual ~HudsonSnesScanner(void) {
+  virtual ~HudsonSnesScanner() {
   }
 
   virtual void Scan(RawFile *file, void *info = 0);

@@ -23,10 +23,10 @@ NamcoSnesSeq::NamcoSnesSeq(RawFile *file, NamcoSnesVersion ver, uint32_t seqdata
   LoadEventMap();
 }
 
-NamcoSnesSeq::~NamcoSnesSeq(void) {
+NamcoSnesSeq::~NamcoSnesSeq() {
 }
 
-void NamcoSnesSeq::ResetVars(void) {
+void NamcoSnesSeq::ResetVars() {
   VGMSeqNoTrks::ResetVars();
 
   vel = 100;
@@ -43,7 +43,7 @@ void NamcoSnesSeq::ResetVars(void) {
   }
 }
 
-bool NamcoSnesSeq::GetHeaderInfo(void) {
+bool NamcoSnesSeq::GetHeaderInfo() {
   SetPPQN(SEQ_PPQN);
   nNumTracks = MAX_TRACKS;
 
@@ -111,7 +111,7 @@ void NamcoSnesSeq::LoadEventMap() {
   ControlChangeNames[CONTROL_ADSR] = L"ADSR";
 }
 
-bool NamcoSnesSeq::ReadEvent(void) {
+bool NamcoSnesSeq::ReadEvent() {
   uint32_t beginOffset = curOffset;
   if (curOffset >= 0x10000) {
     return false;
@@ -525,7 +525,7 @@ bool NamcoSnesSeq::ReadEvent(void) {
                 uint8_t volumeRight = (newValue & 0x0f) << 4;
 
                 // TODO: apply volume scale
-                double linearPan = (double) volumeRight / (volumeLeft + volumeRight);
+                double linearPan = static_cast<double>( volumeRight / (volumeLeft + volumeRight);
                 uint8_t midiPan = ConvertLinearPercentPanValToStdMidiVal(linearPan);
 
                 AddPanNoItem(midiPan);
@@ -583,7 +583,7 @@ bool NamcoSnesSeq::ReadEvent(void) {
   return bContinue;
 }
 
-bool NamcoSnesSeq::PostLoad(void) {
+bool NamcoSnesSeq::PostLoad() {
   bool succeeded = VGMSeqNoTrks::PostLoad();
 
   if (VGMSeq::readMode == READMODE_CONVERT_TO_MIDI) {
@@ -593,7 +593,7 @@ bool NamcoSnesSeq::PostLoad(void) {
   return succeeded;
 }
 
-void NamcoSnesSeq::KeyOffAllNotes(void) {
+void NamcoSnesSeq::KeyOffAllNotes() {
   for (uint8_t trackIndex = 0; trackIndex < MAX_TRACKS; trackIndex++) {
     if (prevNoteKey[trackIndex] != -1) {
       channel = trackIndex;

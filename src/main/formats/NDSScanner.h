@@ -4,11 +4,11 @@
 class NDSScanner:
     public VGMScanner {
  public:
-  NDSScanner(void) {
+  NDSScanner() {
     USE_EXTENSION(L"nds")
     USE_EXTENSION(L"sdat")
   }
-  virtual ~NDSScanner(void) {
+  virtual ~NDSScanner() {
   }
 
 
