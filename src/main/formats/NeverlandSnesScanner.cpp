@@ -58,7 +58,6 @@ void NeverlandSnesScanner::Scan(RawFile *file, void *info) {
   else {
     SearchForNeverlandSnesFromROM(file);
   }
-  return;
 }
 
 void NeverlandSnesScanner::SearchForNeverlandSnesFromARAM(RawFile *file) {

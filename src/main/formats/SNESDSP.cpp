@@ -2,6 +2,8 @@
 
 #include "pch.h"
 #include "SNESDSP.h"
+
+#include <utility>
 #include "Root.h"
 
 // *************
@@ -67,7 +69,7 @@ uint32_t EmulateSDSPGAIN(uint8_t gain,
 
     while (env < env_to) {
       env += 0x20;
-      if (mode > 6 && (unsigned) env_prev >= 0x600) {
+      if (mode > 6 && static_cast<unsigned>(env_prev) >= 0x600) {
         env += 0x8 - 0x20; // 7: two-slope linear increase
       }
       env_prev = env;
@@ -314,34 +316,33 @@ void ConvertSNESADSR(uint8_t adsr1,
 // SNESSampColl
 // ************
 
-SNESSampColl::SNESSampColl(const std::string &format, RawFile *rawfile, uint32_t offset, uint32_t maxNumSamps) :
-    VGMSampColl(format, rawfile, offset, 0),
+SNESSampColl::SNESSampColl(const std::string &_format, RawFile *_rawfile, uint32_t offset, uint32_t maxNumSamps) :
+    VGMSampColl(_format, _rawfile, offset, 0),
     spcDirAddr(offset) {
   SetDefaultTargets(maxNumSamps);
 }
 
-SNESSampColl::SNESSampColl(const std::string &format, VGMInstrSet *instrset, uint32_t offset, uint32_t maxNumSamps) :
-    VGMSampColl(format, instrset->rawfile, instrset, offset, 0),
+SNESSampColl::SNESSampColl(const std::string &_format, VGMInstrSet *instrset, uint32_t offset, uint32_t maxNumSamps) :
+    VGMSampColl(_format, instrset->rawfile, instrset, offset, 0),
     spcDirAddr(offset) {
   SetDefaultTargets(maxNumSamps);
 }
 
-SNESSampColl::SNESSampColl(const std::string &format, RawFile *rawfile, uint32_t offset,
-                           const std::vector<uint8_t> &targetSRCNs, std::wstring name) :
-    VGMSampColl(format, rawfile, offset, 0, name),
-    spcDirAddr(offset),
-    targetSRCNs(targetSRCNs) {
+SNESSampColl::SNESSampColl(const std::string &_format, RawFile *_rawfile, uint32_t offset,
+                           const std::vector<uint8_t> &_targetSRCNs, std::wstring _name) :
+    VGMSampColl(_format, _rawfile, offset, 0, std::move(_name)),
+    targetSRCNs(_targetSRCNs),
+    spcDirAddr(offset) {
 }
 
-SNESSampColl::SNESSampColl(const std::string &format, VGMInstrSet *instrset, uint32_t offset,
-                           const std::vector<uint8_t> &targetSRCNs, std::wstring name) :
-    VGMSampColl(format, instrset->rawfile, instrset, offset, 0, name),
-    spcDirAddr(offset),
-    targetSRCNs(targetSRCNs) {
+SNESSampColl::SNESSampColl(const std::string &_format, VGMInstrSet *instrset, uint32_t offset,
+                           const std::vector<uint8_t> &_targetSRCNs, std::wstring _name) :
+    VGMSampColl(_format, instrset->rawfile, instrset, offset, 0, std::move(_name)),
+    targetSRCNs(_targetSRCNs),
+    spcDirAddr(offset) {
 }
 
-SNESSampColl::~SNESSampColl() {
-}
+SNESSampColl::~SNESSampColl() = default;
 
 void SNESSampColl::SetDefaultTargets(uint32_t maxNumSamps) {
   // limit sample count to 256
@@ -357,9 +358,8 @@ void SNESSampColl::SetDefaultTargets(uint32_t maxNumSamps) {
 
 bool SNESSampColl::GetSampleInfo() {
   spcDirHeader = AddHeader(spcDirAddr, 0, L"Sample DIR");
-  for (std::vector<uint8_t>::iterator itr = this->targetSRCNs.begin(); itr != this->targetSRCNs.end(); ++itr) {
-    uint8_t srcn = (*itr);
-    std::wostringstream name;
+  for (unsigned char srcn : this->targetSRCNs) {
+    std::wostringstream _name;
 
     uint32_t offDirEnt = spcDirAddr + (srcn * 4);
     if (!SNESSampColl::IsValidSampleDir(GetRawFile(), offDirEnt, true)) {
@@ -372,20 +372,20 @@ bool SNESSampColl::GetSampleInfo() {
     bool loop;
     uint32_t length = SNESSamp::GetSampleLength(GetRawFile(), addrSampStart, loop);
 
-    name << L"SA " << srcn;
-    spcDirHeader->AddSimpleItem(offDirEnt, 2, name.str().c_str());
+    _name << L"SA " << srcn;
+    spcDirHeader->AddSimpleItem(offDirEnt, 2, _name.str());
 
-    name.str(L"");
-    name << L"LSA " << srcn;
-    spcDirHeader->AddSimpleItem(offDirEnt + 2, 2, name.str().c_str());
+    _name.str(L"");
+    _name << L"LSA " << srcn;
+    spcDirHeader->AddSimpleItem(offDirEnt + 2, 2, _name.str());
 
-    name.str(L"");
-    name << L"Sample " << srcn;
-    SNESSamp *samp = new SNESSamp(this, addrSampStart, length, addrSampStart, length, addrSampLoop, name.str());
+    _name.str(L"");
+    _name << L"Sample " << srcn;
+    SNESSamp *samp = new SNESSamp(this, addrSampStart, length, addrSampStart, length, addrSampLoop, _name.str());
     samples.push_back(samp);
   }
   spcDirHeader->SetGuessedLength();
-  return samples.size() != 0;
+  return !samples.empty();
 }
 
 bool SNESSampColl::IsValidSampleDir(RawFile *file, uint32_t spcDirEntAddr, bool validateSample) {
@@ -420,13 +420,12 @@ bool SNESSampColl::IsValidSampleDir(RawFile *file, uint32_t spcDirEntAddr, bool 
 //  ********
 
 SNESSamp::SNESSamp(VGMSampColl *sampColl, uint32_t offset, uint32_t length, uint32_t dataOffset,
-                   uint32_t dataLen, uint32_t loopOffset, std::wstring name)
-    : VGMSamp(sampColl, offset, length, dataOffset, dataLen, 1, 16, 32000, name),
+                   uint32_t dataLen, uint32_t loopOffset, std::wstring _name)
+    : VGMSamp(sampColl, offset, length, dataOffset, dataLen, 1, 16, 32000, std::move(_name)),
       brrLoopOffset(loopOffset) {
 }
 
-SNESSamp::~SNESSamp() {
-}
+SNESSamp::~SNESSamp() = default;
 
 uint32_t SNESSamp::GetSampleLength(RawFile *file, uint32_t offset, bool &loop) {
   uint32_t currOffset = offset;
@@ -476,7 +475,7 @@ void SNESSamp::ConvertToStdWave(uint8_t *buf) {
     theBlock.flag.loop = (GetByte(dwOffset + k) & 0x02) != 0;
 
     GetRawFile()->GetBytes(dwOffset + k + 1, 8, theBlock.brr);
-    DecompBRRBlk((int16_t *) (&buf[k * 32 / 9]),
+    DecompBRRBlk(reinterpret_cast<int16_t *>(&buf[k * 32 / 9]),
                  &theBlock,
                  &prev1,
                  &prev2);    //each decompressed pcm block is 32 bytes
@@ -532,7 +531,7 @@ void SNESSamp::DecompBRRBlk(int16_t *pSmp, BRRBlk *pVBlk, int32_t *prev1, int32_
     sample2 >>= 4;
 
     for (nybble = 0; nybble < 2; nybble++) {
-      out = nybble ? (int32_t) sample2 : (int32_t) sample1;
+      out = nybble ? sample2 : sample1;
       out = validHeader ? ((out << pVBlk->flag.range) >> 1) : (out & ~0x7FF);
 
       switch (pVBlk->flag.filter) {

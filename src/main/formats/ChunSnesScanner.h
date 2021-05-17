@@ -10,10 +10,9 @@ class ChunSnesScanner:
   ChunSnesScanner() {
     USE_EXTENSION(L"spc");
   }
-  virtual ~ChunSnesScanner() {
-  }
+  ~ChunSnesScanner() override = default;
 
-  virtual void Scan(RawFile *file, void *info = 0);
+  void Scan(RawFile *file, void *info = 0) override;
   void SearchForChunSnesFromARAM(RawFile *file);
   void SearchForChunSnesFromROM(RawFile *file);
 

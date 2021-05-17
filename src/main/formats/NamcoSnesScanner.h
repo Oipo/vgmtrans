@@ -10,10 +10,9 @@ class NamcoSnesScanner:
   NamcoSnesScanner() {
     USE_EXTENSION(L"spc");
   }
-  virtual ~NamcoSnesScanner() {
-  }
+  ~NamcoSnesScanner() override = default;
 
-  virtual void Scan(RawFile *file, void *info = 0);
+  void Scan(RawFile *file, void *info = 0) override;
   void SearchForNamcoSnesFromARAM(RawFile *file);
   void SearchForNamcoSnesFromROM(RawFile *file);
 

@@ -95,7 +95,7 @@ class SonyPS2Instr
   } SplitBlock;
 
   SonyPS2Instr(VGMInstrSet *instrSet, uint32_t offset, uint32_t length, uint32_t theBank, uint32_t theInstrNum);
-  virtual ~SonyPS2Instr();
+  ~SonyPS2Instr() override;
 
   bool LoadInstr() override;
   int8_t ConvertPanVal(uint8_t panVal);
@@ -133,8 +133,8 @@ class SonyPS2InstrSet
   typedef struct _ProgCk {
     _ProgCk() : programOffsetAddr(0), progParamBlock(0) { }
     ~_ProgCk() {
-      if (programOffsetAddr) delete[] programOffsetAddr;
-      if (progParamBlock) delete[] progParamBlock;
+      delete[] programOffsetAddr;
+      delete[] progParamBlock;
     }
     uint32_t Creator;
     uint32_t Type;
@@ -146,7 +146,7 @@ class SonyPS2InstrSet
 
   typedef struct _SampSetParam {
     _SampSetParam() : sampleIndex(0) { }
-    ~_SampSetParam() { if (sampleIndex) delete[] sampleIndex; }
+    ~_SampSetParam() { delete[] sampleIndex; }
     uint8_t velCurve;
     uint8_t velLimitLow;
     uint8_t velLimitHigh;
@@ -157,8 +157,8 @@ class SonyPS2InstrSet
   typedef struct _SampSetCk {
     _SampSetCk() : sampleSetOffsetAddr(0), sampleSetParam(0) { }
     ~_SampSetCk() {
-      if (sampleSetOffsetAddr) delete[] sampleSetOffsetAddr;
-      if (sampleSetParam) delete[] sampleSetParam;
+      delete[] sampleSetOffsetAddr;
+      delete[] sampleSetParam;
     }
     uint32_t Creator;
     uint32_t Type;
@@ -209,8 +209,8 @@ class SonyPS2InstrSet
   typedef struct _SampCk {
     _SampCk() : sampleOffsetAddr(0), sampleParam(0) { }
     ~_SampCk() {
-      if (sampleOffsetAddr) delete[] sampleOffsetAddr;
-      if (sampleParam) delete[] sampleParam;
+      delete[] sampleOffsetAddr;
+      delete[] sampleParam;
     }
     uint32_t Creator;
     uint32_t Type;
@@ -230,8 +230,8 @@ class SonyPS2InstrSet
   typedef struct _VAGInfoCk {
     _VAGInfoCk() : vagInfoOffsetAddr(0), vagInfoParam(0) { }
     ~_VAGInfoCk() {
-      if (vagInfoOffsetAddr) delete[] vagInfoOffsetAddr;
-      if (vagInfoParam) delete[] vagInfoParam;
+      delete[] vagInfoOffsetAddr;
+      delete[] vagInfoParam;
     }
     uint32_t Creator;
     uint32_t Type;
@@ -242,7 +242,7 @@ class SonyPS2InstrSet
   } VAGInfoCk;
 
   SonyPS2InstrSet(RawFile *file, uint32_t offset);
-  virtual ~SonyPS2InstrSet();
+  ~SonyPS2InstrSet() override;
 
   bool GetHeaderInfo() override;
   bool GetInstrPointers() override;
@@ -264,7 +264,7 @@ class SonyPS2InstrSet
 class SonyPS2SampColl
     : public VGMSampColl {
  public:
-  SonyPS2SampColl(RawFile *file, uint32_t offset, uint32_t length = 0);
+  SonyPS2SampColl(RawFile *_rawfile, uint32_t offset, uint32_t length = 0);
 
-  virtual bool GetSampleInfo();
+  bool GetSampleInfo() override;
 };

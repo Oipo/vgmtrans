@@ -74,7 +74,7 @@ void VGMFileListView::keyPressEvent(QKeyEvent* e)
 
         QList<VGMFile*> filesToClose;
         foreach(const QModelIndex &index, list) {
-            if (index.row() < qtVGMRoot.vVGMFile.size())
+            if (index.row() >= 0 && static_cast<uint32_t>(index.row()) < qtVGMRoot.vVGMFile.size())
                 filesToClose.append(qtVGMRoot.vVGMFile[index.row()]);
         }
 

@@ -13,7 +13,7 @@ class VGMFileView : public QSplitter {
 
 public:
     VGMFileView(VGMFile *vgmFile);
-    ~VGMFileView();
+    ~VGMFileView() override;
 
     void addToMdi();
 

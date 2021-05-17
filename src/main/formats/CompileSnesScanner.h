@@ -10,10 +10,9 @@ class CompileSnesScanner:
   CompileSnesScanner() {
     USE_EXTENSION(L"spc");
   }
-  virtual ~CompileSnesScanner() {
-  }
+  ~CompileSnesScanner() override = default;
 
-  virtual void Scan(RawFile *file, void *info = 0);
+  void Scan(RawFile *file, void *info = 0) override;
   void SearchForCompileSnesFromARAM(RawFile *file);
   void SearchForCompileSnesFromROM(RawFile *file);
 

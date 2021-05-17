@@ -13,10 +13,10 @@ class NamcoSnesInstrSet:
  public:
   NamcoSnesInstrSet(RawFile *file,
                     NamcoSnesVersion ver,
-                    uint32_t spcDirAddr,
-                    uint16_t addrTuningTable,
-                    const std::wstring &name = L"NamcoSnesInstrSet");
-  virtual ~NamcoSnesInstrSet();
+                    uint32_t _spcDirAddr,
+                    uint16_t _addrTuningTable,
+                    const std::wstring &_name = L"NamcoSnesInstrSet");
+  ~NamcoSnesInstrSet() override;
 
   bool GetHeaderInfo() override;
   bool GetInstrPointers() override;
@@ -39,10 +39,10 @@ class NamcoSnesInstr
   NamcoSnesInstr(VGMInstrSet *instrSet,
                  NamcoSnesVersion ver,
                  uint8_t srcn,
-                 uint32_t spcDirAddr,
-                 uint16_t addrTuningEntry,
-                 const std::wstring &name = L"NamcoSnesInstr");
-  virtual ~NamcoSnesInstr();
+                 uint32_t _spcDirAddr,
+                 uint16_t _addrTuningEntry,
+                 const std::wstring &_name = L"NamcoSnesInstr");
+  ~NamcoSnesInstr() override;
 
   bool LoadInstr() override;
 
@@ -62,7 +62,7 @@ class NamcoSnesRgn
  public:
   NamcoSnesRgn
       (NamcoSnesInstr *instr, NamcoSnesVersion ver, uint8_t srcn, uint32_t spcDirAddr, uint16_t addrTuningEntry);
-  virtual ~NamcoSnesRgn();
+  ~NamcoSnesRgn() override;
 
   bool LoadRgn() override;
 

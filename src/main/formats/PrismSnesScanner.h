@@ -8,10 +8,9 @@ class PrismSnesScanner:
   PrismSnesScanner() {
     USE_EXTENSION(L"spc");
   }
-  virtual ~PrismSnesScanner() {
-  }
+  ~PrismSnesScanner() override = default;
 
-  virtual void Scan(RawFile *file, void *info = 0);
+  void Scan(RawFile *file, void *info = 0) override;
   void SearchForPrismSnesFromARAM(RawFile *file);
   void SearchForPrismSnesFromROM(RawFile *file);
 

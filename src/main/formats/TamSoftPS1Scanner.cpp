@@ -58,6 +58,4 @@ void TamSoftPS1Scanner::Scan(RawFile *file, void *info) {
       delete newInstrSet;
     }
   }
-
-  return;
 }

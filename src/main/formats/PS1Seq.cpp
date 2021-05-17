@@ -10,8 +10,7 @@ PS1Seq::PS1Seq(RawFile *file, uint32_t offset)
   //bWriteInitialTempo = false; // false, because the initial tempo is added by tempo event
 }
 
-PS1Seq::~PS1Seq() {
-}
+PS1Seq::~PS1Seq() = default;
 
 
 bool PS1Seq::GetHeaderInfo() {
@@ -21,7 +20,7 @@ bool PS1Seq::GetHeaderInfo() {
   nNumTracks = 16;
 
   uint8_t numer = GetByte(offset() + 0x0D);
-  uint8_t denom = GetByte(offset() + 0x0E);
+//  uint8_t denom = GetByte(offset() + 0x0E);
   if (numer == 0 || numer > 32)                //sanity check
     return false;
 
@@ -57,7 +56,7 @@ void PS1Seq::ResetVars() {
 
   uint8_t numer = GetByte(offset() + 0x0D);
   uint8_t denom = GetByte(offset() + 0x0E);
-  AddTimeSig(offset() + 0x0D, 2, numer, 1 << denom, (uint8_t) GetPPQN());
+  AddTimeSig(offset() + 0x0D, 2, numer, 1 << denom,  GetPPQN());
 }
 
 bool PS1Seq::ReadEvent() {
@@ -107,14 +106,15 @@ bool PS1Seq::ReadEvent() {
 
   switch (status_byte & 0xF0) {
     //note event
-    case 0x90 :
-      key = GetByte(curOffset++);
-      vel = GetByte(curOffset++);
-      //if the velocity is > 0, it's a note on. otherwise it's a note off
+    case 0x90 : {
+      auto key = GetByte(curOffset++);
+      auto vel = GetByte(curOffset++);
+      // if the velocity is > 0, it's a note on. otherwise it's a note off
       if (vel > 0)
         AddNoteOn(beginOffset, curOffset - beginOffset, key, vel);
       else
         AddNoteOff(beginOffset, curOffset - beginOffset, key);
+    }
       break;
 
     case 0xB0 : {

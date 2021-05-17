@@ -8,13 +8,9 @@ using namespace std;
 #define SNSF_VERSION    0x23
 #define SNSF_MAX_ROM_SIZE    0x600000
 
-wchar_t *GetFileWithBase(const wchar_t *f, const wchar_t *newfile);
+SNSFLoader::SNSFLoader() = default;
 
-SNSFLoader::SNSFLoader() {
-}
-
-SNSFLoader::~SNSFLoader() {
-}
+SNSFLoader::~SNSFLoader() = default;
 
 PostLoadCommand SNSFLoader::Apply(RawFile *file) {
   uint8_t sig[4];
@@ -36,7 +32,7 @@ PostLoadCommand SNSFLoader::Apply(RawFile *file) {
       //pRoot->UI_WriteBufferToFile(L"uncomp.smc", exebuf, exebufsize);
 
       wstring str = file->GetFileName();
-      pRoot->CreateVirtFile(exebuf, (uint32_t) exebufsize, str.data(), L"", file->tag);
+      pRoot->CreateVirtFile(exebuf, exebufsize, str, L"", file->tag);
       return DELETE_IT;
     }
   }

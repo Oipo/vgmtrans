@@ -87,7 +87,6 @@ void PandoraBoxSnesScanner::Scan(RawFile *file, void *info) {
   else {
     SearchForPandoraBoxSnesFromROM(file);
   }
-  return;
 }
 
 void PandoraBoxSnesScanner::SearchForPandoraBoxSnesFromARAM(RawFile *file) {

@@ -60,7 +60,6 @@ void SoftCreatSnesScanner::Scan(RawFile *file, void *info) {
   else {
     SearchForSoftCreatSnesFromROM(file);
   }
-  return;
 }
 
 void SoftCreatSnesScanner::SearchForSoftCreatSnesFromARAM(RawFile *file) {
@@ -94,10 +93,10 @@ void SoftCreatSnesScanner::SearchForSoftCreatSnesFromARAM(RawFile *file) {
   // search vcmd address table for version check
   uint32_t ofsVCmdExec;
   uint8_t VCMD_CUTOFF;
-  uint16_t addrVCmdAddressTable;
+//  uint16_t addrVCmdAddressTable;
   if (file->SearchBytePattern(ptnVCmdExec, ofsVCmdExec)) {
     VCMD_CUTOFF = file->GetByte(ofsVCmdExec + 6);
-    addrVCmdAddressTable = file->GetByte(ofsVCmdExec + 16);
+//    addrVCmdAddressTable = file->GetByte(ofsVCmdExec + 16);
   }
   else {
     return;

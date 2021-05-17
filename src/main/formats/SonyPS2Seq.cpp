@@ -12,44 +12,43 @@ using namespace std;
 SonyPS2Seq::SonyPS2Seq(RawFile *file, uint32_t offset)
     : VGMSeqNoTrks(SonyPS2Format::name, file, offset),
       compOption(0),
-      bSkipDeltaTime(0) {
+      bSkipDeltaTime(false) {
   UseLinearAmplitudeScale();        // Onimusha: Kaede Theme track 2 for example of linear vol scale.
   UseReverb();
 }
 
-SonyPS2Seq::~SonyPS2Seq() {
-}
+SonyPS2Seq::~SonyPS2Seq() = default;
 
 bool SonyPS2Seq::GetHeaderInfo() {
   name() = L"Sony PS2 Seq";
-  uint32_t curOffset = offset();
+  uint32_t _curOffset = offset();
   //read the version chunk
-  GetBytes(curOffset, 0x10, &versCk);
-  VGMHeader *versCkHdr = VGMSeq::AddHeader(curOffset, versCk.chunkSize, L"Version Chunk");
-  versCkHdr->AddSimpleItem(curOffset, 4, L"Creator");
-  versCkHdr->AddSimpleItem(curOffset + 4, 4, L"Type");
-  curOffset += versCk.chunkSize;
+  GetBytes(_curOffset, 0x10, &versCk);
+  VGMHeader *versCkHdr = VGMSeq::AddHeader(_curOffset, versCk.chunkSize, L"Version Chunk");
+  versCkHdr->AddSimpleItem(_curOffset, 4, L"Creator");
+  versCkHdr->AddSimpleItem(_curOffset + 4, 4, L"Type");
+  _curOffset += versCk.chunkSize;
 
   //read the header chunk
-  GetBytes(curOffset, 0x20, &hdrCk);
-  VGMHeader *hdrCkHdr = VGMSeq::AddHeader(curOffset, hdrCk.chunkSize, L"Header Chunk");
-  hdrCkHdr->AddSimpleItem(curOffset, 4, L"Creator");
-  hdrCkHdr->AddSimpleItem(curOffset + 4, 4, L"Type");
-  curOffset += hdrCk.chunkSize;
+  GetBytes(_curOffset, 0x20, &hdrCk);
+  VGMHeader *hdrCkHdr = VGMSeq::AddHeader(_curOffset, hdrCk.chunkSize, L"Header Chunk");
+  hdrCkHdr->AddSimpleItem(_curOffset, 4, L"Creator");
+  hdrCkHdr->AddSimpleItem(_curOffset + 4, 4, L"Type");
+  _curOffset += hdrCk.chunkSize;
   //Now we're at the Midi chunk, which starts with the sig "SCEIMidi" (in 32bit little endian)
-  midiChunkSize = GetWord(curOffset + 8);
-  maxMidiNumber = GetWord(curOffset + 12);
+  midiChunkSize = GetWord(_curOffset + 8);
+  maxMidiNumber = GetWord(_curOffset + 12);
   //Get the first midi data block addr, which is provided relative to beginning of Midi chunk
-  midiOffsetAddr = GetWord(curOffset + 16) + curOffset;
-  curOffset = midiOffsetAddr;
+  midiOffsetAddr = GetWord(_curOffset + 16) + _curOffset;
+  _curOffset = midiOffsetAddr;
   //Now we're at the Midi Data Block
-  uint32_t sequenceOffset = GetWord(curOffset);        //read sequence offset
-  SetEventsOffset(curOffset + sequenceOffset);
-  SetPPQN(GetShort(curOffset + 4));                    //read ppqn value
+  uint32_t sequenceOffset = GetWord(_curOffset);        //read sequence offset
+  SetEventsOffset(_curOffset + sequenceOffset);
+  SetPPQN(GetShort(_curOffset + 4));                    //read ppqn value
 
   //if a compression mode is being applied
   if (sequenceOffset != 6) {
-    compOption = GetShort(curOffset + 6);            //read compression mode
+    compOption = GetShort(_curOffset + 6);            //read compression mode
   }
 
   nNumTracks = 16;
@@ -61,12 +60,12 @@ bool SonyPS2Seq::GetHeaderInfo() {
 
 bool SonyPS2Seq::ReadEvent() {
   uint32_t beginOffset = curOffset;
-  uint32_t deltaTime;
+  uint32_t _deltaTime;
   if (bSkipDeltaTime)
-    deltaTime = 0;
+    _deltaTime = 0;
   else
-    deltaTime = ReadVarLen(curOffset);
-  AddTime(deltaTime);
+    _deltaTime = ReadVarLen(curOffset);
+  AddTime(_deltaTime);
   if (curOffset >= rawfile->size())
     return false;
 
@@ -93,19 +92,21 @@ bool SonyPS2Seq::ReadEvent() {
 
   switch (status_byte & 0xF0) {
     //note off event. Unlike SMF, there is no velocity data byte, just the note val.
-    case 0x80 :
-      key = GetDataByte(curOffset++);
+    case 0x80 : {
+      auto key = GetDataByte(curOffset++);
       AddNoteOff(beginOffset, curOffset - beginOffset, key);
+    }
       break;
 
     //note on event (note off if velocity is zero)
-    case 0x90 :
-      key = GetByte(curOffset++);
-      vel = GetDataByte(curOffset++);
-      if (vel > 0)                                                    //if the velocity is > 0, it's a note on
+    case 0x90 : {
+      auto key = GetByte(curOffset++);
+      auto vel = GetDataByte(curOffset++);
+      if (vel > 0)  // if the velocity is > 0, it's a note on
         AddNoteOn(beginOffset, curOffset - beginOffset, key, vel);
-      else                                                            //otherwise it's a note off
+      else  // otherwise it's a note off
         AddNoteOff(beginOffset, curOffset - beginOffset, key);
+    }
       break;
 
     case 0xB0 : {

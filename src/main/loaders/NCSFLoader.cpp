@@ -8,13 +8,9 @@ using namespace std;
 #define NCSF_VERSION    0x25
 #define NCSF_MAX_ROM_SIZE    0x10000000
 
-wchar_t *GetFileWithBase(const wchar_t *f, const wchar_t *newfile);
+NCSFLoader::NCSFLoader() = default;
 
-NCSFLoader::NCSFLoader() {
-}
-
-NCSFLoader::~NCSFLoader() {
-}
+NCSFLoader::~NCSFLoader() = default;
 
 PostLoadCommand NCSFLoader::Apply(RawFile *file) {
   uint8_t sig[4];
@@ -36,7 +32,7 @@ PostLoadCommand NCSFLoader::Apply(RawFile *file) {
       //pRoot->UI_WriteBufferToFile(L"uncomp.sdat", exebuf, exebufsize);
 
       wstring str = file->GetFileName();
-      pRoot->CreateVirtFile(exebuf, (uint32_t) exebufsize, str.data(), L"", file->tag);
+      pRoot->CreateVirtFile(exebuf, exebufsize, str, L"", file->tag);
       return DELETE_IT;
     }
   }

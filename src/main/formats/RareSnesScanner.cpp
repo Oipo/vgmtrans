@@ -109,7 +109,6 @@ void RareSnesScanner::Scan(RawFile *file, void *info) {
   else {
     SearchForRareSnesFromROM(file);
   }
-  return;
 }
 
 void RareSnesScanner::SearchForRareSnesFromARAM(RawFile *file) {
@@ -195,15 +194,14 @@ void RareSnesScanner::SearchForRareSnesFromARAM(RawFile *file) {
   uint8_t maxSRCN = 0;
   std::vector<uint8_t> usedSRCNs;
   const std::vector<uint8_t> &availInstruments = newInstrSet->GetAvailableInstruments();
-  for (std::vector<uint8_t>::const_iterator itr = availInstruments.begin(); itr != availInstruments.end(); ++itr) {
-    uint8_t inst = (*itr);
+  for (unsigned char inst : availInstruments) {
     uint8_t srcn = file->GetByte(addrSRCNTable + inst);
 
     if (maxSRCN < srcn) {
       maxSRCN = srcn;
     }
 
-    std::vector<uint8_t>::iterator itrSRCN = find(usedSRCNs.begin(), usedSRCNs.end(), srcn);
+    auto itrSRCN = find(usedSRCNs.begin(), usedSRCNs.end(), srcn);
     if (itrSRCN == usedSRCNs.end()) {
       usedSRCNs.push_back(srcn);
     }

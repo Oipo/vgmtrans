@@ -71,7 +71,7 @@ void RawFileListView::keyPressEvent(QKeyEvent* e)
 
         QList<RawFile*> filesToClose;
         foreach(const QModelIndex &index, list) {
-            if (index.row() < qtVGMRoot.vRawFile.size())
+            if (index.row() >= 0 && static_cast<uint32_t>(index.row()) < qtVGMRoot.vRawFile.size())
                 filesToClose.append(qtVGMRoot.vRawFile[index.row()]);
         }
 

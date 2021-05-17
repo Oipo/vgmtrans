@@ -10,10 +10,9 @@ class SuzukiSnesScanner:
   SuzukiSnesScanner() {
     USE_EXTENSION(L"spc");
   }
-  virtual ~SuzukiSnesScanner() {
-  }
+  ~SuzukiSnesScanner() override = default;
 
-  virtual void Scan(RawFile *file, void *info = 0);
+  void Scan(RawFile *file, void *info = 0) override;
   void SearchForSuzukiSnesFromARAM(RawFile *file);
   void SearchForSuzukiSnesFromROM(RawFile *file);
 

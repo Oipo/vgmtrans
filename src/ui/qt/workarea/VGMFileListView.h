@@ -15,11 +15,11 @@ class VGMFileListViewModel : public QAbstractListModel
     Q_OBJECT
 
 public:
-    VGMFileListViewModel(QObject *parent = 0);
+    VGMFileListViewModel(QObject *parent = nullptr);
 
-    int rowCount ( const QModelIndex & parent = QModelIndex() ) const;
+    [[nodiscard]] int rowCount ( const QModelIndex & parent = QModelIndex() ) const override;
 
-    QVariant data ( const QModelIndex & index, int role = Qt::DisplayRole ) const;
+    [[nodiscard]] QVariant data ( const QModelIndex & index, int role = Qt::DisplayRole ) const override;
 
 public slots:
     void changedVGMFiles();
@@ -32,9 +32,9 @@ class VGMFileListView : public QListView
     Q_OBJECT
 
 public:
-    VGMFileListView(QWidget *parent = 0);
+    VGMFileListView(QWidget *parent = nullptr);
 
-    void keyPressEvent(QKeyEvent* e);
+    void keyPressEvent(QKeyEvent* e) override;
 //    void mouseDoubleClickEvent(QMouseEvent *event);
 public slots:
     void doubleClickedSlot(QModelIndex);

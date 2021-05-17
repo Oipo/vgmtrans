@@ -10,10 +10,9 @@ class HeartBeatSnesScanner:
   HeartBeatSnesScanner() {
     USE_EXTENSION(L"spc");
   }
-  virtual ~HeartBeatSnesScanner() {
-  }
+  ~HeartBeatSnesScanner() override = default;
 
-  virtual void Scan(RawFile *file, void *info = 0);
+  void Scan(RawFile *file, void *info = 0) override;
   void SearchForHeartBeatSnesFromARAM(RawFile *file) const;
   void SearchForHeartBeatSnesFromROM(RawFile *file) const;
 

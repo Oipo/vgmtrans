@@ -5,16 +5,13 @@
 
 #define SRCH_BUF_SIZE 0x20000
 
-SquarePS2Scanner::SquarePS2Scanner() {
-}
+SquarePS2Scanner::SquarePS2Scanner() = default;
 
-SquarePS2Scanner::~SquarePS2Scanner() {
-}
+SquarePS2Scanner::~SquarePS2Scanner() = default;
 
 void SquarePS2Scanner::Scan(RawFile *file, void *info) {
   SearchForBGMSeq(file);
   SearchForWDSet(file);
-  return;
 }
 
 void SquarePS2Scanner::SearchForBGMSeq(RawFile *file) {
@@ -25,11 +22,11 @@ void SquarePS2Scanner::SearchForBGMSeq(RawFile *file) {
       if (file->GetWord(i + 0x14) == 0 && file->GetWord(i + 0x18) == 0 && file->GetWord(i + 0x1C) == 0) {
         uint8_t nNumTracks = (*file)[i + 8];
         uint32_t pos = i + 0x20;    //start at first track (fixed offset)
-        bool bValid = true;
+//        bool bValid = true;
         for (int j = 0; j < nNumTracks; j++) {
           uint32_t trackSize = file->GetWord(pos);        //get the track size (first word before track data)
           if (trackSize + pos + j > nFileLength || trackSize == 0 || trackSize > 0xFFFF) {
-            bValid = false;
+//            bValid = false;
             break;
           }
           //jump to the next track
@@ -81,7 +78,7 @@ void SquarePS2Scanner::SearchForWDSet(RawFile *file) {
 
             //if there are at least 3 zeroOffsetCounters and more than half
             // /of all samples are offset 0, something is fishy.  Assume false-positive
-            if (zeroOffsetCounter >= 3 && zeroOffsetCounter / static_cast<float>( numRegions > 0.50) {
+            if (zeroOffsetCounter >= 3 && zeroOffsetCounter / static_cast<float>( numRegions) > 0.50) {
               bValid = false;
               break;
             }

@@ -19,19 +19,19 @@ class SoftCreatSnesSeq
   SoftCreatSnesSeq(RawFile *file,
                    SoftCreatSnesVersion ver,
                    uint32_t seqdata_offset,
-                   uint8_t headerAlignSize,
+                   uint8_t _headerAlignSize,
                    std::wstring newName = L"SoftCreat SNES Seq");
-  virtual ~SoftCreatSnesSeq();
+  ~SoftCreatSnesSeq() override;
 
   bool GetHeaderInfo() override;
-  virtual bool GetTrackPointers();
-  virtual void ResetVars();
+  bool GetTrackPointers() override;
+  void ResetVars() override;
 
   SoftCreatSnesVersion version;
   std::map<uint8_t, SoftCreatSnesSeqEventType> EventMap;
 
  private:
-  void LoadEventMap();
+  void LoadEventMap() const;
 
   uint8_t headerAlignSize;
 };
@@ -41,6 +41,6 @@ class SoftCreatSnesTrack
     : public SeqTrack {
  public:
   SoftCreatSnesTrack(SoftCreatSnesSeq *parentFile, long offset = 0, long length = 0);
-  virtual void ResetVars();
-  virtual bool ReadEvent();
+  void ResetVars() override;
+  bool ReadEvent() override;
 };

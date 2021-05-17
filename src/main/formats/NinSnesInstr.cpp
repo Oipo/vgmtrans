@@ -9,16 +9,15 @@
 NinSnesInstrSet::NinSnesInstrSet(RawFile *file,
                                  NinSnesVersion ver,
                                  uint32_t offset,
-                                 uint32_t spcDirAddr,
-                                 const std::wstring &name) :
-    VGMInstrSet(NinSnesFormat::name, file, offset, 0, name), version(ver),
-    spcDirAddr(spcDirAddr),
+                                 uint32_t _spcDirAddr,
+                                 const std::wstring &_name) :
+    VGMInstrSet(NinSnesFormat::name, file, offset, 0, _name), version(ver),
     konamiTuningTableAddress(0),
-    konamiTuningTableSize(0) {
+    konamiTuningTableSize(0),
+    spcDirAddr(_spcDirAddr) {
 }
 
-NinSnesInstrSet::~NinSnesInstrSet() {
-}
+NinSnesInstrSet::~NinSnesInstrSet() = default;
 
 bool NinSnesInstrSet::GetHeaderInfo() {
   return true;
@@ -67,8 +66,8 @@ bool NinSnesInstrSet::GetInstrPointers() {
     uint16_t addrSampStart = GetShort(offDirEnt);
     uint16_t addrLoopStart = GetShort(offDirEnt + 2);
 
-    if (addrSampStart == 0x0000 && addrLoopStart == 0x0000 ||
-        addrSampStart == 0xffff && addrLoopStart == 0xffff) {
+    if ((addrSampStart == 0x0000 && addrLoopStart == 0x0000) ||
+        (addrSampStart == 0xffff && addrLoopStart == 0xffff)) {
       // example: Lemmings - Stage Clear (00 00 00 00)
       // example: Yoshi's Island - Bowser (ff ff ff ff)
       continue;
@@ -86,7 +85,7 @@ bool NinSnesInstrSet::GetInstrPointers() {
       }
     }
 
-    std::vector<uint8_t>::iterator itrSRCN = find(usedSRCNs.begin(), usedSRCNs.end(), srcn);
+    auto itrSRCN = find(usedSRCNs.begin(), usedSRCNs.end(), srcn);
     if (itrSRCN == usedSRCNs.end()) {
       usedSRCNs.push_back(srcn);
     }
@@ -99,7 +98,7 @@ bool NinSnesInstrSet::GetInstrPointers() {
     newInstr->konamiTuningTableSize = konamiTuningTableSize;
     aInstrs.push_back(newInstr);
   }
-  if (aInstrs.size() == 0) {
+  if (aInstrs.empty()) {
     return false;
   }
 
@@ -122,16 +121,15 @@ NinSnesInstr::NinSnesInstr(VGMInstrSet *instrSet,
                            uint32_t offset,
                            uint32_t theBank,
                            uint32_t theInstrNum,
-                           uint32_t spcDirAddr,
-                           const std::wstring &name) :
-    VGMInstr(instrSet, offset, NinSnesInstr::ExpectedSize(ver), theBank, theInstrNum, name), version(ver),
-    spcDirAddr(spcDirAddr),
+                           uint32_t _spcDirAddr,
+                           const std::wstring &_name) :
+    VGMInstr(instrSet, offset, NinSnesInstr::ExpectedSize(ver), theBank, theInstrNum, _name), version(ver),
     konamiTuningTableAddress(0),
-    konamiTuningTableSize(0) {
+    konamiTuningTableSize(0),
+    spcDirAddr(_spcDirAddr) {
 }
 
-NinSnesInstr::~NinSnesInstr() {
-}
+NinSnesInstr::~NinSnesInstr() = default;
 
 bool NinSnesInstr::LoadInstr() {
   uint8_t srcn = GetByte(dwOffset);
@@ -174,7 +172,7 @@ bool NinSnesInstr::IsValidHeader(RawFile *file,
 
   uint8_t srcn = file->GetByte(addrInstrHeader);
   uint8_t adsr1 = file->GetByte(addrInstrHeader + 1);
-  uint8_t adsr2 = file->GetByte(addrInstrHeader + 2);
+//  uint8_t adsr2 = file->GetByte(addrInstrHeader + 2);
   uint8_t gain = file->GetByte(addrInstrHeader + 3);
 
   if (srcn >= 0x80 || (adsr1 == 0 && gain == 0)) {
@@ -220,7 +218,7 @@ NinSnesRgn::NinSnesRgn(NinSnesInstr *instr,
   uint8_t gain = GetByte(offset + 3);
   int16_t pitch_scale;
   if (version == NINSNES_EARLIER) {
-    pitch_scale = (int8_t) GetByte(offset + 4) * 256;
+    pitch_scale = GetByte(offset + 4) * 256;
   }
   else {
     pitch_scale = GetShortBE(offset + 4);
@@ -246,41 +244,40 @@ NinSnesRgn::NinSnesRgn(NinSnesInstr *instr,
   AddSimpleItem(offset + 2, 1, L"ADSR2");
   AddSimpleItem(offset + 3, 1, L"GAIN");
   if (version == NINSNES_EARLIER) {
-    AddUnityKey(96 - (int) (coarse_tuning), offset + 4, 1);
-    AddFineTune((int16_t) (fine_tuning * 100.0), offset + 4, 1);
+    AddUnityKey(96 - static_cast<int>(coarse_tuning), offset + 4, 1);
+    AddFineTune(static_cast<int16_t>(fine_tuning * 100.0), offset + 4, 1);
   }
   else if (version == NINSNES_KONAMI && konamiTuningTableAddress != 0) {
     uint16_t addrTuningTableCoarse = konamiTuningTableAddress;
     uint16_t addrTuningTableFine = konamiTuningTableAddress + konamiTuningTableSize;
 
-    int8_t coarse_tuning;
-    uint8_t fine_tuning;
+    int8_t _coarse_tuning;
+    uint8_t _fine_tuning;
     if (srcn < konamiTuningTableSize) {
-      coarse_tuning = GetByte(addrTuningTableCoarse + srcn);
-      fine_tuning = GetByte(addrTuningTableFine + srcn);
+      _coarse_tuning = GetByte(addrTuningTableCoarse + srcn);
+      _fine_tuning = GetByte(addrTuningTableFine + srcn);
     }
     else {
-      coarse_tuning = 0;
-      fine_tuning = 0;
+      _coarse_tuning = 0;
+      _fine_tuning = 0;
     }
 
-    double fine_tune_real = fine_tuning / 256.0;
+    double fine_tune_real = _fine_tuning / 256.0;
     fine_tune_real += log(4045.0 / 4096.0) / log(2) * 12; // -21.691 cents
 
-    unityKey = 71 - coarse_tuning;
-    fineTune = (int16_t) (fine_tune_real * 100.0);
+    unityKey = 71 - _coarse_tuning;
+    fineTune = static_cast<int16_t>(fine_tune_real * 100.0);
 
     AddSimpleItem(offset + 4, 2, L"Tuning (Unused)");
   }
   else {
-    AddUnityKey(96 - (int) (coarse_tuning), offset + 4, 1);
-    AddFineTune((int16_t) (fine_tuning * 100.0), offset + 5, 1);
+    AddUnityKey(96 - static_cast<int>(coarse_tuning), offset + 4, 1);
+    AddFineTune(static_cast<int16_t>(fine_tuning * 100.0), offset + 5, 1);
   }
   SNESConvADSR<VGMRgn>(this, adsr1, adsr2, gain);
 }
 
-NinSnesRgn::~NinSnesRgn() {
-}
+NinSnesRgn::~NinSnesRgn() = default;
 
 bool NinSnesRgn::LoadRgn() {
   return true;

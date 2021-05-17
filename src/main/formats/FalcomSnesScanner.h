@@ -8,10 +8,9 @@ class FalcomSnesScanner:
   FalcomSnesScanner() {
     USE_EXTENSION(L"spc");
   }
-  virtual ~FalcomSnesScanner() {
-  }
+  ~FalcomSnesScanner() override = default;
 
-  virtual void Scan(RawFile *file, void *info = 0);
+  void Scan(RawFile *file, void *info = 0) override;
   void SearchForFalcomSnesFromARAM(RawFile *file);
   void SearchForFalcomSnesFromROM(RawFile *file);
 

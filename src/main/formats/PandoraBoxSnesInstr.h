@@ -13,13 +13,13 @@ class PandoraBoxSnesInstrSet:
  public:
   PandoraBoxSnesInstrSet(RawFile *file,
                          PandoraBoxSnesVersion ver,
-                         uint32_t spcDirAddr,
-                         uint16_t addrLocalInstrTable,
-                         uint16_t addrGlobalInstrTable,
-                         uint8_t globalInstrumentCount,
-                         const std::map<uint8_t, uint16_t> &instrADSRHints = std::map<uint8_t, uint16_t>(),
+                         uint32_t _spcDirAddr,
+                         uint16_t _addrLocalInstrTable,
+                         uint16_t _addrGlobalInstrTable,
+                         uint8_t _globalInstrumentCount,
+                         const std::map<uint8_t, uint16_t> &_instrADSRHints = std::map<uint8_t, uint16_t>(),
                          const std::wstring &name = L"PandoraBoxSnesInstrSet");
-  virtual ~PandoraBoxSnesInstrSet();
+  ~PandoraBoxSnesInstrSet() override;
 
   bool GetHeaderInfo() override;
   bool GetInstrPointers() override;
@@ -47,11 +47,11 @@ class PandoraBoxSnesInstr
                       PandoraBoxSnesVersion ver,
                       uint32_t offset,
                       uint8_t theInstrNum,
-                      uint8_t srcn,
-                      uint32_t spcDirAddr,
-                      uint16_t adsr = 0x8fe0,
-                      const std::wstring &name = L"PandoraBoxSnesInstr");
-  virtual ~PandoraBoxSnesInstr();
+                      uint8_t _srcn,
+                      uint32_t _spcDirAddr,
+                      uint16_t _adsr = 0x8fe0,
+                      const std::wstring &_name = L"PandoraBoxSnesInstr");
+  ~PandoraBoxSnesInstr() override;
 
   bool LoadInstr() override;
 
@@ -76,7 +76,7 @@ class PandoraBoxSnesRgn
                     uint8_t srcn,
                     uint32_t spcDirAddr,
                     uint16_t adsr = 0x8fe0);
-  virtual ~PandoraBoxSnesRgn();
+  ~PandoraBoxSnesRgn() override;
 
   bool LoadRgn() override;
 

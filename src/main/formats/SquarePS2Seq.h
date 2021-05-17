@@ -7,11 +7,11 @@ class BGMSeq:
     public VGMSeq {
  public:
   BGMSeq(RawFile *file, uint32_t offset);
-  virtual ~BGMSeq();
+  ~BGMSeq() override;
 
   bool GetHeaderInfo() override;
-  virtual bool GetTrackPointers();
-  virtual uint32_t GetID() { return assocWDID; }
+  bool GetTrackPointers() override;
+  optional<uint32_t> GetID() override { return assocWDID; }
 
  protected:
   unsigned short seqID;
@@ -22,7 +22,10 @@ class BGMSeq:
 class BGMTrack
     : public SeqTrack {
  public:
-  BGMTrack(BGMSeq *parentSeq, long offset = 0, long length = 0);
+  BGMTrack(BGMSeq *_parentSeq, long offset = 0, long length = 0);
 
-  virtual bool ReadEvent();
+  bool ReadEvent() override;
+
+  int8_t vel{DEFAULT_VEL};
+  int8_t key{};
 };

@@ -8,10 +8,9 @@ class PandoraBoxSnesScanner:
   PandoraBoxSnesScanner() {
     USE_EXTENSION(L"spc");
   }
-  virtual ~PandoraBoxSnesScanner() {
-  }
+  ~PandoraBoxSnesScanner() override = default;
 
-  virtual void Scan(RawFile *file, void *info = 0);
+  void Scan(RawFile *file, void *info = 0) override;
   void SearchForPandoraBoxSnesFromARAM(RawFile *file);
   void SearchForPandoraBoxSnesFromROM(RawFile *file);
 

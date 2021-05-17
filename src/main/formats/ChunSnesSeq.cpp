@@ -806,7 +806,7 @@ bool ChunSnesTrack::ReadEvent() {
 
   //std::wostringstream ssTrace;
   //ssTrace << L"" << std::hex << std::setfill(L'0') << std::setw(8) << std::uppercase << beginOffset << L": " << std::setw(2) <<statusByte  << L" -> " << std::setw(8) << curOffset << std::endl;
-  //OutputDebugString(ssTrace.str().c_str());
+  //OutputDebugString(ssTrace.str());
 
   return bContinue;
 }

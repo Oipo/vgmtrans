@@ -11,8 +11,8 @@ DECLARE_FORMAT(TriAcePS1);
 // TriAcePS1Seq
 // ************
 
-TriAcePS1Seq::TriAcePS1Seq(RawFile *file, uint32_t offset, const std::wstring &name)
-    : VGMSeq(TriAcePS1Format::name, file, offset, 0, name) {
+TriAcePS1Seq::TriAcePS1Seq(RawFile *file, uint32_t offset, const std::wstring &_name)
+    : VGMSeq(TriAcePS1Format::name, file, offset, 0, _name) {
   AddContainer<TriAcePS1ScorePattern>(aScorePatterns);
   UseLinearAmplitudeScale();
   UseReverb();
@@ -47,7 +47,7 @@ bool TriAcePS1Seq::GetTrackPointers() {
     if (TrkInfos[i].trkOffset != 0) {
       aTracks.push_back(new TriAcePS1Track(this, TrkInfos[i].trkOffset, 0));
 
-      VGMHeader *TrkInfoBlock = TrkInfoHeader->AddHeader(dwOffset + 0x16 + 6 * i, 6, L"Track Info");
+      /*VGMHeader *TrkInfoBlock =*/ TrkInfoHeader->AddHeader(dwOffset + 0x16 + 6 * i, 6, L"Track Info");
     }
   return true;
 }
@@ -60,12 +60,12 @@ void TriAcePS1Seq::ResetVars() {
 // TriAcePS1Track
 // **************
 
-TriAcePS1Track::TriAcePS1Track(TriAcePS1Seq *parentSeq, long offset, long length)
-    : SeqTrack(parentSeq, offset, length) {
+TriAcePS1Track::TriAcePS1Track(TriAcePS1Seq *_parentSeq, long offset, long length)
+    : SeqTrack(_parentSeq, offset, length) {
 }
 
 void TriAcePS1Track::LoadTrackMainLoop(uint32_t stopOffset, int32_t stopTime) {
-  TriAcePS1Seq *seq = (TriAcePS1Seq *) parentSeq;
+  TriAcePS1Seq *seq = dynamic_cast<TriAcePS1Seq *>(parentSeq);
   uint32_t scorePatternPtrOffset = dwOffset;
   uint16_t scorePatternOffset = GetShort(scorePatternPtrOffset);
   while (scorePatternOffset != 0xFFFF) {
@@ -86,7 +86,6 @@ void TriAcePS1Track::LoadTrackMainLoop(uint32_t stopOffset, int32_t stopTime) {
   }
   AddEndOfTrack(scorePatternPtrOffset, 2);
   unLength = scorePatternPtrOffset + 2 - dwOffset;
-  return;
 }
 
 
@@ -153,7 +152,7 @@ bool TriAcePS1Track::ReadEvent() {
       //pitch bend
       case 0x84 : {
         event_dur = GetByte(curOffset++);
-        short bend = ((char) GetByte(curOffset++)) << 7;
+        short bend = static_cast<char>(GetByte(curOffset++)) << 7;
         AddPitchBend(beginOffset, curOffset - beginOffset, bend);
         break;
       }
@@ -199,7 +198,7 @@ bool TriAcePS1Track::ReadEvent() {
       //unknown (tempo?)
       case 0x8A : {
         event_dur = GetByte(curOffset++);
-        uint8_t val = GetByte(curOffset++);
+        /*uint8_t val =*/ GetByte(curOffset++);
         AddUnknown(beginOffset, curOffset - beginOffset, L"Unknown Event (tempo?)");
         break;
       }
@@ -317,7 +316,7 @@ bool TriAcePS1Track::IsOffsetUsed(uint32_t offset) {
 }
 
 void TriAcePS1Track::AddEvent(SeqEvent *pSeqEvent) {
-  TriAcePS1ScorePattern *pattern = ((TriAcePS1Seq *) parentSeq)->curScorePattern;
+  TriAcePS1ScorePattern *pattern = dynamic_cast<TriAcePS1Seq *>(parentSeq)->curScorePattern;
   if (pattern == nullptr) {
     // it must be already added, reject it
     delete pSeqEvent;

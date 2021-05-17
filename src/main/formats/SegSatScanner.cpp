@@ -4,18 +4,16 @@
 
 #define SRCH_BUF_SIZE 0x20000
 
-SegSatScanner::SegSatScanner() {
-}
+SegSatScanner::SegSatScanner() = default;
 
-SegSatScanner::~SegSatScanner() {
-}
+SegSatScanner::~SegSatScanner() = default;
 
 
 void SegSatScanner::Scan(RawFile *file, void *info) {
   uint32_t nFileLength;
   uint8_t *buf;
   uint32_t j;
-  uint32_t progPos = 0;
+//  uint32_t progPos = 0;
 
   buf = new uint8_t[SRCH_BUF_SIZE];
   nFileLength = file->size();
@@ -39,5 +37,4 @@ void SegSatScanner::Scan(RawFile *file, void *info) {
   }
 
   delete[] buf;
-  return;
 }

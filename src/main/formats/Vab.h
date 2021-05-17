@@ -105,7 +105,7 @@ class Vab:
     public VGMInstrSet {
  public:
   Vab(RawFile *file, uint32_t offset);
-  virtual ~Vab();
+  ~Vab() override;
 
   bool GetHeaderInfo() override;
   bool GetInstrPointers() override;
@@ -127,8 +127,8 @@ class VabInstr
            uint32_t length,
            uint32_t theBank,
            uint32_t theInstrNum,
-           const std::wstring &name = L"Instrument");
-  virtual ~VabInstr();
+           const std::wstring &_name = L"Instrument");
+  ~VabInstr() override;
 
   bool LoadInstr() override;
 

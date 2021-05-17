@@ -9,8 +9,8 @@ class HexView : public QAbstractScrollArea {
     Q_OBJECT
 
 public:
-    HexView(VGMFile *vgmfile, QWidget *parent = 0);
-    ~HexView();
+    HexView(VGMFile *vgmfile, QWidget *parent = nullptr);
+    ~HexView() override;
 
 private:
     VGMFile *vgmfile;
@@ -18,12 +18,12 @@ private:
     int mLinesPerScreen;
     int mLineBaseline;
 
-    void drawLineColor(QPainter &painter, QFontMetrics &fontMetrics, uint32_t line);
+//    void drawLineColor(QPainter &painter, QFontMetrics &fontMetrics, uint32_t line);
 
 
 protected:
-    void paintEvent(QPaintEvent *event) Q_DECL_OVERRIDE;
-    void resizeEvent(QResizeEvent *event);
+    void paintEvent(QPaintEvent *event) override;
+    void resizeEvent(QResizeEvent *event) override;
 
 };
 

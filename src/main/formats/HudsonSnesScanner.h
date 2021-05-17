@@ -10,10 +10,9 @@ class HudsonSnesScanner:
   HudsonSnesScanner() {
     USE_EXTENSION(L"spc");
   }
-  virtual ~HudsonSnesScanner() {
-  }
+  ~HudsonSnesScanner() override = default;
 
-  virtual void Scan(RawFile *file, void *info = 0);
+  void Scan(RawFile *file, void *info = 0) override;
   void SearchForHudsonSnesFromARAM(RawFile *file);
   void SearchForHudsonSnesFromROM(RawFile *file);
 

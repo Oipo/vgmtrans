@@ -21,9 +21,7 @@ HexView::HexView(VGMFile *file, QWidget *parent)
     verticalScrollBar()->setSingleStep(1);
 }
 
-HexView::~HexView()
-{
-}
+HexView::~HexView() = default;
 
 
 void HexView::paintEvent(QPaintEvent *event)
@@ -34,7 +32,7 @@ void HexView::paintEvent(QPaintEvent *event)
     QFontMetrics fontMetrics = painter.fontMetrics();
 
 //    bool didElide = false;
-    int lineSpacing = fontMetrics.lineSpacing();
+//    int lineSpacing = fontMetrics.lineSpacing();
     painter.setBackgroundMode(Qt::OpaqueMode);
 
 
@@ -62,8 +60,8 @@ void HexView::paintEvent(QPaintEvent *event)
         QChar zeroChar = QChar('0');
 
         QString hexPortion = QString();
-        for (int i=0; i<16; i++) {
-            hexPortion.append(QString("%1 ").arg(b[i], 2, 16, zeroChar));
+        for (unsigned char i : b) {
+            hexPortion.append(QString("%1 ").arg(i, 2, 16, zeroChar));
         }
 
         int charWidth = fontMetrics.averageCharWidth();
@@ -76,7 +74,7 @@ void HexView::paintEvent(QPaintEvent *event)
         painter.drawText(horzPadding, y + mLineBaseline, text);
         for(int i=0; i<nCount; i++) {
 
-            VGMItem* item = vgmfile->GetItemFromOffset(lineOffset + i, false);
+            VGMItem* item = vgmfile->GetItemFromOffset(lineOffset + i, false, {});
             QColor color = item ? colorForEventColor(item->color) : Qt::white;
             QColor textColor = item ? textColorForEventColor(item->color) : Qt::black;
             painter.setBackground(color);

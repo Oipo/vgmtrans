@@ -39,7 +39,7 @@ class WDInstrSet
     : public VGMInstrSet {
  public:
   WDInstrSet(RawFile *file, uint32_t offset);
-  virtual ~WDInstrSet();
+  ~WDInstrSet() override;
 
   bool GetHeaderInfo() override;
   bool GetInstrPointers() override;
@@ -64,8 +64,8 @@ class WDInstr
           uint32_t length,
           uint32_t theBank,
           uint32_t theInstrNum,
-          std::wstring name);
-  virtual ~WDInstr();
+          std::wstring _name);
+  ~WDInstr() override;
   bool LoadInstr() override;
 
  protected:

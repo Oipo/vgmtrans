@@ -13,13 +13,13 @@ class PrismSnesInstrSet:
  public:
   PrismSnesInstrSet(RawFile *file,
                     PrismSnesVersion ver,
-                    uint32_t spcDirAddr,
-                    uint16_t addrADSR1Table,
-                    uint16_t addrADSR2Table,
-                    uint16_t addrTuningTableHigh,
-                    uint16_t addrTuningTableLow,
-                    const std::wstring &name = L"PrismSnesInstrSet");
-  virtual ~PrismSnesInstrSet();
+                    uint32_t _spcDirAddr,
+                    uint16_t _addrADSR1Table,
+                    uint16_t _addrADSR2Table,
+                    uint16_t _addrTuningTableHigh,
+                    uint16_t _addrTuningTableLow,
+                    const std::wstring &_name = L"PrismSnesInstrSet");
+  ~PrismSnesInstrSet() override;
 
   bool GetHeaderInfo() override;
   bool GetInstrPointers() override;
@@ -44,14 +44,14 @@ class PrismSnesInstr
  public:
   PrismSnesInstr(VGMInstrSet *instrSet,
                  PrismSnesVersion ver,
-                 uint8_t srcn,
-                 uint32_t spcDirAddr,
-                 uint16_t addrADSR1Entry,
-                 uint16_t addrADSR2Entry,
-                 uint16_t addrTuningEntryHigh,
-                 uint16_t addrTuningEntryLow,
-                 const std::wstring &name = L"PrismSnesInstr");
-  virtual ~PrismSnesInstr();
+                 uint8_t _srcn,
+                 uint32_t _spcDirAddr,
+                 uint16_t _addrADSR1Entry,
+                 uint16_t _addrADSR2Entry,
+                 uint16_t _addrTuningEntryHigh,
+                 uint16_t _addrTuningEntryLow,
+                 const std::wstring &_name = L"PrismSnesInstr");
+  ~PrismSnesInstr() override;
 
   bool LoadInstr() override;
 
@@ -81,7 +81,7 @@ class PrismSnesRgn
                uint16_t addrADSR2Entry,
                uint16_t addrTuningEntryHigh,
                uint16_t addrTuningEntryLow);
-  virtual ~PrismSnesRgn();
+  ~PrismSnesRgn() override;
 
   bool LoadRgn() override;
 

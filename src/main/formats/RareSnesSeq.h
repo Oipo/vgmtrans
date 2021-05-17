@@ -83,11 +83,11 @@ class RareSnesSeq
     : public VGMSeq {
  public:
   RareSnesSeq(RawFile *file, RareSnesVersion ver, uint32_t seqdata_offset, std::wstring newName = L"Rare SNES Seq");
-  virtual ~RareSnesSeq();
+  ~RareSnesSeq() override;
 
   bool GetHeaderInfo() override;
-  virtual bool GetTrackPointers();
-  virtual void ResetVars();
+  bool GetTrackPointers() override;
+  void ResetVars() override;
 
   RareSnesVersion version;
   std::map<uint8_t, RareSnesSeqEventType> EventMap;
@@ -106,7 +106,7 @@ class RareSnesSeq
   int8_t presetVolR[5];                           // volume preset R
   uint16_t presetADSR[5];                       // ADSR preset
 
-  double GetTempoInBPM(uint8_t tempo, uint8_t timerFreq);
+  double GetTempoInBPM(uint8_t _tempo, uint8_t _timerFreq);
 
  private:
   void LoadEventMap();
@@ -117,17 +117,17 @@ class RareSnesTrack
     : public SeqTrack {
  public:
   RareSnesTrack(RareSnesSeq *parentFile, long offset = 0, long length = 0);
-  virtual void ResetVars();
-  virtual bool ReadEvent();
-  virtual void OnTickBegin();
-  virtual void OnTickEnd();
+  void ResetVars() override;
+  bool ReadEvent() override;
+  void OnTickBegin() override;
+  void OnTickEnd() override;
 
   void AddVolLR(uint32_t offset,
                 uint32_t length,
-                int8_t spcVolL,
-                int8_t spcVolR,
+                int8_t _spcVolL,
+                int8_t _spcVolR,
                 const std::wstring &sEventName = L"Volume L/R");
-  void AddVolLRNoItem(int8_t spcVolL, int8_t spcVolR);
+  void AddVolLRNoItem(int8_t _spcVolL, int8_t _spcVolR);
 
  private:
   uint8_t rptNestLevel;                          // nest level for repeat-subroutine command

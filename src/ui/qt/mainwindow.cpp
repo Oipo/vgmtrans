@@ -54,10 +54,7 @@ MainWindow::MainWindow(QWidget *parent)
     resize(defaultWindowWidth, defaultWindowHeight);
 }
 
-MainWindow::~MainWindow()
-{
-
-}
+MainWindow::~MainWindow() = default;
 
 void MainWindow::dragEnterEvent(QDragEnterEvent *event)
 {
@@ -69,7 +66,7 @@ void MainWindow::dragMoveEvent(QDragMoveEvent* event)
     event->acceptProposedAction();
 }
 
-wchar_t* qstringTowchar_t(QString text){
+wchar_t* qstringTowchar_t(const QString& text){
 //    qDebug()<<text.length();
     wchar_t* c_Text = new wchar_t[text.length() + 1];
     text.toWCharArray(c_Text);
@@ -91,7 +88,8 @@ void MainWindow::dropEvent(QDropEvent *event)
 //    } else
     if (mimeData->hasText()) {
         std::string utf8_text = mimeData->text().toUtf8().constData();
-        printf(utf8_text.c_str());
+        std::cout << utf8_text << std::endl;
+//        printf(utf8_text.c_str());
 //        setText(mimeData->text());
 //        setTextFormat(Qt::PlainText);
     }
@@ -107,7 +105,8 @@ void MainWindow::dropEvent(QDropEvent *event)
             qtVGMRoot.OpenRawFile(str);
 //            text += url + QString("\n");
         }
-        printf(text.toUtf8().constData());
+//        printf(text.toUtf8().constData());
+      std::cout << text.toUtf8().constData() << std::endl;
 //        qtVGMRoot.OpenRawFile(urlList)
 //        setText(text);
     } else {

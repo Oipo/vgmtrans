@@ -7,9 +7,9 @@ class SNSFLoader:
  public:
   SNSFLoader();
  public:
-  virtual ~SNSFLoader();
+  ~SNSFLoader() override;
 
-  virtual PostLoadCommand Apply(RawFile *theFile);
+  PostLoadCommand Apply(RawFile *theFile) override;
   const wchar_t *psf_read_exe(RawFile *file, unsigned char *&exebuffer, size_t &exebuffersize);
  private:
   const wchar_t *psf_read_exe_sub

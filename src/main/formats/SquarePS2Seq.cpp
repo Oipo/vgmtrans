@@ -16,8 +16,7 @@ BGMSeq::BGMSeq(RawFile *file, uint32_t offset)
   AlwaysWriteInitialVol(127);
 }
 
-BGMSeq::~BGMSeq() {
-}
+BGMSeq::~BGMSeq() = default;
 
 bool BGMSeq::GetHeaderInfo() {
   VGMHeader *header = AddHeader(dwOffset, 0x20, L"Header");
@@ -61,8 +60,8 @@ bool BGMSeq::GetTrackPointers() {
 // ********
 
 
-BGMTrack::BGMTrack(BGMSeq *parentSeq, long offset, long length)
-    : SeqTrack(parentSeq, offset, length) {
+BGMTrack::BGMTrack(BGMSeq *_parentSeq, long offset, long length)
+    : SeqTrack(_parentSeq, offset, length) {
 }
 
 
@@ -137,7 +136,7 @@ bool BGMTrack::ReadEvent() {
     {
       uint8_t numer = GetByte(curOffset++);
       uint8_t denom = GetByte(curOffset++);
-      AddTimeSig(beginOffset, curOffset - beginOffset, numer, denom, (uint8_t) parentSeq->GetPPQN());
+      AddTimeSig(beginOffset, curOffset - beginOffset, numer, denom, parentSeq->GetPPQN());
 
       //for (value3 = 0; ((value2&1) != TRUE) && (value3 < 8); ++value3)	//while
       //	value2 >>= 1;
@@ -201,8 +200,8 @@ bool BGMTrack::ReadEvent() {
 
     //expression
     case 0x24 : {
-      uint8_t expression = GetByte(curOffset++);            //expression value
-      AddExpression(beginOffset, curOffset - beginOffset, expression);
+      uint8_t _expression = GetByte(curOffset++);            //expression value
+      AddExpression(beginOffset, curOffset - beginOffset, _expression);
       break;
     }
 

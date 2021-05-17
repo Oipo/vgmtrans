@@ -7,10 +7,10 @@ class SegSatSeq:
     public VGMSeqNoTrks {
  public:
   SegSatSeq(RawFile *file, uint32_t offset);
-  virtual ~SegSatSeq();
+  ~SegSatSeq() override;
 
   bool GetHeaderInfo() override;
-  virtual bool ReadEvent();
+  bool ReadEvent() override;
 
  public:
   uint8_t headerFlag;

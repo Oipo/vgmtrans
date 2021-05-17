@@ -10,10 +10,9 @@ class AkaoSnesScanner:
   AkaoSnesScanner() {
     USE_EXTENSION(L"spc");
   }
-  virtual ~AkaoSnesScanner() {
-  }
+  ~AkaoSnesScanner() override = default;
 
-  virtual void Scan(RawFile *file, void *info = 0);
+  void Scan(RawFile *file, void *info = 0) override;
   void SearchForAkaoSnesFromARAM(RawFile *file);
   void SearchForAkaoSnesFromROM(RawFile *file);
 

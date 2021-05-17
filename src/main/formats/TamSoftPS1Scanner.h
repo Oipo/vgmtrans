@@ -9,8 +9,7 @@ class TamSoftPS1Scanner:
     USE_EXTENSION(L"tvb");
   }
 
-  virtual ~TamSoftPS1Scanner() {
-  }
+  ~TamSoftPS1Scanner() override = default;
 
-  virtual void Scan(RawFile *file, void *info = 0);
+  void Scan(RawFile *file, void *info = 0) override;
 };

@@ -6,12 +6,11 @@
 // TamSoftPS1InstrSet
 // ******************
 
-TamSoftPS1InstrSet::TamSoftPS1InstrSet(RawFile *file, uint32_t offset, bool ps2, const std::wstring &name) :
-    VGMInstrSet(TamSoftPS1Format::name, file, offset, 0, name), ps2(ps2) {
+TamSoftPS1InstrSet::TamSoftPS1InstrSet(RawFile *file, uint32_t offset, bool _ps2, const std::wstring &_name) :
+    VGMInstrSet(TamSoftPS1Format::name, file, offset, 0, _name), ps2(_ps2) {
 }
 
-TamSoftPS1InstrSet::~TamSoftPS1InstrSet() {
-}
+TamSoftPS1InstrSet::~TamSoftPS1InstrSet() = default;
 
 bool TamSoftPS1InstrSet::GetHeaderInfo() {
   if (dwOffset + 0x800 > vgmfile->GetEndOffset()) {
@@ -44,7 +43,7 @@ bool TamSoftPS1InstrSet::GetInstrPointers() {
     }
   }
 
-  if (aInstrs.size() == 0) {
+  if (aInstrs.empty()) {
     return false;
   }
 
@@ -61,19 +60,18 @@ bool TamSoftPS1InstrSet::GetInstrPointers() {
 // TamSoftPS1Instr
 // ***************
 
-TamSoftPS1Instr::TamSoftPS1Instr(TamSoftPS1InstrSet *instrSet, uint8_t instrNum, const std::wstring &name) :
-    VGMInstr(instrSet, instrSet->dwOffset + 4 * instrNum, 0x400 + 4, 0, instrNum, name) {
+TamSoftPS1Instr::TamSoftPS1Instr(TamSoftPS1InstrSet *instrSet, uint8_t _instrNum, const std::wstring &_name) :
+    VGMInstr(instrSet, instrSet->dwOffset + 4 * _instrNum, 0x400 + 4, 0, _instrNum, _name) {
 }
 
-TamSoftPS1Instr::~TamSoftPS1Instr() {
-}
+TamSoftPS1Instr::~TamSoftPS1Instr() = default;
 
 bool TamSoftPS1Instr::LoadInstr() {
-  TamSoftPS1InstrSet *parInstrSet = (TamSoftPS1InstrSet *) this->parInstrSet;
+  TamSoftPS1InstrSet *_parInstrSet = dynamic_cast<TamSoftPS1InstrSet *>(this->parInstrSet);
 
   AddSimpleItem(dwOffset, 4, L"Sample Offset");
 
-  TamSoftPS1Rgn *rgn = new TamSoftPS1Rgn(this, dwOffset + 0x400, parInstrSet->ps2);
+  TamSoftPS1Rgn *rgn = new TamSoftPS1Rgn(this, dwOffset + 0x400, _parInstrSet->ps2);
   rgn->sampNum = instrNum;
   aRgns.push_back(rgn);
   return true;
@@ -99,8 +97,7 @@ TamSoftPS1Rgn::TamSoftPS1Rgn(TamSoftPS1Instr *instr, uint32_t offset, bool ps2) 
   PSXConvADSR<TamSoftPS1Rgn>(this, adsr1, adsr2, ps2);
 }
 
-TamSoftPS1Rgn::~TamSoftPS1Rgn() {
-}
+TamSoftPS1Rgn::~TamSoftPS1Rgn() = default;
 
 bool TamSoftPS1Rgn::LoadRgn() {
   return true;

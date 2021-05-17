@@ -50,7 +50,7 @@ void MdiArea::closeButtonClicked()
 
 QTabBar* MdiArea::getTabBar() {
     QList<QTabBar *> tabBarList = findChildren<QTabBar*>();
-    QTabBar *tabBar = tabBarList.at(0);
+//    QTabBar *tabBar = tabBarList.at(0);
 //    QList<QAbstractButton*> buttonList = tabBar->findChildren<QAbstractButton*>() ;
 //
 //    QStyleOptionTab opt;

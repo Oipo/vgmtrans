@@ -8,10 +8,9 @@ class GraphResSnesScanner:
   GraphResSnesScanner() {
     USE_EXTENSION(L"spc");
   }
-  virtual ~GraphResSnesScanner() {
-  }
+  ~GraphResSnesScanner() override = default;
 
-  virtual void Scan(RawFile *file, void *info = 0);
+  void Scan(RawFile *file, void *info = 0) override;
   void SearchForGraphResSnesFromARAM(RawFile *file);
   void SearchForGraphResSnesFromROM(RawFile *file);
 

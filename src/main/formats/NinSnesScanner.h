@@ -8,10 +8,9 @@ class NinSnesScanner:
   NinSnesScanner() {
     USE_EXTENSION(L"spc");
   }
-  virtual ~NinSnesScanner() {
-  }
+  ~NinSnesScanner() override = default;
 
-  virtual void Scan(RawFile *file, void *info = 0);
+  void Scan(RawFile *file, void *info = 0) override;
   void SearchForNinSnesFromARAM(RawFile *file);
   void SearchForNinSnesFromROM(RawFile *file);
 

@@ -10,10 +10,9 @@ class CapcomSnesScanner:
   CapcomSnesScanner() {
     USE_EXTENSION(L"spc");
   }
-  virtual ~CapcomSnesScanner() {
-  }
+  ~CapcomSnesScanner() override = default;
 
-  virtual void Scan(RawFile *file, void *info = 0);
+  void Scan(RawFile *file, void *info = 0) override;
   void SearchForCapcomSnesFromARAM(RawFile *file);
   void SearchForCapcomSnesFromROM(RawFile *file);
 

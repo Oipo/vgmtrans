@@ -10,10 +10,9 @@ class SonyPS2Scanner:
     USE_EXTENSION(L"bd")
   }
  public:
-  ~SonyPS2Scanner() {
-  }
+  ~SonyPS2Scanner() override = default;
 
-  virtual void Scan(RawFile *file, void *info = 0);
+  void Scan(RawFile *file, void *info = 0) override;
   void SearchForSeq(RawFile *file);
   void SearchForInstrSet(RawFile *file);
   void SearchForSampColl(RawFile *file);

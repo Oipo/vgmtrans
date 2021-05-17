@@ -8,10 +8,9 @@ class RareSnesScanner:
   RareSnesScanner() {
     USE_EXTENSION(L"spc");
   }
-  virtual ~RareSnesScanner() {
-  }
+  ~RareSnesScanner() override = default;
 
-  virtual void Scan(RawFile *file, void *info = 0);
+  void Scan(RawFile *file, void *info = 0) override;
   void SearchForRareSnesFromARAM(RawFile *file);
   void SearchForRareSnesFromROM(RawFile *file);
 

@@ -102,10 +102,10 @@ void SNESConvADSR(T *rgn, uint8_t adsr1, uint8_t adsr2, uint8_t gain) {
 class SNESSampColl
     : public VGMSampColl {
  public:
-  SNESSampColl(const std::string& format, RawFile* rawfile, uint32_t offset, uint32_t maxNumSamps = 256);
-  SNESSampColl(const std::string& format, VGMInstrSet* instrset, uint32_t offset, uint32_t maxNumSamps = 256);
-  SNESSampColl(const std::string& format, RawFile* rawfile, uint32_t offset, const std::vector<uint8_t>& targetSRCNs, std::wstring name = L"SNESSampColl");
-  SNESSampColl(const std::string& format, VGMInstrSet* instrset, uint32_t offset, const std::vector<uint8_t>& targetSRCNs, std::wstring name = L"SNESSampColl");
+  SNESSampColl(const std::string&_format, RawFile*_rawfile, uint32_t offset, uint32_t maxNumSamps = 256);
+  SNESSampColl(const std::string&_format, VGMInstrSet* instrset, uint32_t offset, uint32_t maxNumSamps = 256);
+  SNESSampColl(const std::string&_format, RawFile*_rawfile, uint32_t offset, const std::vector<uint8_t>&_targetSRCNs, std::wstring _name = L"SNESSampColl");
+  SNESSampColl(const std::string&_format, VGMInstrSet* instrset, uint32_t offset, const std::vector<uint8_t>&_targetSRCNs, std::wstring _name = L"SNESSampColl");
   ~SNESSampColl() override;
 
   bool GetSampleInfo() override;
@@ -113,9 +113,9 @@ class SNESSampColl
   static bool IsValidSampleDir(RawFile *file, uint32_t spcDirEntAddr, bool validateSample);
 
  protected:
-  VGMHeader *spcDirHeader;
-  std::vector<uint8_t> targetSRCNs;
-  uint32_t spcDirAddr;
+  VGMHeader *spcDirHeader{};
+  std::vector<uint8_t> targetSRCNs{};
+  uint32_t spcDirAddr{};
 
   void SetDefaultTargets(uint32_t maxNumSamps);
 };
@@ -128,7 +128,7 @@ class SNESSamp
     : public VGMSamp {
  public:
   SNESSamp(VGMSampColl *sampColl, uint32_t offset, uint32_t length, uint32_t dataOffset,
-           uint32_t dataLen, uint32_t loopOffset, std::wstring name = L"BRR");
+           uint32_t dataLen, uint32_t loopOffset, std::wstring _name = L"BRR");
   ~SNESSamp() override;
 
   static uint32_t GetSampleLength(RawFile *file, uint32_t offset, bool &loop);

@@ -1,12 +1,14 @@
 #include "pch.h"
 #include "NDSSeq.h"
 
+#include <utility>
+
 DECLARE_FORMAT(NDS);
 
 using namespace std;
 
-NDSSeq::NDSSeq(RawFile *file, uint32_t offset, uint32_t length, wstring name)
-    : VGMSeq(NDSFormat::name, file, offset, length, name) {
+NDSSeq::NDSSeq(RawFile *file, uint32_t offset, uint32_t length, wstring _name)
+    : VGMSeq(NDSFormat::name, file, offset, length, std::move(_name)) {
 }
 
 bool NDSSeq::GetHeaderInfo() {
@@ -114,7 +116,7 @@ bool NDSTrack::ReadEvent() {
         break;
 
       case 0x81: {
-        uint8_t newProg = (uint8_t) ReadVarLen(curOffset);
+        uint8_t newProg = ReadVarLen(curOffset);
         AddProgramChange(beginOffset, curOffset - beginOffset, newProg);
         break;
       }
@@ -161,14 +163,14 @@ bool NDSTrack::ReadEvent() {
 
       // [loveemu] (ex: Hanjuku Hero DS: NSE_45, New Mario Bros: BGM_AMB_CHIKA, Slime Morimori Dragon Quest 2: SE_187, SE_210, Advance Wars)
       case 0xA0: {
-        uint8_t subStatusByte;
-        int16_t randMin;
-        int16_t randMax;
+//        uint8_t subStatusByte;
+//        int16_t randMin;
+//        int16_t randMax;
 
-        subStatusByte = GetByte(curOffset++);
-        randMin = (signed) GetShort(curOffset);
+        /*subStatusByte =*/ GetByte(curOffset++);
+        /*randMin =*/ GetShort(curOffset);
         curOffset += 2;
-        randMax = (signed) GetShort(curOffset);
+        /*randMax =*/ GetShort(curOffset);
         curOffset += 2;
 
         AddUnknown(beginOffset, curOffset - beginOffset, L"Cmd with Random Value");
@@ -177,8 +179,8 @@ bool NDSTrack::ReadEvent() {
 
       // [loveemu] (ex: New Mario Bros: BGM_AMB_SABAKU)
       case 0xA1: {
-        uint8_t subStatusByte = GetByte(curOffset++);
-        uint8_t varNumber = GetByte(curOffset++);
+        /*uint8_t subStatusByte =*/ GetByte(curOffset++);
+        /*uint8_t varNumber =*/ GetByte(curOffset++);
 
         AddUnknown(beginOffset, curOffset - beginOffset, L"Cmd with Variable");
         break;
@@ -202,16 +204,16 @@ bool NDSTrack::ReadEvent() {
       case 0xBB: // [loveemu]
       case 0xBC: // [loveemu]
       case 0xBD: {
-        uint8_t varNumber;
-        int16_t val;
+//        uint8_t varNumber;
+//        int16_t val;
         const wchar_t *eventName[] = {
             L"Set Variable", L"Add Variable", L"Sub Variable", L"Mul Variable", L"Div Variable",
             L"Shift Vabiable", L"Rand Variable", L"", L"If Variable ==", L"If Variable >=",
             L"If Variable >", L"If Variable <=", L"If Variable <", L"If Variable !="
         };
 
-        varNumber = GetByte(curOffset++);
-        val = GetShort(curOffset);
+        /*varNumber =*/ GetByte(curOffset++);
+        /*val =*/ GetShort(curOffset);
         curOffset += 2;
 
         AddUnknown(beginOffset, curOffset - beginOffset, eventName[status_byte - 0xB0]);
@@ -231,14 +233,14 @@ bool NDSTrack::ReadEvent() {
 
       // [loveemu] (ex: Castlevania Dawn of Sorrow: SDL_BGM_BOSS1_)
       case 0xC2: {
-        uint8_t mvol = GetByte(curOffset++);
+        /*uint8_t mvol =*/ GetByte(curOffset++);
         AddUnknown(beginOffset, curOffset - beginOffset, L"Master Volume");
         break;
       }
 
       // [loveemu] (ex: Puyo Pop Fever 2: BGM00)
       case 0xC3: {
-        int8_t transpose = (signed) GetByte(curOffset++);
+        /*int8_t transpose =*/ GetByte(curOffset++);
         AddTranspose(beginOffset, curOffset - beginOffset, transpose);
 //			AddGenericEvent(beginOffset, curOffset-beginOffset, L"Transpose", nullptr, BG_CLR_GREEN);
         break;
@@ -246,7 +248,7 @@ bool NDSTrack::ReadEvent() {
 
       // [loveemu] pitch bend (ex: Castlevania Dawn of Sorrow: BGM_BOSS2)
       case 0xC4: {
-        int16_t bend = (signed) GetByte(curOffset++) * 64;
+        int16_t bend = GetByte(curOffset++) * 64;
         AddPitchBend(beginOffset, curOffset - beginOffset, bend);
         break;
       }
@@ -354,7 +356,7 @@ bool NDSTrack::ReadEvent() {
         break;
 
       case 0xD5: {
-        uint8_t expression = GetByte(curOffset++);
+        /*uint8_t expression =*/ GetByte(curOffset++);
         AddExpression(beginOffset, curOffset - beginOffset, expression);
         break;
       }

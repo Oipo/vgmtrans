@@ -11,8 +11,7 @@ TriAcePS1InstrSet::TriAcePS1InstrSet(RawFile *file, uint32_t offset)
     : VGMInstrSet(TriAcePS1Format::name, file, offset, 0, L"TriAce InstrSet") {
 }
 
-TriAcePS1InstrSet::~TriAcePS1InstrSet() {
-}
+TriAcePS1InstrSet::~TriAcePS1InstrSet() = default;
 
 
 //==============================================================
@@ -22,7 +21,7 @@ TriAcePS1InstrSet::~TriAcePS1InstrSet() {
 //		VGMInstrSet::Load()関数から呼ばれる
 //==============================================================
 bool TriAcePS1InstrSet::GetHeaderInfo() {
-  VGMHeader *header = AddHeader(dwOffset, sizeof(TriAcePS1InstrSet::_InstrHeader));    //1,Sep.2009 revise
+  VGMHeader *header = AddHeader(dwOffset, sizeof(TriAcePS1InstrSet::InstrHeader));    //1,Sep.2009 revise
   header->AddSimpleItem(dwOffset, 4, L"InstrSet Size");
   header->AddSimpleItem(dwOffset + 4, 2, L"Instr Section Size");
   //header->AddSimpleItem(dwOffset+6, 1, L"Number of Instruments");
@@ -52,10 +51,10 @@ bool TriAcePS1InstrSet::GetHeaderInfo() {
 //==============================================================
 bool TriAcePS1InstrSet::GetInstrPointers() {
 
-  uint32_t firstWord = GetWord(dwOffset + sizeof(TriAcePS1InstrSet::_InstrHeader));        //1,Sep.2009 revise
+  uint32_t firstWord = GetWord(dwOffset + sizeof(TriAcePS1InstrSet::InstrHeader));        //1,Sep.2009 revise
 
   //0xFFFFFFFFになるまで繰り返す。
-  for (uint32_t i = dwOffset + sizeof(TriAcePS1InstrSet::_InstrHeader);                    //1,Sep.2009 revise
+  for (uint32_t i = dwOffset + sizeof(TriAcePS1InstrSet::InstrHeader);                    //1,Sep.2009 revise
        ((firstWord != 0xFFFFFFFF) && (i < dwOffset + unLength));
        i += sizeof(TriAcePS1Instr::InstrInfo), firstWord = GetWord(i)) {
     TriAcePS1Instr *newInstr = new TriAcePS1Instr(this, i, 0, 0, 0);
@@ -127,11 +126,11 @@ bool TriAcePS1Instr::LoadInstr() {
     //rgn->loop.loopStatus = (rgninfo->loopOffset != rgninfo->sampOffset) && (rgninfo->loopOffset != 0);
     rgn->loop.loopStart = rgninfo->loopOffset;
     rgn->AddSimpleItem(rgn->dwOffset + 12, 1, L"Attenuation");
-    rgn->AddUnityKey((int8_t) 0x3B - rgninfo->pitchTuneSemitones,
+    rgn->AddUnityKey(0x3B - rgninfo->pitchTuneSemitones,
                      rgn->dwOffset + 13);  //You would think it would be 0x3C (middle c)
     rgn->AddSimpleItem(rgn->dwOffset + 14, 1, L"Pitch Fine Tune");
-    rgn->fineTune = (short) (static_cast<double>( rgninfo->pitchTuneFine / 64.0 * 100);
-    rgn->sampCollPtr = ((VGMInstrSet *) this->vgmfile)->sampColl;
+    rgn->fineTune = static_cast<double>( rgninfo->pitchTuneFine) / 64.0 * 100;
+    rgn->sampCollPtr = (dynamic_cast<VGMInstrSet *>(this->vgmfile))->sampColl;
     rgn->AddSimpleItem(rgn->dwOffset + 15, 5, L"Unknown values");
 
 

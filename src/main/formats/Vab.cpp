@@ -10,8 +10,7 @@ Vab::Vab(RawFile *file, uint32_t offset)
     : VGMInstrSet(PS1Format::name, file, offset) {
 }
 
-Vab::~Vab() {
-}
+Vab::~Vab() = default;
 
 
 bool Vab::GetHeaderInfo() {
@@ -46,13 +45,13 @@ bool Vab::GetHeaderInfo() {
 
 bool Vab::GetInstrPointers() {
   uint32_t nEndOffset = GetEndOffset();
-  uint32_t nMaxLength = nEndOffset - dwOffset;
+//  uint32_t nMaxLength = nEndOffset - dwOffset;
 
   uint32_t offProgs = dwOffset + 0x20;
   uint32_t offToneAttrs = offProgs + (16 * 128);
 
   uint16_t numPrograms = GetShort(dwOffset + 0x12);
-  uint16_t numTones = GetShort(dwOffset + 0x14);
+//  uint16_t numTones = GetShort(dwOffset + 0x14);
   uint16_t numVAGs = GetShort(dwOffset + 0x16);
 
   uint32_t offVAGOffsets = offToneAttrs + (32 * 16 * numPrograms);
@@ -85,7 +84,7 @@ bool Vab::GetInstrPointers() {
   uint32_t numProgramsLoaded = 0;
   for (uint32_t progIndex = 0; progIndex < 128 && numProgramsLoaded < numPrograms; progIndex++) {
     uint32_t offCurrProg = offProgs + (progIndex * 16);
-    uint32_t offCurrToneAttrs = offToneAttrs + (uint32_t) (aInstrs.size() * 32 * 16);
+    uint32_t offCurrToneAttrs = offToneAttrs + (aInstrs.size() * 32 * 16);
 
     if (offCurrToneAttrs + (32 * 16) > nEndOffset) {
       break;
@@ -102,16 +101,16 @@ bool Vab::GetInstrPointers() {
       aInstrs.push_back(newInstr);
       GetBytes(offCurrProg, 0x10, &newInstr->attr);
 
-      VGMHeader *hdr = progsHdr->AddHeader(offCurrProg, 0x10, L"Program");
-      hdr->AddSimpleItem(offCurrProg + 0x00, 1, L"Number of Tones");
-      hdr->AddSimpleItem(offCurrProg + 0x01, 1, L"Volume");
-      hdr->AddSimpleItem(offCurrProg + 0x02, 1, L"Priority");
-      hdr->AddSimpleItem(offCurrProg + 0x03, 1, L"Mode");
-      hdr->AddSimpleItem(offCurrProg + 0x04, 1, L"Pan");
-      hdr->AddSimpleItem(offCurrProg + 0x05, 1, L"Reserved");
-      hdr->AddSimpleItem(offCurrProg + 0x06, 2, L"Attribute");
-      hdr->AddSimpleItem(offCurrProg + 0x08, 4, L"Reserved");
-      hdr->AddSimpleItem(offCurrProg + 0x0c, 4, L"Reserved");
+      VGMHeader *_hdr = progsHdr->AddHeader(offCurrProg, 0x10, L"Program");
+      _hdr->AddSimpleItem(offCurrProg + 0x00, 1, L"Number of Tones");
+      _hdr->AddSimpleItem(offCurrProg + 0x01, 1, L"Volume");
+      _hdr->AddSimpleItem(offCurrProg + 0x02, 1, L"Priority");
+      _hdr->AddSimpleItem(offCurrProg + 0x03, 1, L"Mode");
+      _hdr->AddSimpleItem(offCurrProg + 0x04, 1, L"Pan");
+      _hdr->AddSimpleItem(offCurrProg + 0x05, 1, L"Reserved");
+      _hdr->AddSimpleItem(offCurrProg + 0x06, 2, L"Attribute");
+      _hdr->AddSimpleItem(offCurrProg + 0x08, 4, L"Reserved");
+      _hdr->AddSimpleItem(offCurrProg + 0x0c, 4, L"Reserved");
 
       newInstr->masterVol = GetByte(offCurrProg + 0x01);
 
@@ -122,7 +121,7 @@ bool Vab::GetInstrPointers() {
   }
 
   if ((offVAGOffsets + 2 * 256) <= nEndOffset) {
-    wchar_t name[256];
+    wchar_t _name[256];
     std::vector<SizeOffsetPair> vagLocations;
     uint32_t totalVAGSize = 0;
     VGMHeader *vagOffsetHdr = AddHeader(offVAGOffsets, 2 * 256, L"VAG Pointer Table");
@@ -144,11 +143,11 @@ bool Vab::GetInstrPointers() {
         vagSize = GetShort(offVAGOffsets + (i + 1) * 2) * 8;
       }
 
-      swprintf(name, 256, L"VAG Size /8 #%u", i + 1);
-      vagOffsetHdr->AddSimpleItem(offVAGOffsets + (i + 1) * 2, 2, name);
+      swprintf(_name, 256, L"VAG Size /8 #%u", i + 1);
+      vagOffsetHdr->AddSimpleItem(offVAGOffsets + (i + 1) * 2, 2, _name);
 
       if (vagOffset + vagSize <= nEndOffset) {
-        vagLocations.push_back(SizeOffsetPair(vagOffset, vagSize));
+        vagLocations.emplace_back(vagOffset, vagSize);
         totalVAGSize += vagSize;
       }
       else {
@@ -161,7 +160,7 @@ bool Vab::GetInstrPointers() {
 
     // single VAB file?
     uint32_t offVAGs = offVAGOffsets + 2 * 256;
-    if (dwOffset == 0 && vagLocations.size() != 0) {
+    if (dwOffset == 0 && !vagLocations.empty()) {
       // load samples as well
       PSXSampColl *newSampColl = new PSXSampColl(format, this, offVAGs, totalVAGSize, vagLocations);
       if (newSampColl->LoadVGMFile()) {
@@ -191,13 +190,12 @@ VabInstr::VabInstr(VGMInstrSet *instrSet,
                    uint32_t length,
                    uint32_t theBank,
                    uint32_t theInstrNum,
-                   const wstring &name)
-    : VGMInstr(instrSet, offset, length, theBank, theInstrNum, name),
+                   const wstring &_name)
+    : VGMInstr(instrSet, offset, length, theBank, theInstrNum, _name),
       masterVol(127) {
 }
 
-VabInstr::~VabInstr() {
-}
+VabInstr::~VabInstr() = default;
 
 
 bool VabInstr::LoadInstr() {
@@ -227,7 +225,7 @@ VabRgn::VabRgn(VabInstr *instr, uint32_t offset)
 
 
 bool VabRgn::LoadRgn() {
-  VabInstr *instr = (VabInstr *) parInstr;
+  VabInstr *instr = dynamic_cast<VabInstr *>(parInstr);
   unLength = 0x20;
   GetBytes(dwOffset, 0x20, &attr);
 
@@ -257,7 +255,7 @@ bool VabRgn::LoadRgn() {
   AddGeneralItem(dwOffset + 30, 2, L"Reserved");
   ADSR1 = attr.adsr1;
   ADSR2 = attr.adsr2;
-  if ((int) sampNum < 0)
+  if (sampNum < 0)
     sampNum = 0;
 
   if (keyLow > keyHigh) {
@@ -272,9 +270,9 @@ bool VabRgn::LoadRgn() {
   // If it exceeds 127, driver clips the value and it will become 127. (In Hokuto no Ken, at least)
   // I am not sure if the interpretation of this value depends on a driver or VAB version.
   // The following code takes the byte as signed, since it could be a typical extended implementation.
-  int8_t ft = (int8_t) GetByte(dwOffset + 5);
+  int8_t ft = GetByte(dwOffset + 5);
   double cents = ft * 100.0 / 128.0;
-  SetFineTune((int16_t) cents);
+  SetFineTune(cents);
 
   PSXConvADSR<VabRgn>(this, ADSR1, ADSR2, false);
   return true;

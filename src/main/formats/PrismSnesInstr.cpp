@@ -8,22 +8,21 @@
 
 PrismSnesInstrSet::PrismSnesInstrSet(RawFile *file,
                                      PrismSnesVersion ver,
-                                     uint32_t spcDirAddr,
-                                     uint16_t addrADSR1Table,
-                                     uint16_t addrADSR2Table,
-                                     uint16_t addrTuningTableHigh,
-                                     uint16_t addrTuningTableLow,
-                                     const std::wstring &name) :
-    VGMInstrSet(PrismSnesFormat::name, file, addrADSR1Table, 0, name), version(ver),
-    spcDirAddr(spcDirAddr),
-    addrADSR1Table(addrADSR1Table),
-    addrADSR2Table(addrADSR2Table),
-    addrTuningTableHigh(addrTuningTableHigh),
-    addrTuningTableLow(addrTuningTableLow) {
+                                     uint32_t _spcDirAddr,
+                                     uint16_t _addrADSR1Table,
+                                     uint16_t _addrADSR2Table,
+                                     uint16_t _addrTuningTableHigh,
+                                     uint16_t _addrTuningTableLow,
+                                     const std::wstring &_name) :
+    VGMInstrSet(PrismSnesFormat::name, file, _addrADSR1Table, 0, _name), version(ver),
+    spcDirAddr(_spcDirAddr),
+    addrADSR1Table(_addrADSR1Table),
+    addrADSR2Table(_addrADSR2Table),
+    addrTuningTableHigh(_addrTuningTableHigh),
+    addrTuningTableLow(_addrTuningTableLow) {
 }
 
-PrismSnesInstrSet::~PrismSnesInstrSet() {
-}
+PrismSnesInstrSet::~PrismSnesInstrSet() = default;
 
 bool PrismSnesInstrSet::GetHeaderInfo() {
   return true;
@@ -32,7 +31,7 @@ bool PrismSnesInstrSet::GetHeaderInfo() {
 bool PrismSnesInstrSet::GetInstrPointers() {
   usedSRCNs.clear();
   for (uint16_t srcn16 = 0; srcn16 < 0x100; srcn16++) {
-    uint8_t srcn = (uint8_t) srcn16;
+    uint8_t srcn = srcn16;
 
     uint32_t addrDIRentry = spcDirAddr + (srcn * 4);
     if (!SNESSampColl::IsValidSampleDir(rawfile, addrDIRentry, true)) {
@@ -84,7 +83,7 @@ bool PrismSnesInstrSet::GetInstrPointers() {
     aInstrs.push_back(newInstr);
   }
 
-  if (aInstrs.size() == 0) {
+  if (aInstrs.empty()) {
     return false;
   }
 
@@ -104,24 +103,23 @@ bool PrismSnesInstrSet::GetInstrPointers() {
 
 PrismSnesInstr::PrismSnesInstr(VGMInstrSet *instrSet,
                                PrismSnesVersion ver,
-                               uint8_t srcn,
-                               uint32_t spcDirAddr,
-                               uint16_t addrADSR1Entry,
-                               uint16_t addrADSR2Entry,
-                               uint16_t addrTuningEntryHigh,
-                               uint16_t addrTuningEntryLow,
-                               const std::wstring &name) :
-    VGMInstr(instrSet, addrADSR1Entry, 0, srcn >> 7, srcn & 0x7f, name), version(ver),
-    srcn(srcn),
-    spcDirAddr(spcDirAddr),
-    addrADSR1Entry(addrADSR1Entry),
-    addrADSR2Entry(addrADSR2Entry),
-    addrTuningEntryHigh(addrTuningEntryHigh),
-    addrTuningEntryLow(addrTuningEntryLow) {
+                               uint8_t _srcn,
+                               uint32_t _spcDirAddr,
+                               uint16_t _addrADSR1Entry,
+                               uint16_t _addrADSR2Entry,
+                               uint16_t _addrTuningEntryHigh,
+                               uint16_t _addrTuningEntryLow,
+                               const std::wstring &_name) :
+    VGMInstr(instrSet, _addrADSR1Entry, 0, _srcn >> 7, _srcn & 0x7f, _name), version(ver),
+    srcn(_srcn),
+    spcDirAddr(_spcDirAddr),
+    addrADSR1Entry(_addrADSR1Entry),
+    addrADSR2Entry(_addrADSR2Entry),
+    addrTuningEntryHigh(_addrTuningEntryHigh),
+    addrTuningEntryLow(_addrTuningEntryLow) {
 }
 
-PrismSnesInstr::~PrismSnesInstr() {
-}
+PrismSnesInstr::~PrismSnesInstr() = default;
 
 bool PrismSnesInstr::LoadInstr() {
   uint32_t offDirEnt = spcDirAddr + (srcn * 4);
@@ -168,8 +166,8 @@ PrismSnesRgn::PrismSnesRgn(PrismSnesInstr *instr,
 
   AddSimpleItem(addrADSR1Entry, 1, L"ADSR1");
   AddSimpleItem(addrADSR2Entry, 1, L"ADSR2");
-  AddUnityKey(93 - (int) coarse_tuning, addrTuningEntryHigh, 1);
-  AddFineTune((int16_t) fine_tuning, addrTuningEntryLow, 1);
+  AddUnityKey(93 - static_cast<int>(coarse_tuning), addrTuningEntryHigh, 1);
+  AddFineTune(static_cast<int16_t>(fine_tuning), addrTuningEntryLow, 1);
 
   uint8_t adsr1 = GetByte(addrADSR1Entry);
   uint8_t adsr2 = GetByte(addrADSR2Entry);
@@ -182,8 +180,7 @@ PrismSnesRgn::PrismSnesRgn(PrismSnesInstr *instr,
   SetGuessedLength();
 }
 
-PrismSnesRgn::~PrismSnesRgn() {
-}
+PrismSnesRgn::~PrismSnesRgn() = default;
 
 bool PrismSnesRgn::LoadRgn() {
   return true;

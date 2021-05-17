@@ -9,28 +9,25 @@ using namespace std;
 #define DEFAULT_UFSIZE 0x100000
 
 
-TriAcePS1Scanner::TriAcePS1Scanner() {
-}
+TriAcePS1Scanner::TriAcePS1Scanner() = default;
 
-TriAcePS1Scanner::~TriAcePS1Scanner() {
-}
+TriAcePS1Scanner::~TriAcePS1Scanner() = default;
 
 void TriAcePS1Scanner::Scan(RawFile *file, void *info) {
   SearchForSLZSeq(file);
-  return;
 }
 
 void TriAcePS1Scanner::SearchForSLZSeq(RawFile *file) {
   uint32_t nFileLength = file->size();
   for (uint32_t i = 0; i + 0x40 < nFileLength; i++) {
     uint32_t sig1 = file->GetWordBE(i);
-    uint8_t mode;
+    uint8_t _mode;
 
-    mode = sig1 & 0xFF;
+    _mode = sig1 & 0xFF;
     sig1 >>= 8;
     if (sig1 != 0x534C5A)    // "SLZ" in ASCII
       continue;
-    if (mode > 0x03)
+    if (_mode > 0x03)
       continue;    // only SLZ v0-3 is supported
     // Note: SLZ v2 is used by a few tracks in Valkyrie Profile.
 
@@ -66,14 +63,14 @@ void TriAcePS1Scanner::SearchForSLZSeq(RawFile *file) {
     //	delete instrset;
     //	return;
     //}
-    if (!instrsets.size())
+    if (instrsets.empty())
       return;
 
     std::wstring name = file->tag.HasTitle() ? file->tag.title : RawFile::removeExtFromPath(file->GetFileName());
     VGMColl *coll = new VGMColl(name);
     coll->UseSeq(seq);
-    for (uint32_t i = 0; i < instrsets.size(); i++)
-      coll->AddInstrSet(instrsets[i]);
+    for (auto & instrset : instrsets)
+      coll->AddInstrSet(instrset);
     if (!coll->Load()) {
       delete coll;
     }
@@ -123,17 +120,16 @@ void TriAcePS1Scanner::SearchForInstrSet(RawFile *file, vector<TriAcePS1InstrSet
     }
     instrsets.push_back(instrset);
   }
-  return;
 }
 
 
 //file is RawFile containing the compressed seq.  cfOff is the compressed file offset.
 TriAcePS1Seq *TriAcePS1Scanner::TriAceSLZDecompress(RawFile *file, uint32_t cfOff) {
   uint8_t cmode = file->GetByte(cfOff + 3);                //compression mode
-  uint32_t cfSize = file->GetWord(cfOff + 4);            //compressed file size
+//  uint32_t cfSize = file->GetWord(cfOff + 4);            //compressed file size
   uint32_t ufSize =
       file->GetWord(cfOff + 8);            //uncompressed file size (size of resulting file after decompression)
-  uint32_t blockSize = file->GetWord(cfOff + 12);        //size of entire compressed block (slightly larger than cfSize)
+//  uint32_t blockSize = file->GetWord(cfOff + 12);        //size of entire compressed block (slightly larger than cfSize)
 
   if (ufSize == 0)
     ufSize = DEFAULT_UFSIZE;
@@ -213,7 +209,7 @@ TriAcePS1Seq *TriAcePS1Scanner::TriAceSLZDecompress(RawFile *file, uint32_t cfOf
 
   //Create the new virtual file, and analyze the sequence
   std::wstring name = file->tag.HasTitle() ? file->tag.title : RawFile::removeExtFromPath(file->GetFileName());
-  VirtFile *newVirtFile = newVirtFile = new VirtFile(uf,
+  VirtFile *newVirtFile = new VirtFile(uf,
                                                      ufOff,
                                                      name + std::wstring(L" Sequence"),
                                                      file->GetParRawFileFullPath().c_str());

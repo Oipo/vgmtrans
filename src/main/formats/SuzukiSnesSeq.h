@@ -75,11 +75,11 @@ class SuzukiSnesSeq
  public:
   SuzukiSnesSeq
       (RawFile *file, SuzukiSnesVersion ver, uint32_t seqdataOffset, std::wstring newName = L"Square SUZUKI SNES Seq");
-  virtual ~SuzukiSnesSeq();
+  ~SuzukiSnesSeq() override;
 
   bool GetHeaderInfo() override;
-  virtual bool GetTrackPointers();
-  virtual void ResetVars();
+  bool GetTrackPointers() override;
+  void ResetVars() override;
 
   double GetTempoInBPM(uint8_t tempo);
 
@@ -99,8 +99,8 @@ class SuzukiSnesTrack
     : public SeqTrack {
  public:
   SuzukiSnesTrack(SuzukiSnesSeq *parentFile, long offset = 0, long length = 0);
-  virtual void ResetVars();
-  virtual bool ReadEvent();
+  void ResetVars() override;
+  bool ReadEvent() override;
 
  private:
   uint16_t infiniteLoopPoint;

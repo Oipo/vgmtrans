@@ -8,16 +8,15 @@
 
 NamcoSnesInstrSet::NamcoSnesInstrSet(RawFile *file,
                                      NamcoSnesVersion ver,
-                                     uint32_t spcDirAddr,
-                                     uint16_t addrTuningTable,
-                                     const std::wstring &name) :
-    VGMInstrSet(NamcoSnesFormat::name, file, addrTuningTable, 0, name), version(ver),
-    spcDirAddr(spcDirAddr),
-    addrTuningTable(addrTuningTable) {
+                                     uint32_t _spcDirAddr,
+                                     uint16_t _addrTuningTable,
+                                     const std::wstring &_name) :
+    VGMInstrSet(NamcoSnesFormat::name, file, _addrTuningTable, 0, _name), version(ver),
+    spcDirAddr(_spcDirAddr),
+    addrTuningTable(_addrTuningTable) {
 }
 
-NamcoSnesInstrSet::~NamcoSnesInstrSet() {
-}
+NamcoSnesInstrSet::~NamcoSnesInstrSet() = default;
 
 bool NamcoSnesInstrSet::GetHeaderInfo() {
   return true;
@@ -28,7 +27,7 @@ bool NamcoSnesInstrSet::GetInstrPointers() {
   if (spcDirAddr < addrTuningTable) {
     uint16_t sampCountCandidate = (addrTuningTable - spcDirAddr) / 4;
     if (sampCountCandidate < maxSampCount) {
-      maxSampCount = (uint8_t) sampCountCandidate;
+      maxSampCount = sampCountCandidate;
     }
   }
 
@@ -63,7 +62,7 @@ bool NamcoSnesInstrSet::GetInstrPointers() {
     aInstrs.push_back(newInstr);
   }
 
-  if (aInstrs.size() == 0) {
+  if (aInstrs.empty()) {
     return false;
   }
 
@@ -84,16 +83,15 @@ bool NamcoSnesInstrSet::GetInstrPointers() {
 NamcoSnesInstr::NamcoSnesInstr(VGMInstrSet *instrSet,
                                NamcoSnesVersion ver,
                                uint8_t srcn,
-                               uint32_t spcDirAddr,
-                               uint16_t addrTuningEntry,
-                               const std::wstring &name) :
-    VGMInstr(instrSet, addrTuningEntry, 0, 0, srcn, name), version(ver),
-    spcDirAddr(spcDirAddr),
-    addrTuningEntry(addrTuningEntry) {
+                               uint32_t _spcDirAddr,
+                               uint16_t _addrTuningEntry,
+                               const std::wstring &_name) :
+    VGMInstr(instrSet, _addrTuningEntry, 0, 0, srcn, _name), version(ver),
+    spcDirAddr(_spcDirAddr),
+    addrTuningEntry(_addrTuningEntry) {
 }
 
-NamcoSnesInstr::~NamcoSnesInstr() {
-}
+NamcoSnesInstr::~NamcoSnesInstr() = default;
 
 bool NamcoSnesInstr::LoadInstr() {
   uint32_t offDirEnt = spcDirAddr + (instrNum * 4);
@@ -140,8 +138,8 @@ NamcoSnesRgn::NamcoSnesRgn(NamcoSnesInstr *instr,
   }
 
   AddSimpleItem(addrTuningEntry, 2, L"Sample Rate");
-  unityKey = 71 - (int) coarse_tuning;
-  fineTune = (int16_t) (fine_tuning * 100.0);
+  unityKey = 71 - static_cast<int>(coarse_tuning);
+  fineTune = static_cast<int16_t> (fine_tuning * 100.0);
 
   uint8_t adsr1 = 0x8f;
   uint8_t adsr2 = 0xe0;
@@ -151,8 +149,7 @@ NamcoSnesRgn::NamcoSnesRgn(NamcoSnesInstr *instr,
   SetGuessedLength();
 }
 
-NamcoSnesRgn::~NamcoSnesRgn() {
-}
+NamcoSnesRgn::~NamcoSnesRgn() = default;
 
 bool NamcoSnesRgn::LoadRgn() {
   return true;

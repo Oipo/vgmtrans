@@ -14,9 +14,9 @@ class NinSnesInstrSet:
   NinSnesInstrSet(RawFile *file,
                   NinSnesVersion ver,
                   uint32_t offset,
-                  uint32_t spcDirAddr,
-                  const std::wstring &name = L"NinSnesInstrSet");
-  virtual ~NinSnesInstrSet();
+                  uint32_t _spcDirAddr,
+                  const std::wstring &_name = L"NinSnesInstrSet");
+  ~NinSnesInstrSet() override;
 
   bool GetHeaderInfo() override;
   bool GetInstrPointers() override;
@@ -43,9 +43,9 @@ class NinSnesInstr
                uint32_t offset,
                uint32_t theBank,
                uint32_t theInstrNum,
-               uint32_t spcDirAddr,
-               const std::wstring &name = L"NinSnesInstr");
-  virtual ~NinSnesInstr();
+               uint32_t _spcDirAddr,
+               const std::wstring &_name = L"NinSnesInstr");
+  ~NinSnesInstr() override;
 
   bool LoadInstr() override;
 
@@ -74,7 +74,7 @@ class NinSnesRgn
              uint32_t offset,
              uint16_t konamiTuningTableAddress = 0,
              uint8_t konamiTuningTableSize = 0);
-  virtual ~NinSnesRgn();
+  ~NinSnesRgn() override;
 
   bool LoadRgn() override;
 

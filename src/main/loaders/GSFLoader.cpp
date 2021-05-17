@@ -8,13 +8,9 @@ using namespace std;
 #define GSF_VERSION    0x22
 #define GSF_MAX_ROM_SIZE    0x2000000
 
-wchar_t *GetFileWithBase(const wchar_t *f, const wchar_t *newfile);
+GSFLoader::GSFLoader() = default;
 
-GSFLoader::GSFLoader() {
-}
-
-GSFLoader::~GSFLoader() {
-}
+GSFLoader::~GSFLoader() = default;
 
 PostLoadCommand GSFLoader::Apply(RawFile *file) {
   uint8_t sig[4];
@@ -36,7 +32,7 @@ PostLoadCommand GSFLoader::Apply(RawFile *file) {
       //pRoot->UI_WriteBufferToFile(L"uncomp.gba", exebuf, exebufsize);
 
       wstring str = file->GetFileName();
-      pRoot->CreateVirtFile(exebuf, (uint32_t) exebufsize, str.data(), L"", file->tag);
+      pRoot->CreateVirtFile(exebuf, exebufsize, str.data(), L"", file->tag);
       return DELETE_IT;
     }
   }
@@ -123,7 +119,7 @@ const wchar_t *GSFLoader::load_psf_libs(PSFFile &psf, RawFile *file, unsigned ch
     else
       sprintf(libTagName, "_lib%d", libIndex);
 
-    map<string, string>::iterator itLibTag = psf.tags.find(libTagName);
+    auto itLibTag = psf.tags.find(libTagName);
     if (itLibTag == psf.tags.end())
       break;
 

@@ -73,11 +73,11 @@ class PrismSnesSeq
     : public VGMSeq {
  public:
   PrismSnesSeq(RawFile *file, PrismSnesVersion ver, uint32_t seqdataOffset, std::wstring newName = L"I'Max SNES Seq");
-  virtual ~PrismSnesSeq();
+  ~PrismSnesSeq() override;
 
   bool GetHeaderInfo() override;
-  virtual bool GetTrackPointers();
-  virtual void ResetVars();
+  bool GetTrackPointers() override;
+  void ResetVars() override;
 
   PrismSnesVersion version;
   std::map<uint8_t, PrismSnesSeqEventType> EventMap;
@@ -101,8 +101,8 @@ class PrismSnesTrack
     : public SeqTrack {
  public:
   PrismSnesTrack(PrismSnesSeq *parentFile, long offset = 0, long length = 0);
-  virtual void ResetVars();
-  virtual bool ReadEvent();
+  void ResetVars() override;
+  bool ReadEvent() override;
 
   std::vector<uint8_t> panTable;
 
@@ -118,9 +118,9 @@ class PrismSnesTrack
   uint8_t loopCountAlt;
   uint16_t subReturnAddr;
 
-  bool ReadDeltaTime(uint32_t &curOffset, uint8_t &len);
-  bool ReadDuration(uint32_t &curOffset, uint8_t len, uint8_t &durDelta);
-  uint8_t GetDuration(uint32_t curOffset, uint8_t len, uint8_t durDelta);
+  bool ReadDeltaTime(uint32_t &_curOffset, uint8_t &len);
+  bool ReadDuration(uint32_t &_curOffset, uint8_t len, uint8_t &durDelta);
+  uint8_t GetDuration(uint32_t _curOffset, uint8_t len, uint8_t durDelta);
 
   void AddVolumeEnvelope(uint16_t envelopeAddress);
   void AddPanEnvelope(uint16_t envelopeAddress);

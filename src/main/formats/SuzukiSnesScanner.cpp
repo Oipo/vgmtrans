@@ -147,7 +147,6 @@ void SuzukiSnesScanner::Scan(RawFile *file, void *info) {
   else {
     SearchForSuzukiSnesFromROM(file);
   }
-  return;
 }
 
 void SuzukiSnesScanner::SearchForSuzukiSnesFromARAM(RawFile *file) {

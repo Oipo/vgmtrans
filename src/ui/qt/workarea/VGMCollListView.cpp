@@ -57,7 +57,7 @@ void VGMCollListView::keyPressEvent(QKeyEvent* e) {
   // On a spacebar key press, play the selected collection
   if (e->key() == Qt::Key_Space) {
     QModelIndexList list = this->selectionModel()->selectedIndexes();
-    if (list.empty() || list[0].row() >= qtVGMRoot.vVGMColl.size())
+    if (list.empty() || static_cast<uint32_t>(list[0].row()) >= qtVGMRoot.vVGMColl.size())
       return;
 
     VGMColl* coll = qtVGMRoot.vVGMColl[list[0].row()];
@@ -68,9 +68,8 @@ void VGMCollListView::keyPressEvent(QKeyEvent* e) {
     std::vector<uint8_t> midiBuf;
     midi->WriteMidiToBuffer(midiBuf);
 
-    void* rawSF2 = const_cast<void *>(sf2->SaveToMem());
-
-    m_player.loadDataAndPlay(gsl::make_span(static_cast<char *>(rawSF2), sf2->GetSize()),
+    auto* rawSF2 = sf2->SaveToMem();
+    m_player.loadDataAndPlay(gsl::make_span(reinterpret_cast<char *>(rawSF2), sf2->GetSize()),
                              gsl::make_span(reinterpret_cast<char *>(midiBuf.data()), midiBuf.size()));
 
     delete[] rawSF2;

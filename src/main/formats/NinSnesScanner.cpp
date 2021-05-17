@@ -898,7 +898,6 @@ void NinSnesScanner::Scan(RawFile *file, void *info) {
   else {
     SearchForNinSnesFromROM(file);
   }
-  return;
 }
 
 void NinSnesScanner::SearchForNinSnesFromARAM(RawFile *file) {
@@ -1418,6 +1417,8 @@ void NinSnesScanner::SearchForNinSnesFromARAM(RawFile *file) {
 
     case NINSNES_QUINTET_TS:
       quintetAddrBGMInstrLookup = file->GetShort(ofsInstrVCmd + 18);
+      break;
+    default:
       break;
   }
 

@@ -7,9 +7,9 @@ class PS1SeqScanner:
     public VGMScanner {
  public:
   PS1SeqScanner();
-  virtual ~PS1SeqScanner();
+  ~PS1SeqScanner() override;
 
-  virtual void Scan(RawFile *file, void *info = 0);
+  void Scan(RawFile *file, void *info = 0) override;
   std::vector<PS1Seq *> SearchForPS1Seq(RawFile *file);
   std::vector<Vab *> SearchForVab(RawFile *file);
 };

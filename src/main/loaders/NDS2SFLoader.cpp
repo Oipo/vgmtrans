@@ -8,13 +8,9 @@ using namespace std;
 #define NDS2SF_VERSION    0x24
 #define NDS2SF_MAX_ROM_SIZE    0x10000000
 
-wchar_t *GetFileWithBase(const wchar_t *f, const wchar_t *newfile);
+NDS2SFLoader::NDS2SFLoader() = default;
 
-NDS2SFLoader::NDS2SFLoader() {
-}
-
-NDS2SFLoader::~NDS2SFLoader() {
-}
+NDS2SFLoader::~NDS2SFLoader() = default;
 
 PostLoadCommand NDS2SFLoader::Apply(RawFile *file) {
   uint8_t sig[4];
@@ -36,7 +32,7 @@ PostLoadCommand NDS2SFLoader::Apply(RawFile *file) {
       //pRoot->UI_WriteBufferToFile(L"uncomp.nds", exebuf, exebufsize);
 
       wstring str = file->GetFileName();
-      pRoot->CreateVirtFile(exebuf, (uint32_t) exebufsize, str.data(), L"", file->tag);
+      pRoot->CreateVirtFile(exebuf, exebufsize, str, L"", file->tag);
       return DELETE_IT;
     }
   }

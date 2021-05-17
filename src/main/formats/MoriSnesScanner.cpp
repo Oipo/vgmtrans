@@ -44,7 +44,6 @@ void MoriSnesScanner::Scan(RawFile *file, void *info) {
   else {
     SearchForMoriSnesFromROM(file);
   }
-  return;
 }
 
 void MoriSnesScanner::SearchForMoriSnesFromARAM(RawFile *file) {

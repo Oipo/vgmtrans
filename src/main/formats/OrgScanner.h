@@ -5,8 +5,8 @@ class OrgScanner:
     public VGMScanner {
  public:
   OrgScanner();
-  virtual ~OrgScanner();
+  ~OrgScanner() override;
 
-  virtual void Scan(RawFile *file, void *info = 0);
+  void Scan(RawFile *file, void *info = 0) override;
   void SearchForOrgSeq(RawFile *file);
 };

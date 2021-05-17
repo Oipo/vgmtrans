@@ -42,6 +42,4 @@ void VGMFileView::addToMdi() {
     show();
 }
 
-VGMFileView::~VGMFileView()
-{
-}
+VGMFileView::~VGMFileView() = default;

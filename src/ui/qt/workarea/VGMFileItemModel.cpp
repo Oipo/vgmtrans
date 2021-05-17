@@ -16,7 +16,7 @@ QModelIndex VGMFileItemModel::index(int row, int column, const QModelIndex &pare
     if (!hasIndex( row, column, parent ))
         return QModelIndex();
 
-    if (row < this->vgmfile->containers.size()) {
+    if (static_cast<uint32_t>(row) < this->vgmfile->containers.size()) {
         return createIndex(row, column, this->vgmfile->containers[row]);
     }
     return createIndex(row, column, this->vgmfile->localitems[row - vgmfile->containers.size()]);
@@ -44,7 +44,7 @@ int VGMFileItemModel::rowCount(const QModelIndex &parent) const {
     if (!parent.isValid()) {
 //        qDebug() << "localitems.size() : " << vgmfile->localitems.size();
 //        qDebug() << "containers.size() : " << vgmfile->containers.size();
-        for (int i=0; i<vgmfile->containers.size(); i++) {
+        for (uint32_t i=0; i<vgmfile->containers.size(); i++) {
 //            qDebug() << "i: " << i;
 //            qDebug() << "containers->size() : " << vgmfile->containers[i]->size();
 //            qDebug() << "containers->localitems->size() : " << vgmfile->containers[i]

@@ -5,11 +5,11 @@ class PS1Seq:
     public VGMSeqNoTrks {
  public:
   PS1Seq(RawFile *file, uint32_t offset);
-  virtual ~PS1Seq();
+  ~PS1Seq() override;
 
   bool GetHeaderInfo() override;
-  virtual void ResetVars();
-  virtual bool ReadEvent();
+  void ResetVars() override;
+  bool ReadEvent() override;
 
  protected:
   uint8_t runningStatus;

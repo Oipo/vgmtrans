@@ -4,16 +4,13 @@
 
 #define SRCH_BUF_SIZE 0x20000
 
-OrgScanner::OrgScanner() {
-}
+OrgScanner::OrgScanner() = default;
 
-OrgScanner::~OrgScanner() {
-}
+OrgScanner::~OrgScanner() = default;
 
 
 void OrgScanner::Scan(RawFile *file, void *info) {
   SearchForOrgSeq(file);
-  return;
 }
 
 void OrgScanner::SearchForOrgSeq(RawFile *file) {

@@ -1,5 +1,7 @@
 #include "pch.h"
 #include "NDSInstrSet.h"
+
+#include <utility>
 #include "VGMRgn.h"
 
 using namespace std;
@@ -16,8 +18,8 @@ using namespace std;
 // NDSInstrSet
 // ***********
 
-NDSInstrSet::NDSInstrSet(RawFile *file, uint32_t offset, uint32_t length, wstring name)
-    : VGMInstrSet(NDSFormat::name, file, offset, length, name) {
+NDSInstrSet::NDSInstrSet(RawFile *file, uint32_t offset, uint32_t length, wstring _name)
+    : VGMInstrSet(NDSFormat::name, file, offset, length, std::move(_name)) {
 }
 /*
 NDSInstrSet::~NDSInstrSet()
@@ -25,7 +27,7 @@ NDSInstrSet::~NDSInstrSet()
 }*/
 
 bool NDSInstrSet::GetInstrPointers() {
-  VGMHeader *header = AddHeader(dwOffset, 0x38);
+  /*VGMHeader *header =*/ AddHeader(dwOffset, 0x38);
   uint32_t nInstruments = GetWord(dwOffset + 0x38);
   VGMHeader *instrptrHdr = AddHeader(dwOffset + 0x38, nInstruments * 4 + 4, L"Instrument Pointers");
 
@@ -131,7 +133,7 @@ bool NDSInstr::LoadInstr() {
 }
 
 void NDSInstr::GetSampCollPtr(VGMRgn *rgn, int waNum) {
-  rgn->sampCollPtr = ((NDSInstrSet *) parInstrSet)->sampCollWAList[waNum];
+  rgn->sampCollPtr = dynamic_cast<NDSInstrSet *>(parInstrSet)->sampCollWAList[waNum];
 }
 
 void NDSInstr::GetArticData(VGMRgn *rgn, uint32_t offset) {
@@ -190,7 +192,7 @@ void NDSInstr::GetArticData(VGMRgn *rgn, uint32_t offset) {
     rgn->sustain_level = 1.0;
   else
     //rgn->sustain_level = 20 * log10 ((92544.0-realSustainLev) / 92544.0);
-    rgn->sustain_level = static_cast<double>( (0x16980 - realSustainLev) / static_cast<double>( 0x16980;
+    rgn->sustain_level = static_cast<double> (0x16980 - realSustainLev) / static_cast<double>( 0x16980);
 
   //we express release rate as time from maximum volume, not sustain level
   count = 0x16980 / realRelease;
@@ -203,7 +205,7 @@ void NDSInstr::GetArticData(VGMRgn *rgn, uint32_t offset) {
   else if (Pan == 64)
     rgn->pan = 0.5;
   else
-    rgn->pan = static_cast<double>( Pan / static_cast<double>( 127;
+    rgn->pan = static_cast<double>( Pan) / 127.;
 }
 
 uint16_t NDSInstr::GetFallingRate(uint8_t DecayTime) {
@@ -223,7 +225,7 @@ uint16_t NDSInstr::GetFallingRate(uint8_t DecayTime) {
     realDecay /= DecayTime;     //there is a whole subroutine that seems to resolve simply to this.  I have tested all cases
     realDecay &= 0xFFFF;
   }
-  return (uint16_t) realDecay;
+  return realDecay;
 }
 
 
@@ -237,12 +239,11 @@ uint16_t NDSInstr::GetFallingRate(uint8_t DecayTime) {
 // NDSWaveArch
 // ***********
 
-NDSWaveArch::NDSWaveArch(RawFile *file, uint32_t offset, uint32_t length, wstring name)
-    : VGMSampColl(NDSFormat::name, file, offset, length, name) {
+NDSWaveArch::NDSWaveArch(RawFile *file, uint32_t offset, uint32_t length, wstring _name)
+    : VGMSampColl(NDSFormat::name, file, offset, length, std::move(_name)) {
 }
 
-NDSWaveArch::~NDSWaveArch() {
-}
+NDSWaveArch::~NDSWaveArch() = default;
 
 bool NDSWaveArch::GetHeaderInfo() {
   unLength = GetWord(dwOffset + 8);
@@ -263,6 +264,7 @@ bool NDSWaveArch::GetSampleInfo() {
       case NDSSamp::PCM8:       bps = 8;    break;
       case NDSSamp::PCM16:      bps = 16;   break;
       case NDSSamp::IMA_ADPCM:  bps = 16;   break;
+      default:                  bps = 0;    break;
     }
     uint32_t loopOff = (GetShort(pSample + 6)) * 4;//*multiplier; //represents loop point in words, excluding header supposedly
     uint32_t nonLoopLength = GetShort(pSample + 8) * 4;        //if IMA-ADPCM, subtract one for the ADPCM header
@@ -277,10 +279,10 @@ bool NDSWaveArch::GetSampleInfo() {
       dataLength = loopOff + nonLoopLength;
     }
 
-    wostringstream name;
-    name << L"Sample " << samples.size();
+    wostringstream _name;
+    _name << L"Sample " << samples.size();
     NDSSamp *samp = new NDSSamp(this, pSample, dataStart + dataLength - pSample, dataStart,
-                                dataLength, nChannels, bps, rate, waveType, name.str());
+                                dataLength, nChannels, bps, rate, waveType, _name.str());
 
     if (waveType == NDSSamp::IMA_ADPCM) {
       samp->SetLoopStartMeasure(LM_SAMPLES);
@@ -309,9 +311,9 @@ bool NDSWaveArch::GetSampleInfo() {
 
 NDSSamp::NDSSamp(VGMSampColl *sampColl, uint32_t offset, uint32_t length, uint32_t dataOffset,
                  uint32_t dataLen, uint8_t nChannels, uint16_t theBPS,
-                 uint32_t theRate, uint8_t theWaveType, wstring name)
+                 uint32_t theRate, uint8_t theWaveType, wstring _name)
     : VGMSamp(sampColl, offset, length, dataOffset, dataLen, nChannels, theBPS,
-              theRate, name), waveType(theWaveType) {
+              theRate, std::move(_name)), waveType(theWaveType) {
 }
 
 
@@ -353,16 +355,16 @@ void NDSSamp::ConvertImaAdpcm(uint8_t *buf) {
   //int decompSample = GetShort(dataOff);
   //int stepIndex = GetShort(dataOff+2);
   uint32_t curOffset = dataOff;
-  ((int16_t *) buf)[destOff++] = (int16_t) decompSample;
+  reinterpret_cast<int16_t*>(buf)[destOff++] = static_cast<int16_t>(decompSample);
 
 
   uint8_t compByte;
   while (curOffset < dataOff + dataLength) {
     compByte = GetByte(curOffset++);
     process_nibble(compByte, stepIndex, decompSample);
-    ((int16_t *) buf)[destOff++] = (int16_t) decompSample;
+    reinterpret_cast<int16_t*>(buf)[destOff++] = static_cast<int16_t>(decompSample);
     process_nibble((compByte & 0xF0) >> 4, stepIndex, decompSample);
-    ((int16_t *) buf)[destOff++] = (int16_t) decompSample;
+    reinterpret_cast<int16_t*>(buf)[destOff++] = static_cast<int16_t>(decompSample);
   }
 }
 
@@ -395,9 +397,9 @@ void NDSSamp::ConvertImaAdpcm(uint8_t *buf) {
 //  Max(+7FFFh) leaves -8000h unclipped (can happen if initial PCM16 was -8000h)
 //  Min(-7FFFh) clips -8000h to -7FFFh (possibly unlike windows .WAV files?)
 
-#define IMAMax(samp) (samp > 0x7FFF) ? ((short)0x7FFF) : samp
-#define IMAMin(samp) (samp < -0x7FFF) ? ((short)-0x7FFF) : samp
-#define IMAIndexMinMax(index, min, max) (index > max) ? max : ((index < min) ? min : index)
+#define IMAMax(samp) ((samp) > 0x7FFF) ? (static_cast<short>(0x7FFF)) : samp
+#define IMAMin(samp) ((samp) < -0x7FFF) ? (static_cast<short>(-0x7FFF)) : samp
+#define IMAIndexMinMax(index, min, max) ((index) > (max)) ? (max) : (((index) < (min)) ? (min) : (index))
 
 void NDSSamp::process_nibble(unsigned char data4bit, int &Index, int &Pcm16bit) {
   //int Diff = ((Data4bit & 7)*2+1)*AdpcmTable[Index]/8;

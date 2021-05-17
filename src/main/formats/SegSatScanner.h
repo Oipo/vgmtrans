@@ -6,7 +6,7 @@ class SegSatScanner:
  public:
   SegSatScanner();
  public:
-  virtual ~SegSatScanner();
+  ~SegSatScanner() override;
 
-  virtual void Scan(RawFile *file, void *info = 0);
+  void Scan(RawFile *file, void *info = 0) override;
 };

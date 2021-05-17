@@ -7,8 +7,7 @@ SegSatSeq::SegSatSeq(RawFile *file, uint32_t offset)
     : VGMSeqNoTrks(SegSatFormat::name, file, offset) {
 }
 
-SegSatSeq::~SegSatSeq() {
-}
+SegSatSeq::~SegSatSeq() = default;
 
 bool SegSatSeq::GetHeaderInfo() {
   //unLength = GetShort(dwOffset+8);
@@ -46,9 +45,9 @@ bool SegSatSeq::ReadEvent() {
   {
     channel = status_byte & 0x0F;
     SetCurTrack(channel);
-    key = GetByte(curOffset++);
-    vel = GetByte(curOffset++);
-    dur = GetByte(curOffset++);
+    auto key = GetByte(curOffset++);
+    auto vel = GetByte(curOffset++);
+    auto dur = GetByte(curOffset++);
     AddTime(GetByte(curOffset++));
     AddNoteByDur(beginOffset, curOffset - beginOffset, key, vel, dur);
   }
@@ -70,10 +69,10 @@ bool SegSatSeq::ReadEvent() {
     }
     else if (status_byte == 0x81)        //loop x # of events
     {
-      uint16_t test1 = GetShortBE(curOffset);
-      uint32_t test2 = GetShortBE(curOffset);
-      uint32_t test3 = eventsOffset();
-      uint8_t test4 = GetByte(curOffset);
+//      uint16_t test1 = GetShortBE(curOffset);
+//      uint32_t test2 = GetShortBE(curOffset);
+//      uint32_t test3 = eventsOffset();
+//      uint8_t test4 = GetByte(curOffset);
       uint32_t loopOffset = eventsOffset() + GetShortBE(curOffset);
       curOffset += 2;
       remainingEventsInLoop = GetByte(curOffset++);

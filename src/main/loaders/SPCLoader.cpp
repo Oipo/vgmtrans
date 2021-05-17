@@ -2,11 +2,9 @@
 #include "SPCLoader.h"
 #include "Root.h"
 
-SPCLoader::SPCLoader() {
-}
+SPCLoader::SPCLoader() = default;
 
-SPCLoader::~SPCLoader() {
-}
+SPCLoader::~SPCLoader() = default;
 
 PostLoadCommand SPCLoader::Apply(RawFile *file) {
   if (file->size() < 0x10180) {
@@ -53,7 +51,7 @@ PostLoadCommand SPCLoader::Apply(RawFile *file) {
       s_str = s;
       spcFile->tag.artist = string2wstring(s_str);
 
-      spcFile->tag.length = (double) (file->GetWord(0xa9) & 0xffffff);
+      spcFile->tag.length = static_cast<double>(file->GetWord(0xa9) & 0xffffff);
     }
     else {
       // text format
@@ -101,7 +99,7 @@ PostLoadCommand SPCLoader::Apply(RawFile *file) {
 
           case 1: {
             // String (data contains null character)
-            std::string s_str = std::string((char *) (file->buf.data + xid6_offset + 4), xid6_length - 1);
+            std::string s_str = std::string(reinterpret_cast<char *> (file->buf.data + xid6_offset + 4), xid6_length - 1);
             std::wstring xid6_string = string2wstring(s_str);
             switch (xid6_id) {
               case 1:
@@ -122,6 +120,8 @@ PostLoadCommand SPCLoader::Apply(RawFile *file) {
               case 7:
                 // Comments
                 spcFile->tag.comment = xid6_string;
+                break;
+              default:
                 break;
             }
             break;

@@ -14,7 +14,7 @@ public:
         return instance;
     }
 
-    MdiArea(QWidget *parent = 0);
+    MdiArea(QWidget *parent = nullptr);
 
     QMdiSubWindow *addSubWindow(QWidget *widget);
 

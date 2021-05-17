@@ -26,8 +26,8 @@ const uint16_t TamSoftPS1Seq::PITCH_TABLE[73] = {
     0x3FFF,
 };
 
-TamSoftPS1Seq::TamSoftPS1Seq(RawFile *file, uint32_t offset, uint8_t theSong, const std::wstring &name)
-    : VGMSeq(TamSoftPS1Format::name, file, offset, 0, name), song(theSong), ps2(false), type(0) {
+TamSoftPS1Seq::TamSoftPS1Seq(RawFile *file, uint32_t offset, uint8_t theSong, const std::wstring &_name)
+    : VGMSeq(TamSoftPS1Format::name, file, offset, 0, _name), song(theSong), type(0), ps2(false) {
   bLoadTickByTick = true;
   bUseLinearAmplitudeScale = true;
 
@@ -38,8 +38,7 @@ TamSoftPS1Seq::TamSoftPS1Seq(RawFile *file, uint32_t offset, uint8_t theSong, co
   AlwaysWriteInitialReverb(0);
 }
 
-TamSoftPS1Seq::~TamSoftPS1Seq() {
-}
+TamSoftPS1Seq::~TamSoftPS1Seq() = default;
 
 void TamSoftPS1Seq::ResetVars() {
   VGMSeq::ResetVars();
@@ -165,12 +164,12 @@ TamSoftPS1Track::TamSoftPS1Track(TamSoftPS1Seq *parentFile, uint32_t offset)
 void TamSoftPS1Track::ResetVars() {
   SeqTrack::ResetVars();
 
-  vel = 100;
+//  vel = 100;
   lastNoteKey = -1;
 }
 
 bool TamSoftPS1Track::ReadEvent() {
-  TamSoftPS1Seq *parentSeq = (TamSoftPS1Seq *) this->parentSeq;
+  TamSoftPS1Seq *_parentSeq = dynamic_cast<TamSoftPS1Seq *>(this->parentSeq);
 
   uint32_t beginOffset = curOffset;
   if (curOffset >= vgmfile->GetEndOffset()) {
@@ -183,13 +182,12 @@ bool TamSoftPS1Track::ReadEvent() {
 
   std::wstringstream desc;
 
-  if (statusByte >= 0x00 && statusByte <= 0x7f) {
+  if (statusByte <= 0x7f) {
     // if status_byte == 0, it actually sets 0xffffffff to delta-time o_O
     desc << L"Delta Time: " << statusByte;
     AddGenericEvent(beginOffset, curOffset - beginOffset, L"Delta Time", desc.str(), CLR_REST);
     AddTime(statusByte);
-  }
-  else if (statusByte >= 0x80 && statusByte <= 0xdf) {
+  } else if (statusByte >= 0x80 && statusByte <= 0xdf) {
     uint8_t key = statusByte & 0x7f;
     desc << L"Key: " << key;
 
@@ -204,13 +202,13 @@ bool TamSoftPS1Track::ReadEvent() {
       lastNotePitch = TamSoftPS1Seq::PITCH_TABLE[key];
     }
 
-    AddNoteOn(beginOffset, curOffset - beginOffset, TAMSOFTPS1_KEY_OFFSET + key, vel);
+    AddNoteOn(beginOffset, curOffset - beginOffset, TAMSOFTPS1_KEY_OFFSET + key, DEFAULT_VEL);
   }
   else {
     switch (statusByte) {
       case 0xE0: {
-        uint8_t vol = GetByte(curOffset++) / 2;
-        AddVol(beginOffset, curOffset - beginOffset, vol);
+        uint8_t _vol = GetByte(curOffset++) / 2;
+        AddVol(beginOffset, curOffset - beginOffset, _vol);
         break;
       }
 
@@ -234,7 +232,7 @@ bool TamSoftPS1Track::ReadEvent() {
       }
 
       case 0xE3: {
-        uint16_t a1 = GetShort(curOffset);
+//        uint16_t a1 = GetShort(curOffset);
         curOffset += 2;
         AddUnknown(beginOffset, curOffset - beginOffset, L"NOP", desc.str());
         break;
@@ -248,7 +246,7 @@ bool TamSoftPS1Track::ReadEvent() {
 
         double cents = 0;
         if (lastNoteKey >= 0) {
-          cents = PitchScaleToCents(static_cast<double>( pitchRegValue / lastNotePitch);
+          cents = PitchScaleToCents(static_cast<double>( pitchRegValue) / lastNotePitch);
           desc << L" (" << cents << L" cents)";
         }
 
@@ -264,7 +262,7 @@ bool TamSoftPS1Track::ReadEvent() {
 
         double cents = 0;
         if (lastNoteKey >= 0) {
-          cents = PitchScaleToCents(static_cast<double>( pitchRegValue / lastNotePitch);
+          cents = PitchScaleToCents(static_cast<double>( pitchRegValue) / lastNotePitch);
           desc << L" (" << cents << L" cents)";
         }
 
@@ -273,8 +271,8 @@ bool TamSoftPS1Track::ReadEvent() {
       }
 
       case 0xE6: {
-        uint8_t mode = GetByte(curOffset++);
-        desc << L"Reverb Mode: " << mode;
+        uint8_t _mode = GetByte(curOffset++);
+        desc << L"Reverb Mode: " << _mode;
         AddGenericEvent(beginOffset, curOffset - beginOffset, L"Reverb Mode", desc.str(), CLR_REVERB, ICON_CONTROL);
         break;
       }
@@ -282,13 +280,13 @@ bool TamSoftPS1Track::ReadEvent() {
       case 0xE7: {
         uint8_t depth = GetByte(curOffset++);
         desc << L"Reverb Depth: " << depth;
-        parentSeq->reverbDepth = depth << 8;
+        _parentSeq->reverbDepth = depth << 8;
         AddGenericEvent(beginOffset, curOffset - beginOffset, L"Reverb Depth", desc.str(), CLR_REVERB, ICON_CONTROL);
         break;
       }
 
       case 0xE8: {
-        uint8_t midiReverb = roundi(fabs(parentSeq->reverbDepth / 32768.0) * 127.0);
+        uint8_t midiReverb = roundi(fabs(_parentSeq->reverbDepth / 32768.0) * 127.0);
         AddReverb(beginOffset, curOffset - beginOffset, midiReverb, L"Reverb On");
         break;
       }
@@ -324,12 +322,12 @@ bool TamSoftPS1Track::ReadEvent() {
         curOffset += 2;
 
         uint32_t dest = curOffset + relOffset;
-        desc << L"Destination: $" << std::hex << std::setfill(L'0') << std::setw(4) << std::uppercase << (int) dest;
+        desc << L"Destination: $" << std::hex << std::setfill(L'0') << std::setw(4) << std::uppercase << dest;
         uint32_t length = curOffset - beginOffset;
 
         curOffset = dest;
         if (!IsOffsetUsed(dest)) {
-          AddGenericEvent(beginOffset, length, L"Jump", desc.str().c_str(), CLR_LOOPFOREVER);
+          AddGenericEvent(beginOffset, length, L"Jump", desc.str(), CLR_LOOPFOREVER);
         }
         else {
           bContinue = AddLoopForever(beginOffset, length, L"Jump");
@@ -348,7 +346,7 @@ bool TamSoftPS1Track::ReadEvent() {
         break;
 
       default:
-        desc << L"Event: 0x" << std::hex << std::setfill(L'0') << std::setw(2) << std::uppercase << (int) statusByte;
+        desc << L"Event: 0x" << std::hex << std::setfill(L'0') << std::setw(2) << std::uppercase << statusByte;
         AddUnknown(beginOffset, curOffset - beginOffset, L"Unknown Event", desc.str());
         pRoot->AddLogItem(new LogItem(std::wstring(L"Unknown Event - ") + desc.str(),
                                       LOG_LEVEL_ERR,
@@ -359,8 +357,8 @@ bool TamSoftPS1Track::ReadEvent() {
   }
 
   //std::wostringstream ssTrace;
-  //ssTrace << L"" << std::hex << std::setfill(L'0') << std::setw(8) << std::uppercase << beginOffset << L": " << std::setw(2) << (int)statusByte  << L" -> " << std::setw(8) << curOffset << std::endl;
-  //OutputDebugString(ssTrace.str().c_str());
+  //ssTrace << L"" << std::hex << std::setfill(L'0') << std::setw(8) << std::uppercase << beginOffset << L": " << std::setw(2) <<statusByte  << L" -> " << std::setw(8) << curOffset << std::endl;
+  //OutputDebugString(ssTrace.str());
 
   if (!bContinue) {
     FinalizeAllNotes();

@@ -8,19 +8,19 @@ class TriAcePS1ScorePattern;
 class TriAcePS1Seq:
     public VGMSeq {
  public:
-  typedef struct _TrkInfo {
+  struct TrkInfo {
     uint16_t unknown1;
     uint16_t unknown2;
     uint16_t trkOffset;
-  } TrkInfo;
+  };
 
 
-  TriAcePS1Seq(RawFile *file, uint32_t offset, const std::wstring &name = std::wstring(L"TriAce Seq"));
-  virtual ~TriAcePS1Seq();
+  TriAcePS1Seq(RawFile *file, uint32_t offset, const std::wstring &_name = std::wstring(L"TriAce Seq"));
+  ~TriAcePS1Seq() override;
 
   bool GetHeaderInfo() override;
-  virtual bool GetTrackPointers();
-  virtual void ResetVars();
+  bool GetTrackPointers() override;
+  void ResetVars() override;
 
   VGMHeader *header;
   TrkInfo TrkInfos[32];
@@ -41,13 +41,13 @@ class TriAcePS1ScorePattern
 class TriAcePS1Track
     : public SeqTrack {
  public:
-  TriAcePS1Track(TriAcePS1Seq *parentSeq, long offset = 0, long length = 0);
+  TriAcePS1Track(TriAcePS1Seq *_parentSeq, long offset = 0, long length = 0);
 
-  virtual void LoadTrackMainLoop(uint32_t stopOffset, int32_t stopTime);
+  void LoadTrackMainLoop(uint32_t stopOffset, int32_t stopTime) override;
   uint32_t ReadScorePattern(uint32_t offset);
-  virtual bool IsOffsetUsed(uint32_t offset);
-  virtual void AddEvent(SeqEvent *pSeqEvent);
-  virtual bool ReadEvent();
+  bool IsOffsetUsed(uint32_t offset) override;
+  void AddEvent(SeqEvent *pSeqEvent) override;
+  bool ReadEvent() override;
 
   uint8_t impliedNoteDur;
   uint8_t impliedVelocity;

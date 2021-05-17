@@ -12,8 +12,7 @@ SonyPS2InstrSet::SonyPS2InstrSet(RawFile *file, uint32_t offset)
     : VGMInstrSet(SonyPS2Format::name, file, offset) {
 }
 
-SonyPS2InstrSet::~SonyPS2InstrSet() {
-}
+SonyPS2InstrSet::~SonyPS2InstrSet() = default;
 
 
 bool SonyPS2InstrSet::GetHeaderInfo() {
@@ -299,22 +298,21 @@ SonyPS2Instr::SonyPS2Instr(VGMInstrSet *instrSet,
                            uint32_t theBank,
                            uint32_t theInstrNum)
     : VGMInstr(instrSet, offset, length, theBank, theInstrNum, L"Program Param"),
-      splitBlocks(0) {
+      splitBlocks(nullptr) {
   RemoveContainer(aRgns);
 }
 
 SonyPS2Instr::~SonyPS2Instr() {
-  if (splitBlocks)
     delete[] splitBlocks;
 }
 
 
 bool SonyPS2Instr::LoadInstr() {
-  SonyPS2InstrSet *instrset = (SonyPS2InstrSet *) parInstrSet;
+  SonyPS2InstrSet *instrset = dynamic_cast<SonyPS2InstrSet *>(parInstrSet);
   SonyPS2InstrSet::ProgCk &progCk = instrset->progCk;
   SonyPS2InstrSet::SampSetCk &sampSetCk = instrset->sampSetCk;
   SonyPS2InstrSet::SampCk &sampCk = instrset->sampCk;
-  SonyPS2InstrSet::VAGInfoCk &vagInfoCk = instrset->vagInfoCk;
+//  SonyPS2InstrSet::VAGInfoCk &vagInfoCk = instrset->vagInfoCk;
   ProgParam &progParam = progCk.progParamBlock[this->instrNum];
   uint8_t nSplits = progParam.nSplit;
   for (uint8_t i = 0; i < nSplits; i++) {
@@ -323,7 +321,7 @@ bool SonyPS2Instr::LoadInstr() {
 
     for (uint8_t j = 0; j < sampSetParam.nSample; j++) {
       SonyPS2InstrSet::SampleParam &sampParam = sampCk.sampleParam[sampSetParam.sampleIndex[j]];
-      SonyPS2InstrSet::VAGInfoParam &vagInfoParam = vagInfoCk.vagInfoParam[sampParam.VagIndex];
+//      SonyPS2InstrSet::VAGInfoParam &vagInfoParam = vagInfoCk.vagInfoParam[sampParam.VagIndex];
       // WE ARE ASSUMING THE VAG SAMPLES ARE STORED CONSECUTIVELY
       int sampNum = sampParam.VagIndex;
       uint8_t noteLow = splitblock.splitRangeLow;
@@ -348,13 +346,13 @@ bool SonyPS2Instr::LoadInstr() {
       if (pan > 0x7F) pan = 0x7F;
       if (pan < 0) pan = 0;
       //double realPan = (pan-0x40)* (1.0/static_cast<double>(0x40);
-      rgn->SetPan((uint8_t) pan);
+      rgn->SetPan(pan);
       rgn->SetFineTune(splitblock.splitTranspose * 100 + splitblock.splitDetune);
 
       long vol = progParam.progVolume * splitblock.splitVolume * sampParam.sampleVolume;
       //we divide the above value by 127^3 to get the percent vol it represents.  Then we convert it to DB units.
       //0xA0000 = 1db in the DLS lScale val for atten (dls1 specs p30)
-      double percentvol = vol / static_cast<double>( (127 * 127 * 127);
+      double percentvol = vol / static_cast<double>(127 * 127 * 127);
       rgn->SetVolume(percentvol);
       PSXConvADSR(rgn, sampParam.sampleAdsr1, sampParam.sampleAdsr2, true);
       //splitblock->splitRangeLow
@@ -367,9 +365,9 @@ int8_t SonyPS2Instr::ConvertPanVal(uint8_t panVal) {
   // Actually, it may be C1 is center, but i don't care to fix that right now since
   // I have yet to see an occurence of >0x7F pan
   if (panVal > 0x7F)        //if it's > 0x7F, 0x80 == right, 0xBF center 0xFF left
-    return (int8_t) 0x40 - (int8_t) (panVal - 0x7F);
+    return 0x40 - (panVal - 0x7F);
   else
-    return (int8_t) panVal - (int8_t) 0x40;
+    return panVal - 0x40;
 }
 
 
@@ -377,17 +375,17 @@ int8_t SonyPS2Instr::ConvertPanVal(uint8_t panVal) {
 // SonyPS2SampColl
 // ***************
 
-SonyPS2SampColl::SonyPS2SampColl(RawFile *rawfile, uint32_t offset, uint32_t length)
-    : VGMSampColl(SonyPS2Format::name, rawfile, offset, length) {
+SonyPS2SampColl::SonyPS2SampColl(RawFile *_rawfile, uint32_t offset, uint32_t length)
+    : VGMSampColl(SonyPS2Format::name, _rawfile, offset, length) {
   this->LoadOnInstrMatch();
   pRoot->AddVGMFile(this);
 }
 
 bool SonyPS2SampColl::GetSampleInfo() {
-  SonyPS2InstrSet *instrset = (SonyPS2InstrSet *) parInstrSet;
-  if (!instrset)
+  SonyPS2InstrSet *_instrset = dynamic_cast<SonyPS2InstrSet *>(parInstrSet);
+  if (!_instrset)
     return false;
-  SonyPS2InstrSet::VAGInfoCk &vagInfoCk = instrset->vagInfoCk;
+  SonyPS2InstrSet::VAGInfoCk &vagInfoCk = _instrset->vagInfoCk;
   uint32_t numVagInfos = vagInfoCk.maxVagInfoNumber + 1;
   for (uint32_t i = 0; i < numVagInfos; i++) {
     // Get offset, length, and samplerate from VAGInfo Param
@@ -407,9 +405,9 @@ bool SonyPS2SampColl::GetSampleInfo() {
 
     uint16_t sampleRate = vagInfoParam.vagSampleRate;
 
-    wostringstream name;
-    name << L"Sample " << samples.size();
-    PSXSamp *samp = new PSXSamp(this, offset, length, offset, length, 1, 16, sampleRate, name.str(), true);
+    wostringstream _name;
+    _name << L"Sample " << samples.size();
+    PSXSamp *samp = new PSXSamp(this, offset, length, offset, length, 1, 16, sampleRate, _name.str(), true);
     samples.push_back(samp);
 
     // Determine loop information from VAGInfo Param

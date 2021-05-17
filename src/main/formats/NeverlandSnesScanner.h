@@ -8,10 +8,9 @@ class NeverlandSnesScanner:
   NeverlandSnesScanner() {
     USE_EXTENSION(L"spc");
   }
-  virtual ~NeverlandSnesScanner() {
-  }
+  ~NeverlandSnesScanner() override = default;
 
-  virtual void Scan(RawFile *file, void *info = 0);
+  void Scan(RawFile *file, void *info = 0) override;
   void SearchForNeverlandSnesFromARAM(RawFile *file);
   void SearchForNeverlandSnesFromROM(RawFile *file);
 

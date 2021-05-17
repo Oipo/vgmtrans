@@ -13,8 +13,7 @@ WDInstrSet::WDInstrSet(RawFile *file, uint32_t offset)
     : VGMInstrSet(SquarePS2Format::name, file, offset) {
 }
 
-WDInstrSet::~WDInstrSet() {
-}
+WDInstrSet::~WDInstrSet() = default;
 
 
 bool WDInstrSet::GetHeaderInfo() {
@@ -33,7 +32,7 @@ bool WDInstrSet::GetHeaderInfo() {
     dwSampSectSize = 0;
 
   wostringstream theName;
-  theName << L"WD " << id;
+  theName << L"WD " << id.value();
   name = theName.str();
 
   uint32_t sampCollOff = dwOffset + GetWord(dwOffset + 0x20) + (dwTotalRegions * 0x20);
@@ -62,9 +61,10 @@ bool WDInstrSet::GetInstrPointers() {
       instrLength = GetWord(j + ((i + 1) * 4)) - GetWord(j + (i * 4));
     else
       instrLength = sampColl->dwOffset - (GetWord(j + (i * 4)) + dwOffset);
-    wostringstream name;
-    name << L"Instrument " << i;
-    WDInstr *newWDInstr = new WDInstr(this, dwOffset + GetWord(j + (i * 4)), instrLength, 0, i, name.str());//strStr);
+    wostringstream _name;
+    _name << L"Instrument " << i;
+    WDInstr *newWDInstr = new WDInstr(this, dwOffset + GetWord(j + (i * 4)), instrLength, 0, i,
+                                      _name.str());//strStr);
     aInstrs.push_back(newWDInstr);
   }
   return true;
@@ -81,27 +81,26 @@ WDInstr::WDInstr(VGMInstrSet *instrSet,
                  uint32_t length,
                  uint32_t theBank,
                  uint32_t theInstrNum,
-                 const wstring name)
-    : VGMInstr(instrSet, offset, length, theBank, theInstrNum, name) {
+                 const wstring _name)
+    : VGMInstr(instrSet, offset, length, theBank, theInstrNum, _name) {
 }
 
-WDInstr::~WDInstr() {
-}
+WDInstr::~WDInstr() = default;
 
 
 bool WDInstr::LoadInstr() {
   wostringstream strStr;
-  uint32_t j = 0;
-  long startAddress = 0;
-  bool notSampleStart = false;
+//  uint32_t j = 0;
+//  long startAddress = 0;
+//  bool notSampleStart = false;
 
-  bool bSecondToLastRgn = 0;
-  bool bLastRgn = 0;
+//  bool bSecondToLastRgn = false;
+//  bool bLastRgn = false;
 
   unsigned int k = 0;
   while (k * 0x20 < unLength) {
-    if (bSecondToLastRgn)
-      bLastRgn = true;
+//    if (bSecondToLastRgn)
+//      bLastRgn = true;
 
     WDRgn *rgn = new WDRgn(this, k * 0x20 + dwOffset);
     aRgns.push_back(rgn);
@@ -134,9 +133,9 @@ bool WDInstr::LoadInstr() {
     rgn->velHigh = Convert7bitPercentVolValToStdMidiVal(GetByte(k * 0x20 + 0x15 + dwOffset));
 
     uint8_t vol = GetByte(k * 0x20 + 0x16 + dwOffset);
-    rgn->SetVolume(static_cast<double>( vol / 127.0);
+    rgn->SetVolume(static_cast<double>( vol) / 127.0);
 
-    rgn->pan = static_cast<double>( GetByte(k * 0x20 + 0x17 + dwOffset);        //need to convert
+    rgn->pan = static_cast<double>( GetByte(k * 0x20 + 0x17 + dwOffset));        //need to convert
 
     if (rgn->pan == 255)
       rgn->pan = 1.0;
@@ -145,29 +144,28 @@ bool WDInstr::LoadInstr() {
     else if (rgn->pan == 192)
       rgn->pan = 0.5;
     else if (rgn->pan > 127)
-      rgn->pan = static_cast<double>( (rgn->pan - 128) / static_cast<double>( 127;
+      rgn->pan = static_cast<double>(rgn->pan - 128) / 127.;
     else
       rgn->pan = 0.5;
 
-    rgn->fineTune =
-        (short) ceil(((finetune_table[rgn->fineTune] - 0x10000) * 0.025766555011594949755217727389848) - 50);
+    rgn->fineTune = ceil(((finetune_table[rgn->fineTune] - 0x10000) * 0.025766555011594949755217727389848) - 50);
     PSXConvADSR<WDRgn>(rgn, rgn->ADSR1, rgn->ADSR2, true);
 
-    if (rgn->bLastRegion) {
-      if (rgn->bStereoRegion)
-        bSecondToLastRgn = true;
-      else
-        bLastRgn = true;
-    }
+//    if (rgn->bLastRegion) {
+//      if (rgn->bStereoRegion)
+//        bSecondToLastRgn = true;
+//      else
+//        bLastRgn = true;
+//    }
     k++;
   }
 
   //First, do key and velocity ranges
-  uint8_t prevKeyHigh = 0;
+//  uint8_t prevKeyHigh = 0;
   uint8_t prevVelHigh = 0;
-  for (uint32_t k = 0; k < aRgns.size(); k++) {
+  for (k = 0; k < aRgns.size(); k++) {
     // Key Ranges
-    if (((WDRgn *) aRgns[k])->bFirstRegion) //&& !instrument[i].region[k].bLastRegion) //used in ffx2 0049 YRP battle 1.  check out first instrument, flags are weird
+    if (dynamic_cast<WDRgn *>(aRgns[k])->bFirstRegion) //&& !instrument[i].region[k].bLastRegion) //used in ffx2 0049 YRP battle 1.  check out first instrument, flags are weird
       aRgns[k]->keyLow = 0;
     else if (k > 0) {
       if (aRgns[k]->keyHigh == aRgns[k - 1]->keyHigh)
@@ -178,7 +176,7 @@ bool WDInstr::LoadInstr() {
     else
       aRgns[k]->keyLow = 0;
 
-    if (((WDRgn *) aRgns[k])->bLastRegion)
+    if (dynamic_cast<WDRgn *>(aRgns[k])->bLastRegion)
       aRgns[k]->keyHigh = 0x7F;
 
 

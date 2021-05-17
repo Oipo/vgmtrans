@@ -9,7 +9,7 @@ class OrgSeq:
  public:
   OrgSeq(RawFile *file, uint32_t offset);
  public:
-  virtual ~OrgSeq();
+  ~OrgSeq() override;
 
   bool GetHeaderInfo() override;
 
@@ -25,7 +25,7 @@ class OrgTrack
   OrgTrack(OrgSeq *parentFile, long offset, long length, uint8_t realTrk);
 
   virtual bool LoadTrack(uint32_t trackNum, uint32_t stopOffset, long stopDelta);
-  virtual bool ReadEvent();
+  bool ReadEvent() override;
 
  public:
   uint8_t prevPan;

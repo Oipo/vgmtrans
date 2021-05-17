@@ -11,7 +11,6 @@ using namespace std;
 
 void NDSScanner::Scan(RawFile *file, void *info) {
   SearchForSDAT(file);
-  return;
 }
 
 void NDSScanner::SearchForSDAT(RawFile *file) {
@@ -77,7 +76,7 @@ uint32_t NDSScanner::LoadFromSDAT(RawFile *file, uint32_t baseOff) {
     else {
       swprintf(wtemp, 32, L"SSEQ_%04d", i);
     }
-    seqNames.push_back(wtemp);
+    seqNames.emplace_back(wtemp);
   }
 
   for (uint32_t i = 0; i < nBnks; i++) {
@@ -91,7 +90,7 @@ uint32_t NDSScanner::LoadFromSDAT(RawFile *file, uint32_t baseOff) {
     else {
       swprintf(wtemp, 32, L"SBNK_%04d", i);
     }
-    bnkNames.push_back(wtemp);
+    bnkNames.emplace_back(wtemp);
   }
 
   for (uint32_t i = 0; i < nWAs; i++) {
@@ -105,7 +104,7 @@ uint32_t NDSScanner::LoadFromSDAT(RawFile *file, uint32_t baseOff) {
     else {
       swprintf(wtemp, 32, L"SWAR_%04d", i);
     }
-    waNames.push_back(wtemp);
+    waNames.emplace_back(wtemp);
   }
 
   uint32_t pSeqInfoPtrList = file->GetWord(INFOoff + 8) + INFOoff;
@@ -115,7 +114,7 @@ uint32_t NDSScanner::LoadFromSDAT(RawFile *file, uint32_t baseOff) {
     uint32_t pSeqInfoUnadjusted = file->GetWord(pSeqInfoPtrList + 4 + i * 4);
     uint32_t pSeqInfo = INFOoff + pSeqInfoUnadjusted;
     if (pSeqInfoUnadjusted == 0)
-      seqFileIDs.push_back((uint16_t) -1);
+      seqFileIDs.push_back(std::numeric_limits<uint16_t>::max());
     else
       seqFileIDs.push_back(file->GetShort(pSeqInfo));
     seqFileBnks.push_back(file->GetShort(pSeqInfo + 4));
@@ -128,10 +127,10 @@ uint32_t NDSScanner::LoadFromSDAT(RawFile *file, uint32_t baseOff) {
     uint32_t pBnkInfoUnadjusted = file->GetWord(pBnkInfoPtrList + 4 + i * 4);
     uint32_t pBnkInfo = INFOoff + pBnkInfoUnadjusted;
     if (pBnkInfoUnadjusted == 0)
-      bnkFileIDs.push_back((uint16_t) -1);
+      bnkFileIDs.push_back(std::numeric_limits<uint16_t>::max());
     else
       bnkFileIDs.push_back(file->GetShort(pBnkInfo));
-    bnkWAs.push_back(vector<uint16_t>());
+    bnkWAs.emplace_back();
     vector<vector<uint16_t> >::reference ref = bnkWAs.back();
     for (int j = 0; j < 4; j++) {
       uint16_t WANum = file->GetShort(pBnkInfo + 4 + (j * 2));
@@ -149,29 +148,29 @@ uint32_t NDSScanner::LoadFromSDAT(RawFile *file, uint32_t baseOff) {
     uint32_t pWAInfoUnadjusted = file->GetWord(pWAInfoList + 4 + i * 4);
     uint32_t pWAInfo = INFOoff + pWAInfoUnadjusted;
     if (pWAInfoUnadjusted == 0)
-      waFileIDs.push_back((uint16_t) -1);
+      waFileIDs.push_back(std::numeric_limits<uint16_t>::max());
     else
       waFileIDs.push_back(file->GetShort(pWAInfo));
   }
 
   {
     vector<uint16_t> vUniqueWAs;// = vector<uint16_t>(bnkWAs);
-    for (uint32_t i = 0; i < bnkWAs.size(); i++)
-      vUniqueWAs.insert(vUniqueWAs.end(), bnkWAs[i].begin(), bnkWAs[i].end());
+    for (auto & bnkWA : bnkWAs)
+      vUniqueWAs.insert(vUniqueWAs.end(), bnkWA.begin(), bnkWA.end());
     sort(vUniqueWAs.begin(), vUniqueWAs.end());
-    vector<uint16_t>::iterator new_end = unique(vUniqueWAs.begin(), vUniqueWAs.end());
+    auto new_end = unique(vUniqueWAs.begin(), vUniqueWAs.end());
 
     vector<bool> valid;
     valid.resize(nWAs);
-    for (vector<uint16_t>::iterator iter = vUniqueWAs.begin(); iter != new_end; iter++) {
-      if ((*iter != (uint16_t) -1) && (*iter < valid.size()))
-        valid[*iter] = 1;
+    for (auto iter = vUniqueWAs.begin(); iter != new_end; iter++) {
+      if ((*iter != std::numeric_limits<uint16_t>::max()) && (*iter < valid.size()))
+        valid[*iter] = true;
     }
 
     for (uint32_t i = 0; i < nWAs; i++)
       //for (vector<uint16_t>::iterator iter = vUniqueWAs.begin(); iter != new_end; iter++)
     {
-      if (valid[i] != 1 || waFileIDs[i] == (uint16_t) -1) {
+      if (valid[i] != 1 || waFileIDs[i] == std::numeric_limits<uint16_t>::max()) {
         WAs.push_back(nullptr);
         continue;
       }
@@ -194,19 +193,18 @@ uint32_t NDSScanner::LoadFromSDAT(RawFile *file, uint32_t baseOff) {
   {
     vector<uint16_t> vUniqueBanks = vector<uint16_t>(seqFileBnks);
     sort(vUniqueBanks.begin(), vUniqueBanks.end());
-    vector<uint16_t>::iterator new_end = unique(vUniqueBanks.begin(), vUniqueBanks.end());
+    auto new_end = unique(vUniqueBanks.begin(), vUniqueBanks.end());
 
     //for (uint32_t i=0; i<nBnks; i++)
     //for (uint32_t i=0; i<seqFileBnks.size(); i++)
-    for (vector<uint16_t>::iterator iter = vUniqueBanks.begin(); iter != new_end; iter++) {
-      if (*iter >= bnkFileIDs.size() /*0x1000*/|| bnkFileIDs[*iter]
-          == (uint16_t) -1)    // > 0x1000 is idiot test for Phoenix Wright, which had many 0x1C80 values, as if they were 0xFFFF
+    for (auto iter = vUniqueBanks.begin(); iter != new_end; iter++) {
+      if (*iter >= bnkFileIDs.size() /*0x1000*/|| bnkFileIDs[*iter] == std::numeric_limits<uint16_t>::max())    // > 0x1000 is idiot test for Phoenix Wright, which had many 0x1C80 values, as if they were 0xFFFF
         continue;
       uint32_t offset = FAToff + 12 + bnkFileIDs[*iter] * 0x10;
       uint32_t pBnkFatData = file->GetWord(offset) + baseOff;
       offset += 4;
       uint32_t fileSize = file->GetWord(offset);
-      //if (bnkWAs[*iter][0] == (uint16_t)-1 || numWAs != 1)
+      //if (bnkWAs[*iter][0] == std::numeric_limits<uint16_t>::max() || numWAs != 1)
       //	continue;
       NDSInstrSet *NewNDSInstrSet = new NDSInstrSet(file, pBnkFatData, fileSize,
                                                     bnkNames[*iter]/*, WAs[bnkWAs[*iter][0]]*/);
@@ -233,7 +231,7 @@ uint32_t NDSScanner::LoadFromSDAT(RawFile *file, uint32_t baseOff) {
     //vector<uint16_t>::iterator new_end = unique(vUniqueBanks.begin(), vUniqueBanks.end());
 
     for (uint32_t i = 0; i < nSeqs; i++) {
-      if (seqFileIDs[i] == (uint16_t) -1)
+      if (seqFileIDs[i] == std::numeric_limits<uint16_t>::max())
         continue;
       uint32_t offset = FAToff + 12 + seqFileIDs[i] * 0x10;
       uint32_t pSeqFatData = file->GetWord(offset) + baseOff;
@@ -255,7 +253,7 @@ uint32_t NDSScanner::LoadFromSDAT(RawFile *file, uint32_t baseOff) {
           break;
         }
       }
-      NDSInstrSet *instrset = BNKs[bnkIndex].second;
+//      NDSInstrSet *instrset = BNKs[bnkIndex].second;
       coll->AddInstrSet(BNKs[bnkIndex].second);
       for (int j = 0; j < 4; j++) {
         short WAnum = bnkWAs[seqFileBnks[i]][j];

@@ -8,9 +8,9 @@ DECLARE_FORMAT(QSound);
 
 using namespace std;
 
-const uint8_t delta_table[3][7] = {2, 4, 8, 0x10, 0x20, 0x40, 0x80,
-                                   3, 6, 0xC, 0x18, 0x30, 0x60, 0xC0,
-                                   0, 9, 0x12, 0x24, 0x48, 0x90, 0};
+const uint8_t delta_table[3][7] = {{2, 4, 8, 0x10, 0x20, 0x40, 0x80},
+                                   {3, 6, 0xC, 0x18, 0x30, 0x60, 0xC0},
+                                   {0, 9, 0x12, 0x24, 0x48, 0x90, 0}};
 //octave_table provides the note value for the start of each octave.
 //wholly unnecessary for me include it, but i'm following the original driver code verbatim for now
 const uint8_t octave_table[] = {0x00, 0x0C, 0x18, 0x24, 0x30, 0x3C, 0x48, 0x54,
@@ -86,15 +86,14 @@ const uint16_t lfo_rate_table[128] = {
 // QSoundSeq
 // *********
 
-QSoundSeq::QSoundSeq(RawFile *file, uint32_t offset, QSoundVer fmtVersion, wstring &name)
-    : VGMSeq(QSoundFormat::name, file, offset, 0, name),
+QSoundSeq::QSoundSeq(RawFile *file, uint32_t offset, QSoundVer fmtVersion, wstring &_name)
+    : VGMSeq(QSoundFormat::name, file, offset, 0, _name),
       fmt_version(fmtVersion) {
   HasMonophonicTracks();
   AlwaysWriteInitialVol(127);
 }
 
-QSoundSeq::~QSoundSeq() {
-}
+QSoundSeq::~QSoundSeq() = default;
 
 bool QSoundSeq::GetHeaderInfo() {
   // for 100% accuracy, we'd left shift by 256, but that seems unnecessary and excessive
@@ -169,10 +168,10 @@ bool QSoundSeq::PostLoad() {
 
 
     // And now we actually add vibrato and pitch bend events
-    const uint32_t ppqn = GetPPQN();                    // pulses (ticks) per quarter note
-    const uint32_t mpLFOt = (uint32_t) ((1 / (251 / 4.0)) * 1000000);    // microseconds per LFO tick
+    const uint32_t _ppqn = GetPPQN();                    // pulses (ticks) per quarter note
+    const uint32_t mpLFOt = static_cast<uint32_t> ((1 / (251 / 4.0)) * 1000000);    // microseconds per LFO tick
     uint32_t mpqn = 500000;      // microseconds per quarter note - 120 bpm default
-    uint32_t mpt = mpqn / ppqn;  // microseconds per MIDI tick
+    uint32_t mpt = mpqn / _ppqn;  // microseconds per MIDI tick
     short pitchbend = 0;         // pitch bend in cents
     int pitchbendRange = 200;    // pitch bend range in cents default 2 semitones
     double vibrato = 0;          // vibrato depth in cents
@@ -202,12 +201,12 @@ bool QSoundSeq::PostLoad() {
 
         long segmentDurTicks = curTicks - startAbsTicks;
         double segmentDur = segmentDurTicks * mpt;    // duration of this segment in micros
-        double lfoTicks = segmentDur / static_cast<double>( mpLFOt;
-        double numLfoPhases = (lfoTicks * static_cast<double>( lfoRate) / static_cast<double>( 0x20000;
-        double lfoRatePerMidiTick = (numLfoPhases * 0x20000) / static_cast<double>( segmentDurTicks;
+        double lfoTicks = segmentDur / static_cast<double>( mpLFOt);
+        double numLfoPhases = (lfoTicks * static_cast<double>( lfoRate)) / static_cast<double>( 0x20000);
+        double lfoRatePerMidiTick = (numLfoPhases * 0x20000) / static_cast<double>( segmentDurTicks);
 
         const uint8_t tickRes = 16;
-        uint32_t lfoRatePerLoop = (uint32_t) ((tickRes * lfoRatePerMidiTick) * 256);
+        uint32_t lfoRatePerLoop = static_cast<uint32_t>((tickRes * lfoRatePerMidiTick) * 256);
 
         for (int t = 0; t < segmentDurTicks; t += tickRes) {
           lfoVal += lfoRatePerLoop;
@@ -219,22 +218,22 @@ bool QSoundSeq::PostLoad() {
           if (lfoStage == 1)
             effectiveLfoVal = 0x1000000 - lfoVal;
           else if (lfoStage == 2)
-            effectiveLfoVal = -((long) lfoVal);
+            effectiveLfoVal = static_cast<long>(-lfoVal);
           else if (lfoStage == 3)
             effectiveLfoVal = -0x1000000 + lfoVal;
 
-          double lfoPercent = (effectiveLfoVal / static_cast<double>( 0x1000000);
+          double lfoPercent = effectiveLfoVal / static_cast<double>( 0x1000000);
 
           if (vibrato > 0) {
-            lfoCents = (short) (lfoPercent * vibrato);
+            lfoCents = static_cast<short>(lfoPercent * vibrato);
             track->InsertPitchBend(channel,
-                                   (short) (((lfoCents + pitchbend) / static_cast<double>( pitchbendRange) * 8192),
+                                   static_cast<short>((lfoCents + pitchbend) / static_cast<double>(pitchbendRange * 8192)),
                                    startAbsTicks + t);
           }
 
           if (tremelo > 0) {
             uint8_t
-                expression = ConvertPercentAmpToStdMidiVal((0x10000 - (tremelo * fabs(lfoPercent))) / static_cast<double>( 0x10000);
+                expression = ConvertPercentAmpToStdMidiVal((0x10000 - (tremelo * fabs(lfoPercent))) / static_cast<double>( 0x10000));
             track->InsertExpression(channel, expression, startAbsTicks + t);
           }
         }
@@ -244,29 +243,27 @@ bool QSoundSeq::PostLoad() {
 
       switch (event->GetEventType()) {
         case MIDIEVENT_TEMPO: {
-          TempoEvent *tempoevent = (TempoEvent *) event;
+          TempoEvent *tempoevent = dynamic_cast<TempoEvent *>(event);
           mpqn = tempoevent->microSecs;
-          mpt = mpqn / ppqn;
+          mpt = mpqn / _ppqn;
         }
           break;
         case MIDIEVENT_ENDOFTRACK:
 
           break;
         case MIDIEVENT_MARKER: {
-          MarkerEvent *marker = (MarkerEvent *) event;
+          MarkerEvent *marker = dynamic_cast<MarkerEvent *>(event);
           if (marker->name == "vibrato") {
             vibrato = vibrato_depth_table[marker->databyte1] * (100 / 256.0);
             //pitchbendRange = max(200, (int)(vibrato + 50));		//50 cents to allow for pitchbend values, which range -50/+50
-            pitchbendRange = std::max<int>(200,
-                                           (int) ceil((vibrato + 50) / 100.0)
-                                               * 100);    //+50 cents to allow for pitchbend values, which range -50/+50
+            pitchbendRange = std::max<int>(200, ceil((vibrato + 50) / 100.0) * 100);    //+50 cents to allow for pitchbend values, which range -50/+50
             track->InsertPitchBendRange(channel, pitchbendRange / 100, pitchbendRange % 100, curTicks);
 
-            lfoCents = (short) ((effectiveLfoVal / static_cast<double>( 0x1000000) * vibrato);
+            lfoCents = static_cast<short>(effectiveLfoVal / static_cast<double>( 0x1000000 * vibrato));
 
             if (curTicks > 0)
               track->InsertPitchBend(channel,
-                                     (short) (((lfoCents + pitchbend) / static_cast<double>( pitchbendRange) * 8192),
+                                     static_cast<short>((lfoCents + pitchbend) / static_cast<double>(pitchbendRange * 8192)),
                                      curTicks);
           }
           else if (marker->name == "tremelo") {
@@ -285,17 +282,18 @@ bool QSoundSeq::PostLoad() {
             lfoStage = 0;
             lfoCents = 0;
             if (vibrato > 0)
-              track->InsertPitchBend(channel, (short) (((0 + pitchbend) / static_cast<double>( pitchbendRange) * 8192), curTicks);
+              track->InsertPitchBend(channel, static_cast<short>((0 + pitchbend) / static_cast<double>( pitchbendRange * 8192)), curTicks);
             if (tremelo > 0)
               track->InsertExpression(channel, 127, curTicks);
           }
           else if (marker->name == "pitchbend") {
-            pitchbend = (short) (((char) marker->databyte1 / 256.0) * 100);
+            pitchbend = static_cast<short>((static_cast<char>(marker->databyte1) / 256.0) * 100);
             track->InsertPitchBend(channel,
-                                   (short) (((lfoCents + pitchbend) / static_cast<double>( pitchbendRange) * 8192),
+                                   static_cast<short>((lfoCents + pitchbend) / static_cast<double>(pitchbendRange * 8192)),
                                    curTicks);
           }
         }
+        default:
           break;
       }
       startAbsTicks = curTicks;
@@ -312,8 +310,8 @@ bool QSoundSeq::PostLoad() {
 // *************
 
 
-QSoundTrack::QSoundTrack(QSoundSeq *parentSeq, long offset, long length)
-    : SeqTrack(parentSeq, offset, length) {
+QSoundTrack::QSoundTrack(QSoundSeq *_parentSeq, long offset, long length)
+    : SeqTrack(_parentSeq, offset, length) {
   ResetVars();
 }
 
@@ -361,9 +359,9 @@ bool QSoundTrack::ReadEvent() {
     //if it's not a rest
     if ((status_byte & 0x1F) != 0) {
       // for 100% accuracy, we'd be shifting by 8, but that seems excessive for MIDI
-      uint32_t absDur = (uint32_t) (static_cast<double>( (delta / static_cast<double>( (256 << 4)) * static_cast<double>( (dur << 4));
+      uint32_t absDur = static_cast<uint32_t> (static_cast<double>(delta) / static_cast<double>( (256 << 4)) * static_cast<double>( (dur << 4)));
 
-      key = (status_byte & 0x1F) + octave_table[noteState & 0x0F] - 1;
+      auto key = (status_byte & 0x1F) + octave_table[noteState & 0x0F] - 1;
 
       // Tie note
       if ((noteState & 0x40) > 0) {
@@ -447,10 +445,10 @@ bool QSoundTrack::ReadEvent() {
         break;
 
       case 0x05 : {
-        QSoundVer fmt_version = ((QSoundSeq *) parentSeq)->fmt_version;
+//        QSoundVer fmt_version = dynamic_cast<QSoundSeq *>(parentSeq)->fmt_version;
         //if (isEqual(fmt_version, 1.71))
 
-        if (((QSoundSeq *) parentSeq)->fmt_version >= VER_140) {
+        if (dynamic_cast<QSoundSeq *>(parentSeq)->fmt_version >= VER_140) {
           // This byte is clearly the desired BPM, however there is a loss of resolution when the driver
           // converts this value because it is represented with 16 bits... See the table in sfa3 at 0x3492.
           // I've decided to keep the desired BPM rather than use the exact tempo value from the table
@@ -487,7 +485,7 @@ bool QSoundTrack::ReadEvent() {
 
       case 0x07 :
         vol = GetByte(curOffset++);
-        vol = ConvertPercentAmpToStdMidiVal(vol_table[vol] / static_cast<double>( 0x1FFF);
+        vol = ConvertPercentAmpToStdMidiVal(vol_table[vol] / static_cast<double>( 0x1FFF));
         this->AddVol(beginOffset, curOffset - beginOffset, vol);
         break;
 
@@ -622,9 +620,11 @@ bool QSoundTrack::ReadEvent() {
           noteState &= 0x97;
           noteState |= GetByte(curOffset++);
           {
-            short jump = (GetByte(curOffset++) << 8) + GetByte(curOffset++);
+            auto byte1Addr = curOffset++;
+            auto byte2Addr = curOffset++;
+            short _jump = (GetByte(byte1Addr) << 8) + GetByte(byte2Addr);
             AddGenericEvent(beginOffset, curOffset - beginOffset, L"Loop Break", L"", CLR_LOOP);
-            curOffset += jump;
+            curOffset += _jump;
           }
         }
         else
@@ -633,9 +633,11 @@ bool QSoundTrack::ReadEvent() {
 
       // Loop Always
       case 0x16 : {
-        short jump = (GetByte(curOffset++) << 8) + GetByte(curOffset++);
+        auto byte1Addr = curOffset++;
+        auto byte2Addr = curOffset++;
+        short _jump = (GetByte(byte1Addr) << 8) + GetByte(byte2Addr);
         bool bResult = AddLoopForever(beginOffset, 3);
-        curOffset += jump;
+        curOffset += _jump;
         return bResult;
         break;
       }
@@ -797,7 +799,7 @@ bool QSoundTrack::ReadEvent() {
         break;
       case 0x1F : {
         uint8_t value = GetByte(curOffset++);
-        if (((QSoundSeq *) parentSeq)->fmt_version < VER_116) {
+        if (dynamic_cast<QSoundSeq *>(parentSeq)->fmt_version < VER_116) {
           AddBankSelectNoItem(2 + (value / 128));
           AddProgramChange(beginOffset, curOffset - beginOffset, value % 128);
         }
@@ -811,20 +813,8 @@ bool QSoundTrack::ReadEvent() {
       }
 
       case 0x20 :
-        curOffset++;
-        AddUnknown(beginOffset, curOffset - beginOffset);
-        break;
-
       case 0x21 :
-        curOffset++;
-        AddUnknown(beginOffset, curOffset - beginOffset);
-        break;
-
       case 0x22 :
-        curOffset++;
-        AddUnknown(beginOffset, curOffset - beginOffset);
-        break;
-
       case 0x23 :
         curOffset++;
         AddUnknown(beginOffset, curOffset - beginOffset);

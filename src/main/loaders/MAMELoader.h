@@ -14,7 +14,7 @@ enum LoadMethod {
 using namespace std;
 
 struct MAMERomGroupEntry {
-  MAMERomGroupEntry() : file(nullptr) { }
+  MAMERomGroupEntry() = default;
   template<class T>
   bool GetAttribute(const std::string &attrName, T *out) {
     string strValue = attributes[attrName];
@@ -26,24 +26,24 @@ struct MAMERomGroupEntry {
   }
   bool GetHexAttribute(const std::string &attrName, uint32_t *out);
 
-  LoadMethod loadmethod;
-  std::string type;
-  std::string encryption;
-  std::map<const std::string, std::string> attributes;
-  std::list<std::string> roms;
-  VirtFile *file;
+  LoadMethod loadmethod{};
+  std::string type{};
+  std::string encryption{};
+  std::map<const std::string, std::string> attributes{};
+  std::list<std::string> roms{};
+  VirtFile *file{};
 };
 
 struct MAMEGameEntry {
   MAMEGameEntry() = default;
   MAMERomGroupEntry *GetRomGroupOfType(const std::string &strType);
 
-  std::string name;
-  std::string format;
+  std::string name{};
+  std::string format{};
   float fmt_version{};
-  std::string fmt_version_str;
+  std::string fmt_version_str{};
   //map<const std::string, const std::string> attributes;
-  std::list<MAMERomGroupEntry> romgroupentries;
+  std::list<MAMERomGroupEntry> romgroupentries{};
 };
 
 typedef std::map<std::string, MAMEGameEntry *> GameMap;

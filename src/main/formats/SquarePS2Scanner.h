@@ -6,9 +6,9 @@ class SquarePS2Scanner:
  public:
   SquarePS2Scanner();
  public:
-  ~SquarePS2Scanner();
+  ~SquarePS2Scanner() override;
 
-  virtual void Scan(RawFile *file, void *info = 0);
+  void Scan(RawFile *file, void *info = 0) override;
   void SearchForBGMSeq(RawFile *file);
   void SearchForWDSet(RawFile *file);
 };

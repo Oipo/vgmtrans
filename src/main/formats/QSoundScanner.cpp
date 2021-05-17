@@ -10,7 +10,7 @@ using namespace std;
 //#define qs_samp_info_TABLE_OFFSET 0x8000
 
 void QSoundScanner::Scan(RawFile *file, void *info) {
-  MAMEGameEntry *gameentry = (MAMEGameEntry *) info;
+  MAMEGameEntry *gameentry = static_cast<MAMEGameEntry *>(info);
   MAMERomGroupEntry *seqRomGroupEntry = gameentry->GetRomGroupOfType("audiocpu");
   MAMERomGroupEntry *sampsRomGroupEntry = gameentry->GetRomGroupOfType("qsound");
   if (!seqRomGroupEntry || !sampsRomGroupEntry)
@@ -23,7 +23,7 @@ void QSoundScanner::Scan(RawFile *file, void *info) {
   uint32_t artic_table_offset = 0;
   uint32_t artic_table_length = 0x800;
   uint32_t num_instr_banks;
-  uint32_t instr_tables_end = 0;
+//  uint32_t instr_tables_end = 0;
   if (!seqRomGroupEntry->file || !sampsRomGroupEntry->file ||
       !seqRomGroupEntry->GetHexAttribute("seq_table", &seq_table_offset) ||
       !seqRomGroupEntry->GetHexAttribute("samp_table", &samp_table_offset) ||
@@ -79,7 +79,7 @@ void QSoundScanner::Scan(RawFile *file, void *info) {
 
   RawFile *programFile = seqRomGroupEntry->file;
   RawFile *samplesFile = sampsRomGroupEntry->file;
-  uint32_t nProgramFileLength = programFile->size();
+//  uint32_t nProgramFileLength = programFile->size();
 
   // LOAD INSTRUMENTS AND SAMPLES
 
@@ -161,8 +161,6 @@ void QSoundScanner::Scan(RawFile *file, void *info) {
       delete coll;
     }
   }
-
-  return;
 }
 
 QSoundVer QSoundScanner::GetVersionEnum(string &versionStr) {

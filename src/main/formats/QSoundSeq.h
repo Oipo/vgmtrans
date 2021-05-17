@@ -8,12 +8,12 @@ enum QSoundVer: uint8_t;
 class QSoundSeq:
     public VGMSeq {
  public:
-  QSoundSeq(RawFile *file, uint32_t offset, QSoundVer fmt_version, std::wstring &name);
-  virtual ~QSoundSeq();
+  QSoundSeq(RawFile *file, uint32_t offset, QSoundVer fmt_version, std::wstring &_name);
+  ~QSoundSeq() override;
 
   bool GetHeaderInfo() override;
-  virtual bool GetTrackPointers();
-  virtual bool PostLoad();
+  bool GetTrackPointers() override;
+  bool PostLoad() override;
 
  public:
   QSoundVer fmt_version;
@@ -23,12 +23,12 @@ class QSoundSeq:
 class QSoundTrack
     : public SeqTrack {
  public:
-  QSoundTrack(QSoundSeq *parentSeq, long offset = 0, long length = 0);
-  virtual void ResetVars();
-  virtual bool ReadEvent();
+  QSoundTrack(QSoundSeq *_parentSeq, long offset = 0, long length = 0);
+  void ResetVars() override;
+  bool ReadEvent() override;
 
  private:
-  QSoundVer GetVersion() { return ((QSoundSeq *) this->parentSeq)->fmt_version; }
+  QSoundVer GetVersion() { return dynamic_cast<QSoundSeq *>(this->parentSeq)->fmt_version; }
 
   bool bPrevNoteTie;
   uint8_t prevTieNote;
@@ -38,4 +38,5 @@ class QSoundTrack
   uint8_t bank;
   uint8_t loop[4];
   uint32_t loopOffset[4];    //used for detecting infinite loops
+  uint32_t dur;
 };

@@ -48,11 +48,11 @@ class MoriSnesInstrSet:
  public:
   MoriSnesInstrSet(RawFile *file,
                    MoriSnesVersion ver,
-                   uint32_t spcDirAddr,
-                   std::vector<uint16_t> instrumentAddresses,
-                   std::map<uint16_t, MoriSnesInstrHintDir> instrumentHints,
-                   const std::wstring &name = L"MoriSnesInstrSet");
-  virtual ~MoriSnesInstrSet();
+                   uint32_t _spcDirAddr,
+                   std::vector<uint16_t> _instrumentAddresses,
+                   std::map<uint16_t, MoriSnesInstrHintDir> _instrumentHints,
+                   const std::wstring &_name = L"MoriSnesInstrSet");
+  ~MoriSnesInstrSet() override;
 
   bool GetHeaderInfo() override;
   bool GetInstrPointers() override;
@@ -75,11 +75,11 @@ class MoriSnesInstr
  public:
   MoriSnesInstr(VGMInstrSet *instrSet,
                 MoriSnesVersion ver,
-                uint8_t instrNum,
-                uint32_t spcDirAddr,
-                const MoriSnesInstrHintDir &instrHintDir,
-                const std::wstring &name = L"MoriSnesInstr");
-  virtual ~MoriSnesInstr();
+                uint8_t _instrNum,
+                uint32_t _spcDirAddr,
+                const MoriSnesInstrHintDir &_instrHintDir,
+                const std::wstring &_name = L"MoriSnesInstr");
+  ~MoriSnesInstr() override;
 
   bool LoadInstr() override;
 

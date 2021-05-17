@@ -351,24 +351,23 @@ void PSXConvADSR(T *realADSR,
 
   //Calculations are done, so now add the articulation data
   //artic->AddADSR(attack_time, Am, decay_time, sustain_lev, release_time, 0);
-  return;
 }
 
 
 class PSXSampColl
     : public VGMSampColl {
  public:
-  PSXSampColl(const std::string &format, RawFile *rawfile, uint32_t offset, uint32_t length = 0);
-  PSXSampColl(const std::string &format, VGMInstrSet *instrset, uint32_t offset, uint32_t length = 0);
-  PSXSampColl(const std::string &format,
+  PSXSampColl(const std::string &_format, RawFile *_rawfile, uint32_t offset, uint32_t length = 0);
+  PSXSampColl(const std::string &_format, VGMInstrSet *instrset, uint32_t offset, uint32_t length = 0);
+  PSXSampColl(const std::string &_format,
               VGMInstrSet *instrset,
               uint32_t offset,
               uint32_t length,
-              const std::vector<SizeOffsetPair> &vagLocations);
+              std::vector<SizeOffsetPair> _vagLocations);
 
-  virtual bool GetSampleInfo();        //retrieve sample info, including pointers to data, # channels, rate, etc.
+  bool GetSampleInfo() override;        //retrieve sample info, including pointers to data, # channels, rate, etc.
   static PSXSampColl *SearchForPSXADPCM(RawFile *file, const std::string &format);
-  static const std::vector<PSXSampColl *> SearchForPSXADPCMs(RawFile *file, const std::string &format);
+  static std::vector<PSXSampColl *> SearchForPSXADPCMs(RawFile *file, const std::string &format);
 
  protected:
   std::vector<SizeOffsetPair> vagLocations;
@@ -380,13 +379,13 @@ class PSXSamp
  public:
   PSXSamp(VGMSampColl *sampColl, uint32_t offset, uint32_t length, uint32_t dataOffset,
           uint32_t dataLen, uint8_t nChannels, uint16_t theBPS,
-          uint32_t theRate, std::wstring name, bool bSetLoopOnConversion = true);
-  virtual ~PSXSamp();
+          uint32_t theRate, std::wstring _name, bool _bSetloopOnConversion = true);
+  ~PSXSamp() override;
 
   // ratio of space conserved.  should generally be > 1
   // used to calculate both uncompressed sample size and loopOff after conversion
-  virtual double GetCompressionRatio();
-  virtual void ConvertToStdWave(uint8_t *buf);
+  double GetCompressionRatio() override;
+  void ConvertToStdWave(uint8_t *buf) override;
   void SetLoopOnConversion(bool bDoIt) { bSetLoopOnConversion = bDoIt; }
 
   static uint32_t GetSampleLength(RawFile *file, uint32_t offset, uint32_t endOffset, bool &loop);

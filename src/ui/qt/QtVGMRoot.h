@@ -13,34 +13,34 @@ class QtVGMRoot
 
 public:
     QtVGMRoot();
-    virtual ~QtVGMRoot();
+    ~QtVGMRoot() override;
 
-    virtual void UI_SetRootPtr(VGMRoot** theRoot);
-    virtual void UI_PreExit();
-    virtual void UI_Exit();
-    virtual void UI_AddRawFile(RawFile* newFile);
-    virtual void UI_CloseRawFile(RawFile* targFile);
+    void UI_SetRootPtr(VGMRoot** theRoot) override;
+    void UI_PreExit() override;
+    void UI_Exit() override;
+    void UI_AddRawFile(RawFile* newFile) override;
+    void UI_CloseRawFile(RawFile* targFile) override;
 
-    virtual void UI_OnBeginScan();
-    virtual void UI_SetScanInfo();
-    virtual void UI_OnEndScan();
-    virtual void UI_AddVGMFile(VGMFile* theFile);
-    virtual void UI_AddVGMSeq(VGMSeq* theSeq);
-    virtual void UI_AddVGMInstrSet(VGMInstrSet* theInstrSet);
-    virtual void UI_AddVGMSampColl(VGMSampColl* theSampColl);
-    virtual void UI_AddVGMMisc(VGMMiscFile* theMiscFile);
-    virtual void UI_AddVGMColl(VGMColl* theColl);
-    virtual void UI_AddLogItem(LogItem* theLog);
-    virtual void UI_RemoveVGMFile(VGMFile* targFile);
-    virtual void UI_RemoveVGMColl(VGMColl* targColl);
-    virtual void UI_BeginRemoveVGMFiles();
-    virtual void UI_EndRemoveVGMFiles();
+    void UI_OnBeginScan() override;
+    void UI_SetScanInfo() override;
+    void UI_OnEndScan() override;
+    void UI_AddVGMFile(VGMFile* theFile) override;
+    void UI_AddVGMSeq(VGMSeq* theSeq) override;
+    void UI_AddVGMInstrSet(VGMInstrSet* theInstrSet) override;
+    void UI_AddVGMSampColl(VGMSampColl* theSampColl) override;
+    void UI_AddVGMMisc(VGMMiscFile* theMiscFile) override;
+    void UI_AddVGMColl(VGMColl* theColl) override;
+    void UI_AddLogItem(LogItem* theLog) override;
+    void UI_RemoveVGMFile(VGMFile* targFile) override;
+    void UI_RemoveVGMColl(VGMColl* targColl) override;
+    void UI_BeginRemoveVGMFiles() override;
+    void UI_EndRemoveVGMFiles() override;
     //virtual void UI_RemoveVGMFileRange(VGMFile* first, VGMFile* last);
-    virtual void UI_AddItem(VGMItem* item, VGMItem* parent, const std::wstring& itemName, void* UI_specific);
-    virtual void UI_AddItemSet(VGMFile* file, std::vector<ItemSet>* itemset);
-    virtual std::wstring UI_GetOpenFilePath(const std::wstring& suggestedFilename = L"", const std::wstring& extension = L"");
-    virtual std::wstring UI_GetSaveFilePath(const std::wstring& suggestedFilename, const std::wstring& extension = L"");
-    virtual std::wstring UI_GetSaveDirPath(const std::wstring& suggestedDir = L"");
+    void UI_AddItem(VGMItem* item, VGMItem* parent, const std::wstring& itemName, void* UI_specific) override;
+    void UI_AddItemSet(VGMFile* file, std::vector<ItemSet>* itemset) override;
+    std::wstring UI_GetOpenFilePath(const std::wstring& suggestedFilename = L"", const std::wstring& extension = L"") override;
+    std::wstring UI_GetSaveFilePath(const std::wstring& suggestedFilename, const std::wstring& extension = L"") override;
+    std::wstring UI_GetSaveDirPath(const std::wstring& suggestedDir = L"") override;
 
 signals:
     void UI_AddedRawFile();

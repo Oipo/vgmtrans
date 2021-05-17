@@ -8,6 +8,10 @@ QIcon iconForFileType(FileType filetype) {
             return QIcon(":/images/piano-32.png");
         case FILETYPE_SAMPCOLL:
             return QIcon(":/images/audio_wave-32.png");
+        case FILETYPE_UNDEFINED:
+        case FILETYPE_MISC:
+          std::cout << "error, unknown filetype" << std::endl;
+          break;
     }
     return QIcon(":/images/audio_file-32.png");
 }
@@ -88,6 +92,9 @@ QColor colorForEventColor(uint8_t eventColor) {
         case CLR_LOOP:              return QColor(188, 63, 60, 255);
         case CLR_LOOPFOREVER:       return QColor(188, 63, 60, 255);
         case CLR_TRACKEND:          return QColor(158, 41, 39, 255);
+        default:
+          std::cout << "error, unknown filetype" << std::endl;
+          break;
     }
     return Qt::red;
 }

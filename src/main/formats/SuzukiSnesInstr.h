@@ -13,13 +13,13 @@ class SuzukiSnesInstrSet:
  public:
   SuzukiSnesInstrSet(RawFile *file,
                      SuzukiSnesVersion ver,
-                     uint32_t spcDirAddr,
-                     uint16_t addrSRCNTable,
-                     uint16_t addrVolumeTable,
-                     uint16_t addrADSRTable,
-                     uint16_t addrTuningTable,
-                     const std::wstring &name = L"SuzukiSnesInstrSet");
-  virtual ~SuzukiSnesInstrSet();
+                     uint32_t _spcDirAddr,
+                     uint16_t _addrSRCNTable,
+                     uint16_t _addrVolumeTable,
+                     uint16_t _addrADSRTable,
+                     uint16_t _addrTuningTable,
+                     const std::wstring &_name = L"SuzukiSnesInstrSet");
+  ~SuzukiSnesInstrSet() override;
 
   bool GetHeaderInfo() override;
   bool GetInstrPointers() override;
@@ -44,14 +44,14 @@ class SuzukiSnesInstr
  public:
   SuzukiSnesInstr(VGMInstrSet *instrSet,
                   SuzukiSnesVersion ver,
-                  uint8_t instrNum,
-                  uint32_t spcDirAddr,
-                  uint16_t addrSRCNTable,
-                  uint16_t addrVolumeTable,
-                  uint16_t addrADSRTable,
-                  uint16_t addrTuningTable,
-                  const std::wstring &name = L"SuzukiSnesInstr");
-  virtual ~SuzukiSnesInstr();
+                  uint8_t _instrNum,
+                  uint32_t _spcDirAddr,
+                  uint16_t _addrSRCNTable,
+                  uint16_t _addrVolumeTable,
+                  uint16_t _addrADSRTable,
+                  uint16_t _addrTuningTable,
+                  const std::wstring &_name = L"SuzukiSnesInstr");
+  ~SuzukiSnesInstr() override;
 
   bool LoadInstr() override;
 
@@ -80,7 +80,7 @@ class SuzukiSnesRgn
                 uint16_t addrVolumeTable,
                 uint16_t addrADSRTable,
                 uint16_t addrTuningTable);
-  virtual ~SuzukiSnesRgn();
+  ~SuzukiSnesRgn() override;
 
   bool LoadRgn() override;
 

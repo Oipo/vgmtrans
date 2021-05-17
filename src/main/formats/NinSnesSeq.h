@@ -111,19 +111,18 @@ class NinSnesSeq:
              NinSnesVersion ver,
              uint32_t offset,
              uint8_t percussion_base = 0,
-             const std::vector<uint8_t> &theVolumeTable = std::vector<uint8_t>(),
-             const std::vector<uint8_t> &theDurRateTable = std::vector<uint8_t>(),
+             std::vector<uint8_t> theVolumeTable = std::vector<uint8_t>(),
+             std::vector<uint8_t> theDurRateTable = std::vector<uint8_t>(),
              std::wstring theName = L"NinSnes Seq");
-  virtual ~NinSnesSeq();
+  ~NinSnesSeq() override;
 
   bool GetHeaderInfo() override;
-  virtual void ResetVars();
-  virtual bool ReadEvent(long stopTime);
+  void ResetVars() override;
+  bool ReadEvent(long stopTime) override;
 
-  double GetTempoInBPM();
   double GetTempoInBPM(uint8_t tempo);
 
-  uint16_t ConvertToAPUAddress(uint16_t offset);
+  uint16_t ConvertToAPUAddress(uint16_t offset) const;
   uint16_t GetShortAddress(uint32_t offset);
 
   NinSnesVersion version;
@@ -175,7 +174,7 @@ class NinSnesSection
  public:
   NinSnesSection(NinSnesSeq *parentFile, long offset = 0, long length = 0);
 
-  virtual bool GetTrackPointers();
+  bool GetTrackPointers() override;
 
   uint16_t ConvertToAPUAddress(uint16_t offset);
   uint16_t GetShortAddress(uint32_t offset);
@@ -185,10 +184,10 @@ class NinSnesTrack
     : public SeqTrack {
  public:
   NinSnesTrack
-      (NinSnesSection *parentSection, long offset = 0, long length = 0, const std::wstring &theName = L"NinSnes Track");
+      (NinSnesSection *_parentSection, long offset = 0, long length = 0, const std::wstring &theName = L"NinSnes Track");
 
-  virtual void ResetVars();
-  virtual bool ReadEvent();
+  void ResetVars() override;
+  bool ReadEvent() override;
 
   uint16_t ConvertToAPUAddress(uint16_t offset);
   uint16_t GetShortAddress(uint32_t offset);

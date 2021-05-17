@@ -8,7 +8,7 @@
 class SonyPS2Seq:
     public VGMSeqNoTrks {
  public:
-  typedef struct _HdrCk {
+  struct HdrCk {
     uint32_t Creator;
     uint32_t Type;
     uint32_t chunkSize;
@@ -17,13 +17,13 @@ class SonyPS2Seq:
     uint32_t midiChunkAddr;
     uint32_t seSequenceChunkAddr;
     uint32_t seSongChunkAddr;
-  } HdrCk;
+  };
 
   SonyPS2Seq(RawFile *file, uint32_t offset);
-  virtual ~SonyPS2Seq();
+  ~SonyPS2Seq() override;
 
   bool GetHeaderInfo() override;
-  virtual bool ReadEvent();
+  bool ReadEvent() override;
   uint8_t GetDataByte(uint32_t offset);
 
  protected:

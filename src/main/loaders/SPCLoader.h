@@ -6,7 +6,7 @@ class SPCLoader:
  public:
   SPCLoader();
  public:
-  virtual ~SPCLoader();
+  ~SPCLoader() override;
 
-  virtual PostLoadCommand Apply(RawFile *theFile);
+  PostLoadCommand Apply(RawFile *theFile) override;
 };

@@ -51,13 +51,13 @@ class MoriSnesSeq
     : public VGMSeq {
  public:
   MoriSnesSeq(RawFile *file, MoriSnesVersion ver, uint32_t seqdataOffset, std::wstring newName = L"Mint SNES Seq");
-  virtual ~MoriSnesSeq();
+  ~MoriSnesSeq() override;
 
   bool GetHeaderInfo() override;
-  virtual bool GetTrackPointers();
-  virtual void ResetVars();
+  bool GetTrackPointers() override;
+  void ResetVars() override;
 
-  double GetTempoInBPM(uint8_t tempo, bool fastTempo);
+  double GetTempoInBPM(uint8_t tempo, bool _fastTempo);
 
   MoriSnesVersion version;
   std::map<uint8_t, MoriSnesSeqEventType> EventMap;
@@ -77,8 +77,8 @@ class MoriSnesTrack
     : public SeqTrack {
  public:
   MoriSnesTrack(MoriSnesSeq *parentFile, long offset = 0, long length = 0);
-  virtual void ResetVars();
-  virtual bool ReadEvent();
+  void ResetVars() override;
+  bool ReadEvent() override;
 
   void ParseInstrument(uint16_t instrAddress, uint8_t instrNum);
   void ParseInstrumentEvents(uint16_t offset, uint8_t instrNum, bool percussion = false, uint8_t percNoteKey = 0);

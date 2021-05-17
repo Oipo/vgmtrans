@@ -7,8 +7,7 @@ OrgSeq::OrgSeq(RawFile *file, uint32_t offset)
     : VGMSeq(OrgFormat::name, file, offset) {
 }
 
-OrgSeq::~OrgSeq() {
-}
+OrgSeq::~OrgSeq() = default;
 
 bool OrgSeq::GetHeaderInfo() {
   waitTime = GetShort(dwOffset + 6);
@@ -54,8 +53,8 @@ bool OrgTrack::LoadTrack(uint32_t trackNum, uint32_t stopOffset, long stopDelta)
   pMidiTrack->SetChannelGroup(channelGroup);
 
   if (trackNum == 0) {
-    AddTempo(0, 0, ((OrgSeq *) parentSeq)->waitTime * 4000);
-    AddTimeSig(0, 0, 4, 4, (uint8_t) parentSeq->GetPPQN());
+    AddTempo(0, 0, dynamic_cast<OrgSeq *>(parentSeq)->waitTime * 4000);
+    AddTimeSig(0, 0, 4, 4,  parentSeq->GetPPQN());
   }
   if (channel == 10)
     AddProgramChange(0, 0, waveNum);
@@ -82,7 +81,7 @@ bool OrgTrack::ReadEvent() {
   if (pan == 0xFF)
     pan = prevPan;
   else
-    pan = (uint8_t) (GetByte(curOffset + (numNotes - curNote) * 4 + numNotes * 3 + curNote)
+    pan = (GetByte(curOffset + (numNotes - curNote) * 4 + numNotes * 3 + curNote)
         * 10.66666666666666666666666666666);
   //if (newPan > 0x7F)	//sometimes the value is 0xFF, even though the range would seem to be 0-C according to the org editor
   //	newPan = 64;	//in this case, set it to the center position, i can't distinguish it from center on hearing tests

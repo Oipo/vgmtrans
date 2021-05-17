@@ -9,9 +9,9 @@ class TriAcePS1Scanner:
  public:
   TriAcePS1Scanner();
  public:
-  ~TriAcePS1Scanner();
+  ~TriAcePS1Scanner() override;
 
-  virtual void Scan(RawFile *file, void *info = 0);
+  void Scan(RawFile *file, void *info = 0) override;
   void SearchForSLZSeq(RawFile *file);
   void SearchForInstrSet(RawFile *file, std::vector<TriAcePS1InstrSet *> &instrsets);
   TriAcePS1Seq *TriAceSLZDecompress(RawFile *file, uint32_t cfOff);

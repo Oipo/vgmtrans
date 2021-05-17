@@ -28,9 +28,9 @@ bool MAMERomGroupEntry::GetHexAttribute(const std::string &attrName, uint32_t *o
 }
 
 MAMERomGroupEntry *MAMEGameEntry::GetRomGroupOfType(const string &strType) {
-  for (list<MAMERomGroupEntry>::iterator it = romgroupentries.begin(); it != romgroupentries.end(); it++) {
-    if (it->type.compare(strType) == 0)
-      return &(*it);
+  for (auto &romgroup: romgroupentries) {
+    if (romgroup.type == strType)
+      return &romgroup;
   }
   return nullptr;
 }
@@ -124,7 +124,7 @@ int MAMELoader::LoadRomGroupEntry(TiXmlElement *romgroupElmt, MAMEGameEntry *gam
     // NameTStr() is returning an std::string because we have defined TIXML_USE_STL
     const string &attrName = attr->NameTStr();
     // Ignore the attribute if it is "type" or "load_method"; we already dealt with those, they are mandated.
-    if (attrName.compare("type") && attrName.compare("load_method"))
+    if (attrName == "type" && attrName =="load_method")
       romgroupentry.attributes[attrName] = attr->ValueStr();
   }
 
@@ -143,7 +143,7 @@ int MAMELoader::LoadRomGroupEntry(TiXmlElement *romgroupElmt, MAMEGameEntry *gam
     const string &elmtName = romElmt->ValueStr();
     if (elmtName != "rom")
       return 1;
-    romgroupentry.roms.push_back(romElmt->GetText());
+    romgroupentry.roms.emplace_back(romElmt->GetText());
   }
 
   gameentry->romgroupentries.push_back(romgroupentry);
@@ -164,7 +164,7 @@ PostLoadCommand MAMELoader::Apply(RawFile *file) {
   strncpy(filename, fullfilename.c_str(), endoffilename - fullfilename.c_str());
 
   // look up the game name in our little database
-  GameMap::iterator it = gamemap.find(filename);
+  auto it = gamemap.find(filename);
   if (it == gamemap.end())        //if we couldn't find an entry for the game name
     return KEEP_IT;               //don't do anything
 
@@ -187,17 +187,15 @@ PostLoadCommand MAMELoader::Apply(RawFile *file) {
   //Now we try to load the rom groups.  We save the created file into the rom MAMERomGroupEntry's file member
   // Note that this does not check for an error, so the romgroup entry's file member may receive nullptr.
   // This must be checked for in Scan().
-  for (list<MAMERomGroupEntry>::iterator it = gameentry->romgroupentries.begin();
-       it != gameentry->romgroupentries.end(); it++)
-    it->file = LoadRomGroup(&(*it), gameentry->format, cur_file);
-
+  for (auto &romgroup : gameentry->romgroupentries) {
+    romgroup.file = LoadRomGroup(&romgroup, gameentry->format, cur_file);
+  }
 
   fmt->GetScanner().Scan(nullptr, gameentry);
 
-  for (list<MAMERomGroupEntry>::iterator it = gameentry->romgroupentries.begin();
-       it != gameentry->romgroupentries.end(); it++) {
-    if (it->file != nullptr)
-      pRoot->SetupNewRawFile(it->file);
+  for (auto &romgroup : gameentry->romgroupentries) {
+    if (romgroup.file != nullptr)
+      pRoot->SetupNewRawFile(romgroup.file);
   }
 
   ret = unzClose(cur_file);
@@ -213,42 +211,42 @@ VirtFile *MAMELoader::LoadRomGroup(MAMERomGroupEntry *entry, const string &forma
   uint32_t destFileSize = 0;
   list<pair<uint8_t *, uint32_t>> buffers;
   list<string> &roms = entry->roms;
-  for (list<string>::iterator it = roms.begin(); it != roms.end(); ++it) {
-    int ret = unzLocateFile(cur_file, it->c_str(), 0);
+  for (auto & rom : roms) {
+    long ret = unzLocateFile(cur_file, rom.c_str(), 0);
     if (ret == UNZ_END_OF_LIST_OF_FILE) {
       //file not found
       DeleteBuffers(buffers);
-      return 0;
+      return nullptr;
     }
     unz_file_info info;
     ret = unzGetCurrentFileInfo(cur_file, &info, 0, 0, 0, 0, 0, 0);
     if (ret != UNZ_OK) {
       //could not get zipped file info
       DeleteBuffers(buffers);
-      return 0;
+      return nullptr;
     }
     destFileSize += info.uncompressed_size;
     ret = unzOpenCurrentFile(cur_file);
     if (ret != UNZ_OK) {
       //could not open file in zip archive
       DeleteBuffers(buffers);
-      return 0;
+      return nullptr;
     }
     uint8_t *buf = new uint8_t[info.uncompressed_size];
     ret = unzReadCurrentFile(cur_file, buf, info.uncompressed_size);
-    if (ret != info.uncompressed_size) {
+    if (ret != static_cast<long>(info.uncompressed_size)) {
       //error reading file in zip archive
       delete[] buf;
       DeleteBuffers(buffers);
-      return 0;
+      return nullptr;
     }
     ret = unzCloseCurrentFile(cur_file);
     if (ret != UNZ_OK) {
       //could not close file in zip archive
       DeleteBuffers(buffers);
-      return 0;
+      return nullptr;
     }
-    buffers.push_back(make_pair(buf, info.uncompressed_size));
+    buffers.emplace_back(buf, info.uncompressed_size);
   }
 
   uint8_t *destFile = new uint8_t[destFileSize];
@@ -257,9 +255,9 @@ VirtFile *MAMELoader::LoadRomGroup(MAMERomGroupEntry *entry, const string &forma
     // append the files
     case LM_APPEND: {
       uint32_t curOffset = 0;
-      for (list<pair<uint8_t *, uint32_t>>::iterator it = buffers.begin(); it != buffers.end(); ++it) {
-        memcpy(destFile + curOffset, it->first, it->second);
-        curOffset += it->second;
+      for (auto & buffer : buffers) {
+        memcpy(destFile + curOffset, buffer.first, buffer.second);
+        curOffset += buffer.second;
       }
       break;
     }
@@ -267,15 +265,15 @@ VirtFile *MAMELoader::LoadRomGroup(MAMERomGroupEntry *entry, const string &forma
     // append the files and swap every 16 byte word
     case LM_APPEND_SWAP16: {
       uint32_t curDestOffset = 0;
-      for (list<pair<uint8_t *, uint32_t>>::iterator it = buffers.begin(); it != buffers.end(); ++it) {
+      for (auto & buffer : buffers) {
 
-        uint8_t *romBuf = it->first;
-        uint32_t romSize = it->second;
+        uint8_t *romBuf = buffer.first;
+        uint32_t romSize = buffer.second;
         for (uint32_t i = 0; i < romSize; i += 2) {
           destFile[curDestOffset + i] = romBuf[i + 1];
           destFile[curDestOffset + i + 1] = romBuf[i];
         }
-        curDestOffset += it->second;
+        curDestOffset += buffer.second;
       }
       break;
     }
@@ -285,8 +283,8 @@ VirtFile *MAMELoader::LoadRomGroup(MAMERomGroupEntry *entry, const string &forma
       uint32_t curDestOffset = 0;
       uint32_t curRomOffset = 0;
       while (curDestOffset < destFileSize) {
-        for (list<pair<uint8_t *, uint32_t>>::iterator it = buffers.begin(); it != buffers.end(); ++it)
-          destFile[curDestOffset++] = it->first[curRomOffset];
+        for (auto & buffer : buffers)
+          destFile[curDestOffset++] = buffer.first[curRomOffset];
         curRomOffset++;
       }
       break;
@@ -303,7 +301,7 @@ VirtFile *MAMELoader::LoadRomGroup(MAMERomGroupEntry *entry, const string &forma
           !entry->GetHexAttribute("kabuki_addr_key", &addr_key) ||
           !entry->GetHexAttribute("kabuki_xor_key", &xor_key)) {
         delete[] destFile;
-        return 0;
+        return nullptr;
       }
       uint8_t *decrypt = new uint8_t[0x8000];
       KabukiDecrypter::kabuki_decode(destFile,
@@ -329,12 +327,12 @@ VirtFile *MAMELoader::LoadRomGroup(MAMERomGroupEntry *entry, const string &forma
   VirtFile *newVirtFile = new VirtFile(destFile, destFileSize, strstream.str());
   newVirtFile->DontUseLoaders();
   newVirtFile->DontUseScanners();
-  newVirtFile->SetProPreRatio((float) 0.80);
+  newVirtFile->SetProPreRatio(0.80);
   return newVirtFile;
 }
 
 
 void MAMELoader::DeleteBuffers(list<pair<uint8_t *, uint32_t>> &buffers) {
-  for (list<pair<uint8_t *, uint32_t>>::iterator it = buffers.begin(); it != buffers.end(); ++it)
-    delete[] it->first;
+  for (auto & buffer : buffers)
+    delete[] buffer.first;
 }

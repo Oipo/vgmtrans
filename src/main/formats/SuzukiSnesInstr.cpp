@@ -8,22 +8,21 @@
 
 SuzukiSnesInstrSet::SuzukiSnesInstrSet(RawFile *file,
                                        SuzukiSnesVersion ver,
-                                       uint32_t spcDirAddr,
-                                       uint16_t addrSRCNTable,
-                                       uint16_t addrVolumeTable,
-                                       uint16_t addrADSRTable,
-                                       uint16_t addrTuningTable,
-                                       const std::wstring &name) :
-    VGMInstrSet(SuzukiSnesFormat::name, file, addrSRCNTable, 0, name), version(ver),
-    spcDirAddr(spcDirAddr),
-    addrSRCNTable(addrSRCNTable),
-    addrVolumeTable(addrVolumeTable),
-    addrADSRTable(addrADSRTable),
-    addrTuningTable(addrTuningTable) {
+                                       uint32_t _spcDirAddr,
+                                       uint16_t _addrSRCNTable,
+                                       uint16_t _addrVolumeTable,
+                                       uint16_t _addrADSRTable,
+                                       uint16_t _addrTuningTable,
+                                       const std::wstring &_name) :
+    VGMInstrSet(SuzukiSnesFormat::name, file, _addrSRCNTable, 0, _name), version(ver),
+    spcDirAddr(_spcDirAddr),
+    addrSRCNTable(_addrSRCNTable),
+    addrVolumeTable(_addrVolumeTable),
+    addrTuningTable(_addrTuningTable),
+    addrADSRTable(_addrADSRTable) {
 }
 
-SuzukiSnesInstrSet::~SuzukiSnesInstrSet() {
-}
+SuzukiSnesInstrSet::~SuzukiSnesInstrSet() = default;
 
 bool SuzukiSnesInstrSet::GetHeaderInfo() {
   return true;
@@ -89,7 +88,7 @@ bool SuzukiSnesInstrSet::GetInstrPointers() {
                                                     instrName.str());
     aInstrs.push_back(newInstr);
   }
-  if (aInstrs.size() == 0) {
+  if (aInstrs.empty()) {
     return false;
   }
 
@@ -109,23 +108,22 @@ bool SuzukiSnesInstrSet::GetInstrPointers() {
 
 SuzukiSnesInstr::SuzukiSnesInstr(VGMInstrSet *instrSet,
                                  SuzukiSnesVersion ver,
-                                 uint8_t instrNum,
-                                 uint32_t spcDirAddr,
-                                 uint16_t addrSRCNTable,
-                                 uint16_t addrVolumeTable,
-                                 uint16_t addrADSRTable,
-                                 uint16_t addrTuningTable,
-                                 const std::wstring &name) :
-    VGMInstr(instrSet, addrSRCNTable, 0, 0, instrNum, name), version(ver),
-    spcDirAddr(spcDirAddr),
-    addrSRCNTable(addrSRCNTable),
-    addrVolumeTable(addrVolumeTable),
-    addrADSRTable(addrADSRTable),
-    addrTuningTable(addrTuningTable) {
+                                 uint8_t _instrNum,
+                                 uint32_t _spcDirAddr,
+                                 uint16_t _addrSRCNTable,
+                                 uint16_t _addrVolumeTable,
+                                 uint16_t _addrADSRTable,
+                                 uint16_t _addrTuningTable,
+                                 const std::wstring &_name) :
+    VGMInstr(instrSet, _addrSRCNTable, 0, 0, _instrNum, _name), version(ver),
+    spcDirAddr(_spcDirAddr),
+    addrSRCNTable(_addrSRCNTable),
+    addrVolumeTable(_addrVolumeTable),
+    addrTuningTable(_addrTuningTable),
+    addrADSRTable(_addrADSRTable) {
 }
 
-SuzukiSnesInstr::~SuzukiSnesInstr() {
-}
+SuzukiSnesInstr::~SuzukiSnesInstr() = default;
 
 bool SuzukiSnesInstr::LoadInstr() {
   uint32_t ofsADSREntry = addrSRCNTable + instrNum;
@@ -180,7 +178,7 @@ SuzukiSnesRgn::SuzukiSnesRgn(SuzukiSnesInstr *instr,
   AddSampNum(srcn, addrSRCNTable + instrNum, 1);
   AddSimpleItem(addrADSRTable + srcn * 2, 1, L"ADSR1");
   AddSimpleItem(addrADSRTable + srcn * 2 + 1, 1, L"ADSR2");
-  AddFineTune((int16_t) (fine_tuning / 256.0 * 100.0), addrTuningTable + srcn * 2, 1);
+  AddFineTune(static_cast<int16_t>(fine_tuning / 256.0 * 100.0), addrTuningTable + srcn * 2, 1);
   AddUnityKey(69 - coarse_tuning, addrTuningTable + srcn * 2 + 1, 1);
   AddVolume(vol / 256.0, addrVolumeTable + srcn * 2, 1);
   SNESConvADSR<VGMRgn>(this, adsr1, adsr2, 0);
@@ -188,8 +186,7 @@ SuzukiSnesRgn::SuzukiSnesRgn(SuzukiSnesInstr *instr,
   SetGuessedLength();
 }
 
-SuzukiSnesRgn::~SuzukiSnesRgn() {
-}
+SuzukiSnesRgn::~SuzukiSnesRgn() = default;
 
 bool SuzukiSnesRgn::LoadRgn() {
   return true;
